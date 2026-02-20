@@ -157,163 +157,119 @@ export default function Home() {
           {/* Dashboard Body */}
           <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-8 pt-6 custom-scrollbar">
             
-            {/* Reading Progress Graph Section */}
-            <div className="mb-10 bg-[#800000]/5 p-6 rounded-3xl border border-[#800000]/10">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-black text-black">Weekly Reading Progress</h2>
-                  <p className="text-sm text-gray-500">You're doing great this week!</p>
+            {/* Top Section */}
+            <div className="flex flex-col lg:flex-row gap-8 mb-10">
+              {/* Reading Progress Graph Section */}
+              <div className="flex-1 bg-[#800000]/5 p-6 rounded-[32px] border border-[#800000]/10 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-black text-black">Weekly Reading Progress</h2>
+                    <p className="text-sm text-gray-500 font-medium">You're doing great this week!</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-black text-[#800000]">85%</div>
+                    <div className="text-xs font-bold text-gray-400">Current Goal</div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-black text-[#800000]">85%</div>
-                  <div className="text-xs font-bold text-gray-400">Current Goal</div>
+                <div className="h-[200px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={progressData}>
+                      <defs>
+                        <linearGradient id="colorProgress" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#800000" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#800000" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                      <XAxis 
+                        dataKey="name" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{fill: '#9ca3af', fontSize: 12, fontWeight: 600}}
+                        dy={10}
+                      />
+                      <YAxis hide domain={[0, 100]} />
+                      <Tooltip 
+                        contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="progress" 
+                        stroke="#800000" 
+                        strokeWidth={3}
+                        fillOpacity={1} 
+                        fill="url(#colorProgress)" 
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
-              <div className="h-[200px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={progressData}>
-                    <defs>
-                      <linearGradient id="colorProgress" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#800000" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#800000" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{fill: '#9ca3af', fontSize: 12, fontWeight: 600}}
-                      dy={10}
-                    />
-                    <YAxis hide domain={[0, 100]} />
-                    <Tooltip 
-                      contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="progress" 
-                      stroke="#800000" 
-                      strokeWidth={3}
-                      fillOpacity={1} 
-                      fill="url(#colorProgress)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+
+              {/* Quick Actions / Stats */}
+              <div className="w-full lg:w-72 flex flex-col gap-4">
+                <div className="bg-white border-2 border-gray-50 p-6 rounded-[32px] flex-1 flex flex-col justify-center items-center text-center group hover:border-[#800000]/20 transition-all cursor-pointer">
+                  <div className="h-12 w-12 rounded-2xl bg-[#800000]/10 flex items-center justify-center text-[#800000] mb-3 group-hover:scale-110 transition-transform">
+                    <BookIcon />
+                  </div>
+                  <div className="text-2xl font-black text-black">12</div>
+                  <div className="text-xs font-bold text-gray-400 uppercase tracking-tighter">Books Read</div>
+                </div>
+                <div className="bg-[#800000] p-6 rounded-[32px] flex-1 flex flex-col justify-center items-center text-center group hover:scale-[1.02] transition-all cursor-pointer shadow-lg shadow-[#800000]/20">
+                  <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-transform">
+                    <HistoryIcon />
+                  </div>
+                  <div className="text-2xl font-black text-white">48h</div>
+                  <div className="text-xs font-bold text-white/60 uppercase tracking-tighter">Reading Time</div>
+                </div>
               </div>
             </div>
 
-            {/* Tabs & Search Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sticky top-0 bg-white/95 backdrop-blur-sm z-10 py-2 gap-4 sm:gap-0">
-              <div className="flex items-center gap-4 sm:gap-8 text-xs sm:text-sm font-bold text-gray-400 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 no-scrollbar">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => handleTabClick(tab)}
-                    className={`relative transition-all duration-300 py-1 whitespace-nowrap ${
-                      activeTab === tab
-                        ? "text-black"
-                        : "hover:text-[#800000]"
-                    }`}
-                  >
-                    {tab}
-                    {activeTab === tab && (
-                      <span className="absolute -bottom-1 left-0 h-1 w-full rounded-full bg-[#800000] animate-in slide-in-from-left-2 duration-300"></span>
-                    )}
-                  </button>
-                ))}
-              </div>
-              {searchQuery && (
-                <div className="text-sm font-bold text-gray-500">
-                  {searchQuery.startsWith("author:") ? (
-                    <>Search results for author: <span className="text-[#800000]">"{searchQuery.replace("author:", "")}"</span></>
-                  ) : (
-                    <>Search results for: <span className="text-[#800000]">"{searchQuery}"</span></>
-                  )}
-                </div>
-              )}
-              {selectedTopic && (
-                <div className="text-sm font-bold text-gray-500">
-                  Results for topic: <span className="text-[#800000]">"{selectedTopic}"</span>
-                </div>
-              )}
-              <div className="flex items-center gap-2 self-end sm:self-auto">
-                {startIndex > 0 && (
-                  <button 
-                    onClick={handlePrevPage}
-                    className="flex items-center gap-2 text-xs sm:text-sm font-black text-[#800000] hover:-translate-x-1 transition-transform bg-[#800000]/5 px-4 py-2 rounded-full"
-                  >
-                    <span className="rotate-180 flex"><ChevronRightIcon /></span> Prev
-                  </button>
-                )}
+            {/* Featured Section */}
+            <div className="mb-10">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-black text-black tracking-tight">Featured Books</h2>
                 <button 
-                  onClick={handleNextPage}
-                  className="flex items-center gap-2 text-xs sm:text-sm font-black text-[#800000] hover:translate-x-1 transition-transform bg-[#800000]/5 px-4 py-2 rounded-full"
+                  onClick={() => window.location.href = '/discover'}
+                  className="text-sm font-bold text-[#800000] hover:underline flex items-center gap-1"
                 >
-                  Next <ChevronRightIcon />
+                  Explore more <ChevronRightIcon />
                 </button>
               </div>
+              
+              {loading ? (
+                <div className="flex items-center justify-center h-64">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#800000]"></div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 sm:gap-8">
+                  {books.slice(0, 5).map((book) => (
+                    <BookCard
+                      key={book.id}
+                      image={book.volumeInfo.imageLinks?.thumbnail || "https://via.placeholder.com/150x200?text=No+Cover"}
+                      title={book.volumeInfo.title}
+                      author={book.volumeInfo.authors?.[0] || "Unknown Author"}
+                      downloadUrl={book.accessInfo?.pdf?.downloadLink || book.accessInfo?.epub?.downloadLink || book.volumeInfo.previewLink}
+                      onRead={() => setReadingBook({
+                        id: book.id,
+                        title: book.volumeInfo.title,
+                        author: book.volumeInfo.authors?.[0] || "Unknown Author",
+                        image: book.volumeInfo.imageLinks?.thumbnail || "https://via.placeholder.com/150x200?text=No+Cover",
+                        previewLink: book.volumeInfo.previewLink
+                      })}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-
-            {/* Topics Selection */}
-            <div className="mb-8 overflow-hidden">
-              <h3 className="text-sm font-bold text-gray-400 mb-3">Explore Topics</h3>
-              <div className="flex items-center gap-3 overflow-x-auto pb-2 no-scrollbar">
-                {topics.map((topic) => (
-                  <button
-                    key={topic.name}
-                    onClick={() => handleTopicClick(topic)}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap active:scale-95 ${
-                      selectedTopic === topic.name
-                        ? "bg-[#800000] text-white shadow-lg shadow-[#800000]/20 scale-105"
-                        : "bg-white border-2 border-gray-100 text-gray-500 hover:border-[#800000]/30 hover:text-[#800000]"
-                    }`}
-                  >
-                    <span className={`${selectedTopic === topic.name ? "text-white" : "text-[#800000]"}`}>
-                      {topic.icon}
-                    </span>
-                    {topic.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Book Grid */}
-            {loading ? (
-              <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#800000]"></div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8 mb-12">
-                {books.map((book) => (
-                  <BookCard
-                    key={book.id}
-                    image={book.volumeInfo.imageLinks?.thumbnail || "https://via.placeholder.com/150x200?text=No+Cover"}
-                    title={book.volumeInfo.title}
-                    author={book.volumeInfo.authors?.[0] || "Unknown Author"}
-                    downloadUrl={book.accessInfo?.pdf?.downloadLink || book.accessInfo?.epub?.downloadLink || book.volumeInfo.previewLink}
-                    onRead={() => setReadingBook({
-                      id: book.id,
-                      title: book.volumeInfo.title,
-                      author: book.volumeInfo.authors?.[0] || "Unknown Author",
-                      image: book.volumeInfo.imageLinks?.thumbnail || "https://via.placeholder.com/150x200?text=No+Cover",
-                      previewLink: book.volumeInfo.previewLink
-                    })}
-                  />
-                ))}
-                {books.length === 0 && (
-                  <div className="col-span-full text-center py-12 text-gray-500">
-                    No books found. Try a different category.
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Progress Section */}
-            <div className="flex flex-col gap-6 border-t border-gray-100 pt-8 mt-4">
+            <div className="flex flex-col gap-6 border-t border-gray-100 pt-10">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-black text-black">Continuing Reading</h2>
-                <button className="text-xs font-bold text-[#800000] hover:underline">View all progress</button>
+                <div>
+                  <h2 className="text-2xl font-black text-black tracking-tight">Continuing Reading</h2>
+                  <p className="text-sm text-gray-500 font-medium">Pick up where you left off</p>
+                </div>
+                <button className="text-xs font-bold text-[#800000] hover:underline px-4 py-2 bg-[#800000]/5 rounded-full">View all history</button>
               </div>
               <ProgressItem
                 image="https://m.media-amazon.com/images/I/91j3qXF4m8L._AC_UF1000,1000_QL80_.jpg"

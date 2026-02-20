@@ -46,14 +46,14 @@ export function BookReader({ book, onClose, onProgressUpdate, initialProgress = 
             if (success) {
               viewerRef.current = viewer;
               
-              // Jump to initial page after a short delay to ensure viewer is ready
+              // Jump to initial page.tsx after a short delay to ensure viewer is ready
               setTimeout(() => {
                 const startPage = Math.max(1, Math.round((initialProgress / 100) * totalPages) || 1);
                 viewer.goToPage(startPage);
                 setCurrentPage(startPage);
               }, 1500);
 
-              // Set up an interval to poll the current page number from the viewer
+              // Set up an interval to poll the current page.tsx number from the viewer
               // This handles scrolling and native navigation within the viewer
               interval = setInterval(() => {
                 if (viewerRef.current) {
@@ -97,7 +97,7 @@ export function BookReader({ book, onClose, onProgressUpdate, initialProgress = 
     };
   }, [book?.id, book?.previewLink, totalPages]);
 
-  // Fetch real page count from Google Books API
+  // Fetch real page.tsx count from Google Books API
   useEffect(() => {
     let active = true;
     async function loadMeta() {

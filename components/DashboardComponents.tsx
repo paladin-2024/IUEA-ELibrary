@@ -1,18 +1,22 @@
 import React from "react";
+import Link from "next/link";
 
 export interface NavItemProps {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
+  href?: string;
 }
 
 export function NavItem({
   icon,
   label,
   active = false,
+  href = "#",
 }: NavItemProps) {
   return (
-    <div
+    <Link
+      href={href}
       className={`flex cursor-pointer items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
         active
           ? "bg-[#800000] text-white shadow-md transform scale-[1.02]"
@@ -26,7 +30,7 @@ export function NavItem({
       {active && (
         <div className="ml-auto h-2 w-2 rounded-full bg-white animate-pulse"></div>
       )}
-    </div>
+    </Link>
   );
 }
 
@@ -36,6 +40,8 @@ export interface BookCardProps {
   author: string;
   downloadUrl?: string;
   onRead?: () => void;
+  onBookmark?: () => void;
+  isBookmarked?: boolean;
 }
 
 export function BookCard({
@@ -44,6 +50,8 @@ export function BookCard({
   author,
   downloadUrl,
   onRead,
+  onBookmark,
+  isBookmarked = false,
 }: BookCardProps) {
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -58,6 +66,13 @@ export function BookCard({
     e.stopPropagation();
     if (onRead) {
       onRead();
+    }
+  };
+
+  const handleBookmark = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onBookmark) {
+      onBookmark();
     }
   };
 
@@ -84,6 +99,15 @@ export function BookCard({
               title="Download"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+            </button>
+          )}
+          {onBookmark && (
+            <button 
+              onClick={handleBookmark}
+              className={`rounded-full p-3 shadow-lg transition-transform hover:scale-110 active:scale-95 ${isBookmarked ? "bg-[#800000] text-white" : "bg-white text-[#800000]"}`}
+              title={isBookmarked ? "Remove from bookmarks" : "Add to bookmarks"}
+            >
+              <svg viewBox="0 0 24 24" fill={isBookmarked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
             </button>
           )}
         </div>

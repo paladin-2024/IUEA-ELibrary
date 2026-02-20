@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { usePathname } from "next/navigation";
 import { NavItem } from "./DashboardComponents";
 import { HomeIcon, CompassIcon, BookmarkIcon, SettingsIcon, HelpCircleIcon, XIcon } from "./icons";
 
@@ -8,6 +11,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const pathname = usePathname();
+
   return (
     <>
       {/* Mobile Overlay */}
@@ -37,11 +42,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex flex-col gap-1">
-          <NavItem icon={<HomeIcon />} label="Home" active />
-          <NavItem icon={<CompassIcon />} label="Discover" />
-          <NavItem icon={<BookmarkIcon />} label="Bookmark" />
-          <NavItem icon={<SettingsIcon />} label="Settings" />
-          <NavItem icon={<HelpCircleIcon />} label="Help" />
+          <NavItem icon={<HomeIcon />} label="Home" href="/" active={pathname === "/"} />
+          <NavItem icon={<CompassIcon />} label="Discover" href="/discover" active={pathname === "/discover"} />
+          <NavItem icon={<BookmarkIcon />} label="Bookmark" href="/bookmark" active={pathname === "/bookmark"} />
+          <NavItem icon={<SettingsIcon />} label="Settings" href="/settings" active={pathname === "/settings"} />
+          <NavItem icon={<HelpCircleIcon />} label="Help" href="/help" active={pathname === "/help"} />
         </nav>
       </aside>
     </>
