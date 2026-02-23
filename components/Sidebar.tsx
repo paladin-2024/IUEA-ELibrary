@@ -45,7 +45,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           <NavItem icon={<HomeIcon />} label="Home" href="/" active={pathname === "/"} />
           <NavItem icon={<CompassIcon />} label="Discover" href="/discover" active={pathname === "/discover"} />
           <NavItem icon={<BookmarkIcon />} label="Bookmark" href="/bookmark" active={pathname === "/bookmark"} />
-          <NavItem icon={<SettingsIcon />} label="Settings" href="/settings" active={pathname === "/settings"} />
           <NavItem icon={<HelpCircleIcon />} label="Help" href="/help" active={pathname === "/help"} />
         </nav>
       </aside>
