@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:on'
-
-import '../main.dart';
+import 'home_page.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
   @override
@@ -19,14 +16,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
       systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: Brightness.light,
+      systemNavigationBarIconBrightness: Brightness.dark,
     ));
 
     Future.delayed(const Duration(seconds: 2), (){
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const OnBoardingScreen()));
+          MaterialPageRoute(builder: (_) => const HomePage()));
     });
   }
 
@@ -43,11 +40,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2F80ED),
+      backgroundColor: Colors.white,
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light,
+          statusBarIconBrightness: Brightness.dark,
           systemStatusBarContrastEnforced: false,
         ),
         child: Container(
@@ -58,26 +55,16 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).padding.top,
           ),
-          decoration: const BoxDecoration(
-            color: Color(0xFF2F80ED),
-          ),
+
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'Kubo',
-                style: GoogleFonts.racingSansOne(
-                    color: Colors.white,
-                    fontSize: 72,
-                    fontWeight: FontWeight.bold),
+              Image.asset(
+                'assets/logo.png',
+                width: 200,
+                height: 200,
+                colorBlendMode: BlendMode.srcIn,
               ),
-              Text(
-                'Chain',
-                style: GoogleFonts.racingSansOne(
-                    color: Colors.white,
-                    fontSize: 72,
-                    fontWeight: FontWeight.bold),
-              )
             ],
           ),
         ),
