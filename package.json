@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "lucide-react": "^0.575.0",
+    "mongodb": "^7.1.0",
+    "mongoose": "^9.2.2",
     "next": "16.1.6",
     "next-auth": "^4.24.13",
     "react": "19.2.3",
