@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'home_page.dart';
+import 'onboarding.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
   @override
@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     Future.delayed(const Duration(seconds: 2), (){
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomePage()));
+          MaterialPageRoute(builder: (_) => const OnBoardingScreen()));
     });
   }
 
