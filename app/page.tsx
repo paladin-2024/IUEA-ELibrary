@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { RightSidebar } from "@/components/RightSidebar";
@@ -37,6 +38,7 @@ const progressData = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("Popular");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [books, setBooks] = useState<any[]>([]);
@@ -50,6 +52,17 @@ export default function Home() {
     "One day a novel": 45,
     "In the company of...": 52
   });
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  // Check authentication on mount
+  useEffect(() => {
+    const isAuthenticated = localStorage.getItem("isAuthenticated");
+    if (!isAuthenticated) {
+      router.push("/signin");
+    } else {
+      setIsAuthed(true);
+    }
+  }, [router]);
   
   const tabs = ["Popular", "Most Searched", "New"];
   const topics = [
@@ -144,6 +157,10 @@ export default function Home() {
       [bookTitle]: progress
     }));
   };
+
+  if (!isAuthed) {
+    return null;
+  }
 
   return (
     <div className="flex h-screen bg-[#f1f3f6] p-0 md:p-4 text-[#2d3a4b] font-sans selection:bg-[#800000]/20 overflow-hidden transition-colors duration-300">

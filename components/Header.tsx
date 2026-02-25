@@ -1,6 +1,7 @@
 import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { SearchIcon, BellIcon, MenuIcon } from "./icons";
+import { useState } from "react";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -13,15 +14,22 @@ export function Header({ onMenuClick, onSearch }: HeaderProps) {
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
+  const [isProfileOpen, setIsProfileOpen] = React.useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (pathname !== "/discover") {
       router.push(`/discover?q=${encodeURIComponent(query)}`);
     } else if (onSearch) {
       onSearch(query);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("userEmail");
+    router.push("/signin");
   };
 
   return (
@@ -78,15 +86,30 @@ export function Header({ onMenuClick, onSearch }: HeaderProps) {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2 md:gap-3 cursor-pointer group">
-          <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center overflow-hidden rounded-full border-2 border-transparent group-hover:border-[#800000] transition-all shadow-sm">
-            <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
-              alt="Profile"
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <span className="hidden xl:block text-sm font-bold text-black group-hover:text-[#800000] transition-colors">Felix A.</span>
+        <div className="flex items-center gap-2 md:gap-3 cursor-pointer group relative">
+          <button
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="flex items-center gap-2 md:gap-3 hover:scale-105 transition-transform"
+          >
+            <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center overflow-hidden rounded-full border-2 border-transparent group-hover:border-[#800000] transition-all shadow-sm">
+              <img
+                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                alt="Profile"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <span className="hidden xl:block text-sm font-bold text-black group-hover:text-[#800000] transition-colors">Felix A.</span>
+          </button>
+          {isProfileOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 p-2 z-50 top-full">
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-semibold text-sm"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>
