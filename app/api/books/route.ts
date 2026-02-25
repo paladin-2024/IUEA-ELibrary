@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     }
 
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchQuery)}&startIndex=${startIndex}${apiKey ? `&key=${apiKey}` : ''}`;
-    
+
     try {
         const res = await fetch(url);
         if (!res.ok) {
