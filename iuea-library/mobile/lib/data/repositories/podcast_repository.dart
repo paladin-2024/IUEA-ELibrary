@@ -7,23 +7,34 @@ class PodcastRepository {
   PodcastRepository(this._api);
 
   Future<List<PodcastModel>> listPodcasts({String? category, String? language, int page = 1}) async {
-    final data = await _api.get(ApiConstants.podcasts, params: {
+    final res = await _api.get(ApiConstants.podcasts, params: {
       'page':  page,
       'limit': 20,
       if (category != null) 'category': category,
       if (language != null) 'language': language,
     });
-    return (data['podcasts'] as List<dynamic>)
+    return (res.data['podcasts'] as List<dynamic>)
         .map((p) => PodcastModel.fromJson(p as Map<String, dynamic>))
         .toList();
   }
 
   Future<PodcastModel> getPodcast(String id) async {
-    final data = await _api.get(ApiConstants.podcastDetail(id));
-    return PodcastModel.fromJson(data['podcast'] as Map<String, dynamic>);
+    final res = await _api.get(ApiConstants.podcastDetail(id));
+    return PodcastModel.fromJson(res.data['podcast'] as Map<String, dynamic>);
   }
 
-  Future<Map<String, dynamic>> toggleSubscribe(String id) async {
-    return _api.post(ApiConstants.podcastSubscribe(id));
+  Future<List<PodcastModel>> getSubscriptions() async {
+    final res = await _api.get(ApiConstants.podcastSubscriptions);
+    return (res.data['podcasts'] as List<dynamic>)
+        .map((p) => PodcastModel.fromJson(p as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> subscribe(String id) async {
+    await _api.post(ApiConstants.podcastSubscribe(id));
+  }
+
+  Future<void> unsubscribe(String id) async {
+    await _api.delete(ApiConstants.podcastSubscribe(id));
   }
 }

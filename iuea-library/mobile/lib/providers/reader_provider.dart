@@ -33,6 +33,9 @@ class ReaderProvider extends ChangeNotifier {
   double fontSize           = 18;
   double lineHeight         = 1.8;
   String theme              = 'white';  // 'white' | 'sepia' | 'dark'
+  String fontFamily         = 'serif';  // 'serif' | 'sans' | 'dyslexic'
+  bool   autoSave           = true;
+  bool   offlineReading     = false;
   bool   isPlaying          = false;
   bool   showTOC            = false;
   bool   showChatbot        = false;
@@ -135,6 +138,21 @@ class ReaderProvider extends ChangeNotifier {
 
   void setTheme(String t) {
     theme = t;
+    notifyListeners();
+  }
+
+  void setFontFamily(String f) {
+    fontFamily = f;
+    notifyListeners();
+  }
+
+  void setAutoSave(bool v) {
+    autoSave = v;
+    notifyListeners();
+  }
+
+  void setOfflineReading(bool v) {
+    offlineReading = v;
     notifyListeners();
   }
 

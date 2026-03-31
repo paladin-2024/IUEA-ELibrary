@@ -21,8 +21,15 @@ import PodcastsPage from './pages/Podcasts/PodcastsPage';
 import PodcastPage  from './pages/Podcasts/PodcastPage';
 import ProfilePage  from './pages/Profile/ProfilePage';
 
+// Profile sub-pages
+import ReadingPreferencesPage  from './pages/Profile/ReadingPreferencesPage';
+import LanguagePreferencesPage from './pages/Profile/LanguagePreferencesPage';
+
 // Admin Pages
-import AdminDashboard from './pages/Admin/AdminDashboard';
+import AdminDashboard    from './pages/Admin/AdminDashboard';
+import AdminBooksPage    from './pages/Admin/AdminBooksPage';
+import AdminUsersPage    from './pages/Admin/AdminUsersPage';
+import AdminAnalyticsPage from './pages/Admin/AdminAnalyticsPage';
 
 const _getToken = () => {
   try { return JSON.parse(localStorage.getItem('iuea_auth'))?.state?.token; }
@@ -61,6 +68,8 @@ export default function App() {
         <Route path="library"  element={<PrivateRoute><LibraryPage /></PrivateRoute>} />
         <Route path="books/:id" element={<BookPage />} />
         <Route path="profile"  element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+        <Route path="profile/reading-preferences"  element={<PrivateRoute><ReadingPreferencesPage /></PrivateRoute>} />
+        <Route path="profile/language-preferences" element={<PrivateRoute><LanguagePreferencesPage /></PrivateRoute>} />
       </Route>
 
       {/* Book detail — inside layout */}
@@ -71,7 +80,10 @@ export default function App() {
 
       {/* Admin */}
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
-        <Route index element={<AdminDashboard />} />
+        <Route index                element={<AdminDashboard />}     />
+        <Route path="books"         element={<AdminBooksPage />}     />
+        <Route path="users"         element={<AdminUsersPage />}     />
+        <Route path="analytics"     element={<AdminAnalyticsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

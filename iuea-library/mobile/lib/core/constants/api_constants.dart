@@ -38,6 +38,7 @@ class ApiConstants {
 
   // ── Podcasts ───────────────────────────────────────────────────────────────
   static String get podcasts                    => '$baseUrl/podcasts';
+  static String get podcastSubscriptions        => '$baseUrl/podcasts/subscriptions';
   static String podcastDetail(String id)        => '$baseUrl/podcasts/$id';
   static String podcastSubscribe(String id)     => '$baseUrl/podcasts/subscribe/$id';
 }

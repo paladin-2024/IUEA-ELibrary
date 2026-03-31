@@ -2,8 +2,16 @@ const router    = require('express').Router();
 const ctrl      = require('../controllers/podcast.controller');
 const authGuard = require('../middleware/authGuard');
 
-router.get('/',                ctrl.listPodcasts);
-router.get('/:id',             ctrl.getPodcast);
-router.post('/subscribe/:id',  authGuard, ctrl.toggleSubscribe);
+// Public
+router.get('/',              ctrl.listPodcasts);
+router.get('/category/:cat', ctrl.getByCategory);
+
+// Auth-required — must be declared before /:id to avoid route collision
+router.get('/subscriptions',    authGuard, ctrl.getSubscriptions);
+router.post('/subscribe/:id',   authGuard, ctrl.subscribe);
+router.delete('/subscribe/:id', authGuard, ctrl.unsubscribe);
+
+// Public detail (episodes included)
+router.get('/:id', ctrl.getPodcast);
 
 module.exports = router;

@@ -41,6 +41,10 @@ const podcastSchema = new mongoose.Schema(
       type:    String,
       default: 'English',
     },
+    subscribers: {
+      type:    [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+      default: [],
+    },
     subscriberCount: {
       type:    Number,
       default: 0,
