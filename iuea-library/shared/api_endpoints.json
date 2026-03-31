@@ -1,0 +1,42 @@
+{
+  "auth": {
+    "login":    "/api/auth/login",
+    "register": "/api/auth/register",
+    "google":   "/api/auth/google",
+    "me":       "/api/auth/me",
+    "fcmToken": "/api/auth/fcm-token"
+  },
+  "books": {
+    "list":     "/api/books",
+    "search":   "/api/books/search",
+    "featured": "/api/books/featured",
+    "detail":   "/api/books/:id",
+    "similar":  "/api/books/:id/similar"
+  },
+  "progress": {
+    "save": "/api/progress/:bookId",
+    "load": "/api/progress/:bookId",
+    "all":  "/api/progress"
+  },
+  "chat": {
+    "send":    "/api/chat/:bookId",
+    "history": "/api/chat/:bookId/history"
+  },
+  "audio": {
+    "generate": "/api/audio/generate"
+  },
+  "translate": {
+    "translate": "/api/translate"
+  },
+  "podcasts": {
+    "list":      "/api/podcasts",
+    "detail":    "/api/podcasts/:id",
+    "subscribe": "/api/podcasts/subscribe/:id"
+  },
+  "admin": {
+    "stats":        "/api/admin/stats",
+    "users":        "/api/admin/users",
+    "booksSync":    "/api/admin/books/sync",
+    "podcastsSync": "/api/admin/podcasts/sync"
+  }
+}

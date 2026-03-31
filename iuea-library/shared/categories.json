@@ -1,0 +1,17 @@
+[
+  { "id": "fiction",        "label": "Fiction",         "icon": "book_outlined" },
+  { "id": "non-fiction",    "label": "Non-Fiction",     "icon": "article_outlined" },
+  { "id": "science",        "label": "Science",         "icon": "science_outlined" },
+  { "id": "technology",     "label": "Technology",      "icon": "computer_outlined" },
+  { "id": "history",        "label": "History",         "icon": "history_edu_outlined" },
+  { "id": "biography",      "label": "Biography",       "icon": "person_outlined" },
+  { "id": "religion",       "label": "Religion",        "icon": "church_outlined" },
+  { "id": "law",            "label": "Law",             "icon": "gavel_outlined" },
+  { "id": "medicine",       "label": "Medicine",        "icon": "medical_services_outlined" },
+  { "id": "education",      "label": "Education",       "icon": "school_outlined" },
+  { "id": "business",       "label": "Business",        "icon": "business_center_outlined" },
+  { "id": "arts",           "label": "Arts & Culture",  "icon": "palette_outlined" },
+  { "id": "environment",    "label": "Environment",     "icon": "eco_outlined" },
+  { "id": "politics",       "label": "Politics",        "icon": "account_balance_outlined" },
+  { "id": "philosophy",     "label": "Philosophy",      "icon": "psychology_outlined" }
+]
