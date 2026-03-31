@@ -6,8 +6,9 @@ import Layout     from './components/layout/Layout';
 import AdminLayout from './components/layout/AdminLayout';
 
 // Auth Pages
-import LoginPage    from './pages/Auth/LoginPage';
-import RegisterPage from './pages/Auth/RegisterPage';
+import LoginPage         from './pages/Auth/LoginPage';
+import RegisterPage      from './pages/Auth/RegisterPage';
+import LanguageSetupPage from './pages/Auth/LanguageSetupPage';
 
 // Main Pages
 import HomePage     from './pages/Home/HomePage';
@@ -22,14 +23,18 @@ import ProfilePage  from './pages/Profile/ProfilePage';
 // Admin Pages
 import AdminDashboard from './pages/Admin/AdminDashboard';
 
+const _getToken = () => {
+  try { return JSON.parse(localStorage.getItem('iuea_auth'))?.state?.token; }
+  catch { return null; }
+};
+
 const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('iuea_token');
-  return token ? children : <Navigate to="/login" replace />;
+  return _getToken() ? children : <Navigate to="/login" replace />;
 };
 
 const AdminRoute = ({ children }) => {
   const { user } = useAuthStore();
-  const token    = localStorage.getItem('iuea_token');
+  const token    = _getToken();
   if (!token) return <Navigate to="/login" replace />;
   if (user?.role !== 'admin') return <Navigate to="/" replace />;
   return children;
@@ -39,11 +44,15 @@ export default function App() {
   return (
     <Routes>
       {/* Public auth routes */}
-      <Route path="/login"    element={<LoginPage />}    />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/login"      element={<LoginPage />}         />
+      <Route path="/register"   element={<RegisterPage />}      />
+      <Route path="/onboarding" element={<LanguageSetupPage />} />
 
       {/* Main app routes */}
       <Route path="/" element={<Layout />}>
+        <Route index element={<Navigate to="/home" replace />} />
+      </Route>
+      <Route path="/home" element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="search"   element={<SearchPage />} />
         <Route path="podcasts" element={<PodcastsPage />} />
