@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../providers/book_provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../data/models/book_model.dart';
 import '../../core/constants/app_colors.dart';
-import '../widgets/primary_button.dart';
-import '../widgets/loading_widget.dart';
-import '../widgets/language_badge.dart';
+import '../../core/constants/app_spacing.dart';
+import '../../core/constants/app_text_styles.dart';
+import '../widgets/book_card.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final String bookId;
@@ -17,98 +17,316 @@ class BookDetailScreen extends StatefulWidget {
   State<BookDetailScreen> createState() => _BookDetailScreenState();
 }
 
-class _BookDetailScreenState extends State<BookDetailScreen> {
+class _BookDetailScreenState extends State<BookDetailScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabs;
+  List<BookModel>    _similar  = [];
+  bool               _expanded = false;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BookProvider>().getBook(widget.bookId);
+    _tabs = TabController(length: 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final bp = context.read<BookProvider>();
+      await bp.getBook(widget.bookId);
+      try {
+        final sims = await bp.getSimilarBooks(widget.bookId);
+        if (mounted) setState(() => _similar = sims);
+      } catch {}
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    final bookProvider = context.watch<BookProvider>();
-    final auth         = context.watch<AuthProvider>();
-    final book         = bookProvider.current;
+  void dispose() {
+    _tabs.dispose();
+    super.dispose();
+  }
 
-    if (bookProvider.isLoading || book == null) {
-      return const Scaffold(body: LoadingWidget());
+  @override
+  Widget build(BuildContext context) {
+    final bp   = context.watch<BookProvider>();
+    final book = bp.current;
+
+    if (bp.isLoading || book == null) {
+      return Scaffold(
+        backgroundColor: AppColors.surface,
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          leading:         _backButton(context),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
     }
 
+    final availability = book.availability;
+    final isAvailable  = (availability?['available'] as int? ?? 0) > 0;
+    final hasFile      = book.hasFile || book.archiveId != null;
+
+    final words    = (book.description ?? '').split(' ');
+    final isLong   = words.length > 60;
+    final descText = isLong && !_expanded
+        ? '${words.take(60).join(' ')}…'
+        : (book.description ?? 'No description available.');
+
     return Scaffold(
+      backgroundColor: AppColors.surface,
       body: CustomScrollView(
         slivers: [
+          // ── Cover SliverAppBar ─────────────────────────────────────────
           SliverAppBar(
-            pinned:         true,
-            expandedHeight: 280,
-            flexibleSpace:  FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  book.coverUrl.isNotEmpty
-                      ? CachedNetworkImage(imageUrl: book.coverUrl, fit: BoxFit.cover)
-                      : Container(color: AppColors.primary),
-                  Container(color: AppColors.black.withOpacity(0.45)),
-                ],
+            expandedHeight:  300,
+            pinned:          true,
+            backgroundColor: AppColors.primary,
+            leading:         _backButton(context),
+            actions: [
+              IconButton(
+                icon:      const Icon(Icons.share_outlined, color: AppColors.white),
+                onPressed: () {},
               ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              background: book.hasCover
+                  ? CachedNetworkImage(
+                      imageUrl:    book.coverUrl!,
+                      fit:         BoxFit.cover,
+                      errorWidget: (_, __, ___) => _coverPlaceholder(),
+                    )
+                  : _coverPlaceholder(),
             ),
           ),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(book.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 6),
-                  Text(book.authorDisplay, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 10),
-
-                  // Tags
-                  Wrap(
-                    spacing: 8, runSpacing: 6,
-                    children: [
-                      if (book.category.isNotEmpty) Chip(label: Text(book.category)),
-                      LanguageBadge(code: book.language),
-                      if (book.publishedYear != null) Chip(label: Text(book.publishedYear!)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  if (book.description.isNotEmpty) ...[
-                    Text('About', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          // ── Body content ───────────────────────────────────────────────
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Container(
+                color:   AppColors.background,
+                padding: const EdgeInsets.all(AppSpacing.pagePadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(book.title, style: AppTextStyles.h2),
                     const SizedBox(height: 6),
-                    Text(book.description, style: const TextStyle(height: 1.6, color: AppColors.grey700)),
-                    const SizedBox(height: 20),
-                  ],
 
-                  // Actions
-                  if (auth.isLoggedIn) ...[
-                    PrimaryButton(
-                      label:    'Read Now',
-                      icon:     Icons.menu_book_outlined,
-                      onPressed: () => context.push('/reader/${book.id}'),
+                    // Author
+                    Row(
+                      children: [
+                        const Icon(Icons.person_outline,
+                          size: 14, color: AppColors.primary),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            book.author,
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.primary),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    PrimaryButton(
-                      label:      'Listen',
-                      icon:       Icons.headphones_outlined,
-                      isOutlined: true,
-                      onPressed:  () => context.push('/audio/${book.id}'),
+                    const SizedBox(height: AppSpacing.sm),
+
+                    // Availability chip
+                    if (availability != null) ...[
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isAvailable
+                                ? Icons.check_circle_outline
+                                : Icons.warning_amber_outlined,
+                            size:  14,
+                            color: isAvailable
+                                ? AppColors.success
+                                : AppColors.warning,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isAvailable
+                                ? '${availability['available']} of '
+                                  '${availability['total']} available'
+                                : 'Checked out',
+                            style: AppTextStyles.label.copyWith(
+                              color: isAvailable
+                                  ? AppColors.success
+                                  : AppColors.warning,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
+
+                    // Language chips
+                    if (book.languages.isNotEmpty) ...[
+                      Wrap(
+                        spacing: 6, runSpacing: 4,
+                        children: book.languages.map((lang) => Chip(
+                          label: Text(lang,
+                            style: const TextStyle(
+                              color: AppColors.white, fontSize: 11)),
+                          backgroundColor: AppColors.primary,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          padding:         EdgeInsets.zero,
+                          visualDensity:   VisualDensity.compact,
+                        )).toList(),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
+
+                    // Faculty tags (gold bordered)
+                    if (book.faculty.isNotEmpty) ...[
+                      Wrap(
+                        spacing: 6, runSpacing: 4,
+                        children: book.faculty.map((f) => Chip(
+                          label: Text(f,
+                            style: const TextStyle(
+                              color: AppColors.accent, fontSize: 11)),
+                          backgroundColor: Colors.transparent,
+                          side:            const BorderSide(color: AppColors.accent),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          padding:         EdgeInsets.zero,
+                          visualDensity:   VisualDensity.compact,
+                        )).toList(),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
+
+                    // Source attribution
+                    Text(
+                      'Source: IUEA Koha Catalogue',
+                      style: AppTextStyles.label.copyWith(
+                        color: AppColors.textHint),
                     ),
-                  ] else
-                    PrimaryButton(
-                      label:     'Login to Read',
-                      onPressed: () => context.go('/login'),
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Action buttons
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: hasFile
+                            ? () => context.push('/reader/${book.id}')
+                            : null,
+                        icon:  const Icon(Icons.auto_stories, size: 18),
+                        label: const Text('Read Now'),
+                      ),
                     ),
-                ],
+                    const SizedBox(height: AppSpacing.sm),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: hasFile
+                            ? () => context.push('/audio/${book.id}')
+                            : null,
+                        icon:  const Icon(Icons.play_circle_outline, size: 18),
+                        label: const Text('Listen'),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {},
+                            icon:  const Icon(Icons.bookmark_border, size: 16),
+                            label: const Text('Save'),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {},
+                            icon:  const Icon(Icons.share_outlined, size: 16),
+                            label: const Text('Share'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
+
+              // ── Tab bar ────────────────────────────────────────────────
+              ColoredBox(
+                color: AppColors.background,
+                child: TabBar(
+                  controller:          _tabs,
+                  labelColor:          AppColors.primary,
+                  unselectedLabelColor: AppColors.textSecondary,
+                  indicatorColor:      AppColors.primary,
+                  tabs: const [Tab(text: 'About'), Tab(text: 'Similar Books')],
+                ),
+              ),
+
+              // ── Tab content ────────────────────────────────────────────
+              SizedBox(
+                height: 400,
+                child: TabBarView(
+                  controller: _tabs,
+                  children: [
+                    // About
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(AppSpacing.pagePadding),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(descText, style: AppTextStyles.body),
+                          if (isLong)
+                            TextButton(
+                              onPressed: () =>
+                                  setState(() => _expanded = !_expanded),
+                              child: Text(
+                                _expanded ? 'Show less' : 'Read more',
+                                style: AppTextStyles.label.copyWith(
+                                  color: AppColors.primary),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+
+                    // Similar
+                    _similar.isEmpty
+                        ? const Center(
+                            child: Text('No similar books found.',
+                              style: TextStyle(color: AppColors.textHint)),
+                          )
+                        : GridView.builder(
+                            padding:      const EdgeInsets.all(AppSpacing.md),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount:   2,
+                              crossAxisSpacing: AppSpacing.sm,
+                              mainAxisSpacing:  AppSpacing.sm,
+                              childAspectRatio: 0.65,
+                            ),
+                            itemCount:   _similar.length,
+                            itemBuilder: (_, i) =>
+                                BookCard(book: _similar[i]),
+                          ),
+                  ],
+                ),
+              ),
+            ]),
           ),
         ],
       ),
     );
   }
+
+  Widget _backButton(BuildContext context) => IconButton(
+    icon:      const Icon(Icons.arrow_back, color: AppColors.white),
+    onPressed: () => context.pop(),
+  );
+
+  Widget _coverPlaceholder() => Container(
+    color: AppColors.primaryDark,
+    child: const Center(
+      child: Icon(Icons.book_outlined, size: 64, color: AppColors.white),
+    ),
+  );
 }

@@ -14,9 +14,10 @@ class ApiConstants {
   static String get authFcmToken => '$baseUrl/auth/fcm-token';
 
   // ── Books ──────────────────────────────────────────────────────────────────
-  static String get books        => '$baseUrl/books';
-  static String get bookSearch   => '$baseUrl/books/search';
-  static String get bookFeatured => '$baseUrl/books/featured';
+  static String get books          => '$baseUrl/books';
+  static String get bookSearch     => '$baseUrl/books/search';
+  static String get bookFeatured   => '$baseUrl/books/featured';
+  static String get bookContinue   => '$baseUrl/books/continue';
   static String bookDetail(String id)  => '$baseUrl/books/$id';
   static String bookSimilar(String id) => '$baseUrl/books/$id/similar';
 

@@ -4,12 +4,22 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../data/models/book_model.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
 
 class BookCard extends StatelessWidget {
   final BookModel book;
   final double    width;
-  const BookCard({super.key, required this.book, this.width = 130});
+  final bool      showProgress;
+  final double    progress; // 0.0 – 1.0
+
+  const BookCard({
+    super.key,
+    required this.book,
+    this.width        = 130,
+    this.showProgress = false,
+    this.progress     = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,38 +30,129 @@ class BookCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cover
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: AspectRatio(
-                aspectRatio: 2 / 3,
-                child: book.coverUrl.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl:   book.coverUrl,
-                        fit:        BoxFit.cover,
-                        placeholder: (_, __) => Shimmer.fromColors(
-                          baseColor:     AppColors.grey300,
-                          highlightColor: AppColors.grey100,
-                          child: Container(color: AppColors.grey300),
+            // ── Cover ───────────────────────────────────────────────────────
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                  child: AspectRatio(
+                    aspectRatio: 2 / 3,
+                    child: book.hasCover
+                        ? CachedNetworkImage(
+                            imageUrl:    book.coverUrl!,
+                            fit:         BoxFit.cover,
+                            placeholder: (_, __) => _shimmer(),
+                            errorWidget: (_, __, ___) => _placeholder(),
+                          )
+                        : _placeholder(),
+                  ),
+                ),
+                // Progress bar overlay
+                if (showProgress && progress > 0)
+                  Positioned(
+                    bottom: 0,
+                    left:   0,
+                    right:  0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(AppSpacing.cardRadius),
                         ),
-                        errorWidget: (_, __, ___) => _placeholder(),
-                      )
-                    : _placeholder(),
-              ),
+                        color: Colors.black.withOpacity(0.35),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(6, 4, 6, 6),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          LinearProgressIndicator(
+                            value:            progress,
+                            color:            AppColors.primary,
+                            backgroundColor:  AppColors.white.withOpacity(0.3),
+                            minHeight:        3,
+                            borderRadius:     BorderRadius.circular(2),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${(progress * 100).round()}% complete',
+                            style: AppTextStyles.label.copyWith(
+                              color: AppColors.white, fontSize: 9),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
+
             const SizedBox(height: 6),
+
+            // ── Title ────────────────────────────────────────────────────────
             Text(
               book.title,
-              style:     AppTextStyles.subtitle2,
-              maxLines:  2,
-              overflow:  TextOverflow.ellipsis,
+              style:    AppTextStyles.body.copyWith(
+                fontSize: 12, fontWeight: FontWeight.w600),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
+
+            // ── Author ───────────────────────────────────────────────────────
             if (book.author.isNotEmpty)
               Text(
-                book.author.first,
-                style:    AppTextStyles.caption,
+                book.author,
+                style:    AppTextStyles.label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+              ),
+
+            // ── Language badges ───────────────────────────────────────────────
+            if (book.languages.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Wrap(
+                  spacing: 4,
+                  runSpacing: 2,
+                  children: book.languages.take(2).map((lang) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color:        AppColors.primary,
+                      borderRadius: BorderRadius.circular(AppSpacing.chipRadius),
+                    ),
+                    child: Text(
+                      lang,
+                      style: const TextStyle(
+                        color:    AppColors.white,
+                        fontSize: 9,
+                      ),
+                    ),
+                  )).toList(),
+                ),
+              ),
+
+            // ── Availability badge ────────────────────────────────────────────
+            if (book.availability != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      _isAvailable
+                          ? Icons.check_circle_outline
+                          : Icons.warning_amber_outlined,
+                      size:  11,
+                      color: _isAvailable ? AppColors.success : AppColors.warning,
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      _isAvailable
+                          ? '${book.availability!['available']} available'
+                          : 'Checked out',
+                      style: AppTextStyles.label.copyWith(
+                        fontSize: 9,
+                        color: _isAvailable ? AppColors.success : AppColors.warning,
+                      ),
+                    ),
+                  ],
+                ),
               ),
           ],
         ),
@@ -59,10 +160,19 @@ class BookCard extends StatelessWidget {
     );
   }
 
+  bool get _isAvailable =>
+      (book.availability?['available'] as int? ?? 0) > 0;
+
   Widget _placeholder() => Container(
     color: AppColors.primary.withOpacity(0.08),
     child: const Center(
-      child: Icon(Icons.book_outlined, color: AppColors.primary, size: 32),
+      child: Icon(Icons.book_outlined, color: AppColors.primary, size: 28),
     ),
+  );
+
+  Widget _shimmer() => Shimmer.fromColors(
+    baseColor:      AppColors.grey300,
+    highlightColor: AppColors.grey100,
+    child: Container(color: AppColors.grey300),
   );
 }

@@ -1,36 +1,69 @@
 const axios = require('axios');
 
-const ARCHIVE_API = 'https://archive.org';
+const ARCHIVE_SEARCH = 'https://archive.org/advancedsearch.php';
+const ARCHIVE_META   = 'https://archive.org/metadata';
+const GUTENBERG_API  = 'https://gutendex.com/books';
 
-const searchArchive = async ({ query, mediatype = 'texts', limit = 20, page = 1 }) => {
-  const response = await axios.get(`${ARCHIVE_API}/advancedsearch.php`, {
+// ── Internet Archive ──────────────────────────────────────────────────────────
+
+async function searchArchive(query) {
+  const { data } = await axios.get(ARCHIVE_SEARCH, {
     params: {
-      q:       `${query} AND mediatype:${mediatype}`,
-      fl:      'identifier,title,creator,description,subject,date,language',
-      rows:    limit,
-      page,
-      output:  'json',
+      q:         `${query} subject:academic`,
+      'fl[]':    ['identifier', 'title', 'creator', 'subject'],
+      rows:      8,
+      output:    'json',
+      mediatype: 'texts',
     },
+    timeout: 8000,
   });
-  return response.data.response.docs;
-};
 
-const getArchiveItem = async (identifier) => {
-  const [meta, files] = await Promise.all([
-    axios.get(`${ARCHIVE_API}/metadata/${identifier}`),
-    axios.get(`${ARCHIVE_API}/metadata/${identifier}/files`),
-  ]);
+  const docs = data?.response?.docs ?? [];
+  return docs.map((d) => ({
+    source:     'archive',
+    archiveId:  d.identifier,
+    title:      Array.isArray(d.title)   ? d.title[0]   : (d.title   ?? 'Unknown Title'),
+    author:     Array.isArray(d.creator) ? d.creator[0] : (d.creator ?? 'Unknown'),
+    category:   Array.isArray(d.subject) ? d.subject[0] : (d.subject ?? 'General'),
+    coverUrl:   `https://archive.org/services/img/${d.identifier}`,
+    fileFormat: 'external',
+    isExternal: true,
+  }));
+}
 
-  const fileList = files.data.result || [];
-  const pdfFile  = fileList.find((f) => f.name?.endsWith('.pdf'));
-  const epubFile = fileList.find((f) => f.name?.endsWith('.epub'));
-  const preferred = epubFile || pdfFile;
+async function getArchiveBookUrl(identifier) {
+  const { data } = await axios.get(`${ARCHIVE_META}/${identifier}`, { timeout: 8000 });
+  const files    = data?.files ?? [];
+  const epub     = files.find((f) => f.name?.toLowerCase().endsWith('.epub'));
+  const pdf      = files.find((f) => f.name?.toLowerCase().endsWith('.pdf'));
+  const file     = epub ?? pdf;
+  if (!file) return null;
+  return `https://archive.org/download/${identifier}/${file.name}`;
+}
 
-  return {
-    ...meta.data.metadata,
-    fileUrl:  preferred ? `https://archive.org/download/${identifier}/${preferred.name}` : null,
-    fileType: epubFile ? 'epub' : pdfFile ? 'pdf' : null,
-  };
-};
+// ── Project Gutenberg ─────────────────────────────────────────────────────────
 
-module.exports = { searchArchive, getArchiveItem };
+async function searchGutenberg(query) {
+  const { data } = await axios.get(GUTENBERG_API, {
+    params:  { search: query },
+    timeout: 8000,
+  });
+
+  const results = data?.results ?? [];
+  return results.slice(0, 8).map((b) => {
+    const epubUrl = b.formats?.['application/epub+zip'] ?? null;
+    return {
+      source:      'gutenberg',
+      gutenbergId: b.id,
+      title:       b.title ?? 'Unknown Title',
+      author:      b.authors?.[0]?.name ?? 'Unknown',
+      category:    b.subjects?.[0] ?? 'General',
+      coverUrl:    b.formats?.['image/jpeg'] ?? null,
+      fileUrl:     epubUrl,
+      fileFormat:  epubUrl ? 'epub' : null,
+      isExternal:  true,
+    };
+  });
+}
+
+module.exports = { searchArchive, getArchiveBookUrl, searchGutenberg };

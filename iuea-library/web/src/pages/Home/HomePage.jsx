@@ -1,112 +1,130 @@
-import { Link }     from 'react-router-dom';
-import { Search, BookOpen, Mic2, Bot } from 'lucide-react';
-import { useFeaturedBooks, useBooks } from '../../hooks/useBooks';
-import BookCard      from '../../components/ui/BookCard';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { CATEGORIES } from '../../utils/constants';
+import { useEffect } from 'react';
+import { Link }       from 'react-router-dom';
+import { FiArrowRight } from 'react-icons/fi';
+import useBookStore    from '../../store/bookStore';
+import useAuthStore    from '../../store/authStore';
+import BookCard        from '../../components/ui/BookCard';
+
+// ── Skeleton card ─────────────────────────────────────────────────────────────
+function SkeletonCard() {
+  return (
+    <div className="w-32 shrink-0 animate-pulse">
+      <div className="aspect-[2/3] bg-gray-200 rounded-card" />
+      <div className="mt-2 h-3 bg-gray-200 rounded w-4/5" />
+      <div className="mt-1 h-2 bg-gray-200 rounded w-3/5" />
+    </div>
+  );
+}
+
+// ── Section header ────────────────────────────────────────────────────────────
+function SectionHeader({ title, to }) {
+  return (
+    <div className="flex items-center justify-between mb-3 px-4">
+      <h2 className="font-serif text-lg font-semibold text-primary">{title}</h2>
+      <Link
+        to={to}
+        className="text-xs text-primary flex items-center gap-1 hover:underline"
+      >
+        See all <FiArrowRight size={12} />
+      </Link>
+    </div>
+  );
+}
+
+// ── Horizontal scroll row ─────────────────────────────────────────────────────
+function HScrollRow({ books, isLoading, showProgress = false }) {
+  if (isLoading) {
+    return (
+      <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
+        {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+      </div>
+    );
+  }
+  if (!books.length) return null;
+  return (
+    <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
+      {books.map((book) => (
+        <div key={book._id} className="w-32 shrink-0">
+          <BookCard book={book} showProgress={showProgress} size="sm" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const FACULTIES = [
+  'Law', 'Medicine', 'Engineering', 'Business',
+  'IT', 'Education', 'Arts', 'Science',
+];
 
 export default function HomePage() {
-  const { data: featuredData, isLoading: loadingFeatured } = useFeaturedBooks();
-  const { data: recentData,   isLoading: loadingRecent   } = useBooks({ limit: 8 });
+  const { user }      = useAuthStore();
+  const {
+    continueReading, newestBooks, popularBooks, isLoading,
+    fetchFeatured, fetchContinueReading, fetchNewest, fetchPopular,
+  } = useBookStore();
+
+  useEffect(() => {
+    fetchFeatured();
+    fetchContinueReading();
+    fetchNewest();
+    fetchPopular();
+  }, []);
+
+  const greeting = (() => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  })();
+
+  const firstName = user?.name?.split(' ')[0] ?? 'Scholar';
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-primary to-primary-dark text-white py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 leading-tight">
-            Your Gateway to<br />
-            <span className="text-accent">Knowledge & Discovery</span>
-          </h1>
-          <p className="text-primary-light text-lg mb-8 max-w-xl mx-auto">
-            Access thousands of books, listen to academic podcasts, and chat with
-            an AI assistant — in your language.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/search" className="bg-accent text-primary font-semibold px-6 py-3 rounded-btn hover:bg-accent-light transition-colors flex items-center justify-center gap-2">
-              <Search size={16} /> Browse Books
-            </Link>
-            <Link to="/podcasts" className="border border-white text-white px-6 py-3 rounded-btn hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
-              <Mic2 size={16} /> Explore Podcasts
-            </Link>
-          </div>
-        </div>
-      </section>
+    <div className="min-h-screen bg-surface pb-10">
+      {/* ── Welcome banner ─────────────────────────────────────────────────── */}
+      <div className="bg-gradient-to-br from-primary to-[#4A0810] text-white px-4 pt-8 pb-6">
+        <p className="font-serif text-2xl font-semibold leading-snug">
+          {greeting}, {firstName}
+        </p>
+        <p className="text-white/70 text-sm mt-1">What will you read today?</p>
 
-      {/* Features */}
-      <section className="py-12 px-4 bg-white">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { icon: BookOpen, title: 'Thousands of Books', desc: 'Browse IUEA library collection — textbooks, research, fiction & more.' },
-            { icon: Mic2,     title: 'Academic Podcasts',  desc: 'Listen to lectures, interviews, and educational content on the go.' },
-            { icon: Bot,      title: 'AI Reading Assistant', desc: 'Chat with Gemini AI about any book in your preferred language.' },
-          ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="text-center p-6 rounded-card border border-gray-100 hover:shadow-card transition-shadow">
-              <div className="inline-flex items-center justify-center bg-primary/10 text-primary p-3 rounded-full mb-4">
-                <Icon size={22} />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">{title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
-            </div>
+        {/* Faculty filter pills */}
+        <div className="flex gap-2 overflow-x-auto mt-4 pb-1 scrollbar-hide">
+          {FACULTIES.map((f) => (
+            <Link
+              key={f}
+              to={`/search?faculty=${f}`}
+              className="shrink-0 text-xs px-3 py-1.5 rounded-full border border-white/30
+                         text-white/80 hover:bg-white/10 transition-colors"
+            >
+              {f}
+            </Link>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* Categories */}
-      <section className="py-10 px-4 bg-surface">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="font-serif text-2xl font-semibold text-primary mb-6">Browse by Category</h2>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/search?category=${cat.id}`}
-                className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:border-primary hover:text-primary transition-colors"
-              >
-                {cat.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      <div className="mt-6 space-y-6">
+        {/* ── Continue Reading ─────────────────────────────────────────────── */}
+        {(continueReading.length > 0 || isLoading) && (
+          <section>
+            <SectionHeader title="Continue Reading" to="/library" />
+            <HScrollRow books={continueReading} isLoading={isLoading} showProgress />
+          </section>
+        )}
 
-      {/* Featured Books */}
-      <section className="py-10 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-serif text-2xl font-semibold text-primary">Featured Books</h2>
-            <Link to="/search" className="text-sm text-primary hover:underline">View all →</Link>
-          </div>
-          {loadingFeatured ? (
-            <LoadingSpinner className="py-12" />
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {featuredData?.books?.map((book) => (
-                <BookCard key={book._id} book={book} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+        {/* ── New in the Library ───────────────────────────────────────────── */}
+        <section>
+          <SectionHeader title="New in the Library" to="/search?sort=newest" />
+          <HScrollRow books={newestBooks} isLoading={isLoading} />
+        </section>
 
-      {/* Recent Additions */}
-      <section className="py-10 px-4 bg-surface">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-serif text-2xl font-semibold text-primary">Recently Added</h2>
-            <Link to="/search?sort=newest" className="text-sm text-primary hover:underline">View all →</Link>
-          </div>
-          {loadingRecent ? (
-            <LoadingSpinner className="py-12" />
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {recentData?.books?.map((book) => (
-                <BookCard key={book._id} book={book} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+        {/* ── Popular this week ────────────────────────────────────────────── */}
+        <section>
+          <SectionHeader title="Popular This Week" to="/search?sort=popular" />
+          <HScrollRow books={popularBooks} isLoading={isLoading} />
+        </section>
+      </div>
     </div>
   );
 }

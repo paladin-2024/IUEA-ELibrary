@@ -6,46 +6,64 @@ class BookRepository {
   final ApiService _api;
   BookRepository(this._api);
 
-  Future<List<BookModel>> listBooks({String? category, String? language, int page = 1, int limit = 20}) async {
-    final data = await _api.get(ApiConstants.books, params: {
-      if (category != null) 'category': category,
-      if (language != null) 'language': language,
-      'page':  page,
-      'limit': limit,
-    });
-    return (data['books'] as List<dynamic>)
+  // ── getBooks ────────────────────────────────────────────────────────────────
+  Future<List<BookModel>> getBooks({Map<String, dynamic>? filters}) async {
+    final response = await _api.get(ApiConstants.books, params: filters);
+    return (response.data['books'] as List<dynamic>)
         .map((b) => BookModel.fromJson(b as Map<String, dynamic>))
         .toList();
   }
 
+  // ── getFeatured ─────────────────────────────────────────────────────────────
   Future<List<BookModel>> getFeatured() async {
-    final data = await _api.get(ApiConstants.featured);
-    return (data['books'] as List<dynamic>)
+    final response = await _api.get(ApiConstants.bookFeatured);
+    return (response.data['books'] as List<dynamic>)
         .map((b) => BookModel.fromJson(b as Map<String, dynamic>))
         .toList();
   }
 
-  Future<List<BookModel>> search(String query, {String? category, String? language, int page = 1}) async {
-    final data = await _api.get(ApiConstants.search, params: {
-      'q':     query,
-      'page':  page,
-      'limit': 20,
+  // ── getContinueReading ──────────────────────────────────────────────────────
+  Future<List<BookModel>> getContinueReading() async {
+    final response = await _api.get(ApiConstants.bookContinue);
+    return (response.data['books'] as List<dynamic>)
+        .map((b) => BookModel.fromJson(b as Map<String, dynamic>))
+        .toList();
+  }
+
+  // ── searchBooks ─────────────────────────────────────────────────────────────
+  Future<Map<String, dynamic>> searchBooks(
+    String query, {
+    String? category,
+    String? language,
+    String? faculty,
+    int page = 1,
+  }) async {
+    final response = await _api.get(ApiConstants.bookSearch, params: {
+      'q':    query,
+      'page': page,
       if (category != null) 'category': category,
       if (language != null) 'language': language,
+      if (faculty  != null) 'faculty':  faculty,
     });
-    return (data['books'] as List<dynamic>)
+    final books = (response.data['books'] as List<dynamic>)
         .map((b) => BookModel.fromJson(b as Map<String, dynamic>))
         .toList();
+    final external = (response.data['external'] as List<dynamic>? ?? [])
+        .map((b) => BookModel.fromJson(b as Map<String, dynamic>))
+        .toList();
+    return {'books': books, 'external': external};
   }
 
-  Future<BookModel> getBook(String id) async {
-    final data = await _api.get(ApiConstants.bookDetail(id));
-    return BookModel.fromJson(data['book'] as Map<String, dynamic>);
+  // ── getBookById ─────────────────────────────────────────────────────────────
+  Future<BookModel> getBookById(String id) async {
+    final response = await _api.get(ApiConstants.bookDetail(id));
+    return BookModel.fromJson(response.data['book'] as Map<String, dynamic>);
   }
 
+  // ── getSimilar ──────────────────────────────────────────────────────────────
   Future<List<BookModel>> getSimilar(String id) async {
-    final data = await _api.get(ApiConstants.bookSimilar(id));
-    return (data['books'] as List<dynamic>)
+    final response = await _api.get(ApiConstants.bookSimilar(id));
+    return (response.data['books'] as List<dynamic>)
         .map((b) => BookModel.fromJson(b as Map<String, dynamic>))
         .toList();
   }

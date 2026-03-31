@@ -9,6 +9,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import LoginPage         from './pages/Auth/LoginPage';
 import RegisterPage      from './pages/Auth/RegisterPage';
 import LanguageSetupPage from './pages/Auth/LanguageSetupPage';
+import BookDetailPage    from './pages/Home/BookDetailPage';
 
 // Main Pages
 import HomePage     from './pages/Home/HomePage';
@@ -61,6 +62,9 @@ export default function App() {
         <Route path="books/:id" element={<BookPage />} />
         <Route path="profile"  element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
       </Route>
+
+      {/* Book detail — inside layout */}
+      <Route path="/books/:id" element={<BookDetailPage />} />
 
       {/* Reader — full screen, no layout */}
       <Route path="/reader/:id" element={<PrivateRoute><ReaderPage /></PrivateRoute>} />
