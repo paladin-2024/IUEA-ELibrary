@@ -1,57 +1,126 @@
 const { Book, ChatSession } = require('../models');
-const { chatWithBook }       = require('../services/gemini.service');
+const gemini                = require('../services/gemini.service');
 
-// POST /api/chat/:bookId
-const sendMessage = async (req, res, next) => {
+// POST /:bookId — non-streaming reply
+const chat = async (req, res, next) => {
   try {
-    const { message, language = 'en' } = req.body;
-    const { bookId } = req.params;
+    const { bookId }                                 = req.params;
+    const userId                                     = req.user._id;
+    const { message, language = 'English', chapter = '' } = req.body;
 
-    if (!message) return res.status(400).json({ message: 'Message is required.' });
-
-    const book = await Book.findById(bookId);
-    if (!book) return res.status(404).json({ message: 'Book not found.' });
-
-    let session = await ChatSession.findOne({ user: req.user._id, book: bookId });
-    if (!session) {
-      session = await ChatSession.create({
-        user: req.user._id,
-        book: bookId,
-        language,
-      });
+    if (!message?.trim()) {
+      return res.status(400).json({ message: 'message is required.' });
     }
 
-    const history = session.messages.slice(-20);  // last 20 messages for context
+    const book = await Book.findById(bookId).select('title author faculty');
+    if (!book) return res.status(404).json({ message: 'Book not found.' });
 
-    const reply = await chatWithBook({
-      bookTitle:       book.title,
-      bookDescription: book.description,
-      history,
-      userMessage:     message,
-      language,
-    });
+    const session = await ChatSession.findOneAndUpdate(
+      { userId, bookId },
+      { $setOnInsert: { userId, bookId, language } },
+      { new: true, upsert: true },
+    );
+
+    const messages = [
+      ...session.messages.slice(-20).map((m) => ({
+        role: m.role, content: m.content,
+      })),
+      { role: 'user', content: message },
+    ];
+
+    const reply = await gemini.getChatResponse(messages, book, chapter, language);
 
     session.messages.push({ role: 'user',      content: message, language });
     session.messages.push({ role: 'assistant', content: reply,   language });
+    if (session.messages.length > 100) {
+      session.messages.splice(0, session.messages.length - 100);
+    }
     await session.save();
 
-    res.json({ reply, sessionId: session._id });
+    res.json({ reply });
+  } catch (err) { next(err); }
+};
+
+// GET /:bookId/stream — SSE streaming reply
+const streamChat = async (req, res, next) => {
+  const { bookId }                                         = req.params;
+  const userId                                             = req.user._id;
+  const { message, language = 'English', chapter = '' }   = req.query;
+
+  if (!message?.trim()) {
+    return res.status(400).json({ message: 'message is required.' });
+  }
+
+  res.setHeader('Content-Type',      'text/event-stream');
+  res.setHeader('Cache-Control',     'no-cache');
+  res.setHeader('Connection',        'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders();
+
+  try {
+    const book = await Book.findById(bookId).select('title author faculty');
+    if (!book) {
+      res.write(`data: ${JSON.stringify({ error: 'Book not found.' })}\n\n`);
+      res.end(); return;
+    }
+
+    const session = await ChatSession.findOneAndUpdate(
+      { userId, bookId },
+      { $setOnInsert: { userId, bookId, language } },
+      { new: true, upsert: true },
+    );
+
+    const messages = [
+      ...session.messages.slice(-20).map((m) => ({
+        role: m.role, content: m.content,
+      })),
+      { role: 'user', content: message },
+    ];
+
+    const stream    = await gemini.getChatStream(messages, book, chapter, language);
+    let   fullReply = '';
+
+    for await (const chunk of stream) {
+      const text = chunk.text();
+      fullReply += text;
+      res.write(`data: ${JSON.stringify({ chunk: text })}\n\n`);
+    }
+
+    session.messages.push({ role: 'user',      content: message,   language });
+    session.messages.push({ role: 'assistant', content: fullReply, language });
+    if (session.messages.length > 100) {
+      session.messages.splice(0, session.messages.length - 100);
+    }
+    await session.save();
+
+    res.write('data: [DONE]\n\n');
+    res.end();
   } catch (err) {
-    next(err);
+    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+    res.end();
   }
 };
 
-// GET /api/chat/:bookId/history
+// GET /:bookId/history
 const getHistory = async (req, res, next) => {
   try {
-    const session = await ChatSession.findOne({
-      user: req.user._id,
-      book: req.params.bookId,
-    });
-    res.json({ messages: session?.messages || [] });
-  } catch (err) {
-    next(err);
-  }
+    const { bookId } = req.params;
+    const session    = await ChatSession.findOne({ userId: req.user._id, bookId });
+    const messages   = (session?.messages ?? []).slice(-50);
+    res.json({ messages });
+  } catch (err) { next(err); }
 };
 
-module.exports = { sendMessage, getHistory };
+// DELETE /:bookId
+const clearHistory = async (req, res, next) => {
+  try {
+    const { bookId } = req.params;
+    await ChatSession.findOneAndUpdate(
+      { userId: req.user._id, bookId },
+      { $set: { messages: [] } },
+    );
+    res.json({ message: 'Chat history cleared.' });
+  } catch (err) { next(err); }
+};
+
+module.exports = { chat, streamChat, getHistory, clearHistory };

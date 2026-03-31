@@ -27,6 +27,7 @@ class ApiConstants {
 
   // ── Chat ───────────────────────────────────────────────────────────────────
   static String chat(String bookId)        => '$baseUrl/chat/$bookId';
+  static String chatStream(String bookId)  => '$baseUrl/chat/$bookId/stream';
   static String chatHistory(String bookId) => '$baseUrl/chat/$bookId/history';
 
   // ── Audio ──────────────────────────────────────────────────────────────────
