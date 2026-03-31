@@ -6,36 +6,36 @@ class ApiConstants {
   static String get baseUrl =>
       dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:5000/api';
 
-  // Auth
-  static const String login     = '/auth/login';
-  static const String register  = '/auth/register';
-  static const String googleAuth= '/auth/google';
-  static const String me        = '/auth/me';
-  static const String fcmToken  = '/auth/fcm-token';
+  // ── Auth ───────────────────────────────────────────────────────────────────
+  static String get authLogin    => '$baseUrl/auth/login';
+  static String get authRegister => '$baseUrl/auth/register';
+  static String get authGoogle   => '$baseUrl/auth/google';
+  static String get authMe       => '$baseUrl/auth/me';
+  static String get authFcmToken => '$baseUrl/auth/fcm-token';
 
-  // Books
-  static const String books     = '/books';
-  static const String featured  = '/books/featured';
-  static const String search    = '/books/search';
-  static String bookDetail(String id)  => '/books/$id';
-  static String bookSimilar(String id) => '/books/$id/similar';
+  // ── Books ──────────────────────────────────────────────────────────────────
+  static String get books        => '$baseUrl/books';
+  static String get bookSearch   => '$baseUrl/books/search';
+  static String get bookFeatured => '$baseUrl/books/featured';
+  static String bookDetail(String id)  => '$baseUrl/books/$id';
+  static String bookSimilar(String id) => '$baseUrl/books/$id/similar';
 
-  // Progress
-  static const String allProgress      = '/progress';
-  static String progress(String bookId) => '/progress/$bookId';
+  // ── Progress ───────────────────────────────────────────────────────────────
+  static String get allProgress         => '$baseUrl/progress';
+  static String progress(String bookId) => '$baseUrl/progress/$bookId';
 
-  // Chat
-  static String chat(String bookId)        => '/chat/$bookId';
-  static String chatHistory(String bookId) => '/chat/$bookId/history';
+  // ── Chat ───────────────────────────────────────────────────────────────────
+  static String chat(String bookId)        => '$baseUrl/chat/$bookId';
+  static String chatHistory(String bookId) => '$baseUrl/chat/$bookId/history';
 
-  // Audio
-  static const String generateAudio = '/audio/generate';
+  // ── Audio ──────────────────────────────────────────────────────────────────
+  static String get audioGenerate => '$baseUrl/audio/generate';
 
-  // Translation
-  static const String translate = '/translate';
+  // ── Translation ────────────────────────────────────────────────────────────
+  static String get translate => '$baseUrl/translate';
 
-  // Podcasts
-  static const String podcasts                    = '/podcasts';
-  static String podcastDetail(String id)          => '/podcasts/$id';
-  static String podcastSubscribe(String id)       => '/podcasts/subscribe/$id';
+  // ── Podcasts ───────────────────────────────────────────────────────────────
+  static String get podcasts                    => '$baseUrl/podcasts';
+  static String podcastDetail(String id)        => '$baseUrl/podcasts/$id';
+  static String podcastSubscribe(String id)     => '$baseUrl/podcasts/subscribe/$id';
 }

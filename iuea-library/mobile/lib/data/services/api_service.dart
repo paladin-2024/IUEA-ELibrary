@@ -1,61 +1,59 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/constants/api_constants.dart';
-import '../../core/utils/storage_util.dart';
 
 class ApiService {
   late final Dio _dio;
+  final _storage = const FlutterSecureStorage();
 
   ApiService() {
     _dio = Dio(BaseOptions(
-      baseUrl:        ApiConstants.baseUrl,
+      // baseUrl is intentionally empty — ApiConstants returns full URLs.
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 30),
-      headers:        {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json'},
     ));
 
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        final token = await StorageUtil.getToken();
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        return handler.next(options);
-      },
-      onError: (DioException e, handler) {
-        if (e.response?.statusCode == 401) {
-          StorageUtil.deleteToken();
-        }
-        return handler.next(e);
-      },
-    ));
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await _storage.read(key: 'jwt_token');
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          handler.next(options);
+        },
+        onError: (DioException error, handler) async {
+          if (error.response?.statusCode == 401) {
+            await _storage.delete(key: 'jwt_token');
+          }
+          handler.next(error);
+        },
+      ),
+    );
   }
 
-  Future<Map<String, dynamic>> get(String path, {Map<String, dynamic>? params}) async {
-    final response = await _dio.get(path, queryParameters: params);
-    return response.data as Map<String, dynamic>;
-  }
+  Future<Response> get(String path, {Map<String, dynamic>? params}) =>
+      _dio.get(path, queryParameters: params);
 
-  Future<Map<String, dynamic>> post(String path, {Map<String, dynamic>? body}) async {
-    final response = await _dio.post(path, data: body);
-    return response.data as Map<String, dynamic>;
-  }
+  Future<Response> post(String path, {dynamic data}) =>
+      _dio.post(path, data: data);
 
-  Future<Map<String, dynamic>> put(String path, {Map<String, dynamic>? body}) async {
-    final response = await _dio.put(path, data: body);
-    return response.data as Map<String, dynamic>;
-  }
+  Future<Response> put(String path, {dynamic data}) =>
+      _dio.put(path, data: data);
 
-  Future<Map<String, dynamic>> patch(String path, {Map<String, dynamic>? body}) async {
-    final response = await _dio.patch(path, data: body);
-    return response.data as Map<String, dynamic>;
-  }
+  Future<Response> delete(String path) =>
+      _dio.delete(path);
 
+  Future<Response> patch(String path, {dynamic data}) =>
+      _dio.patch(path, data: data);
+
+  // ── Error helpers ─────────────────────────────────────────────────────────
   String errorMessage(dynamic error) {
     if (error is DioException) {
-      return error.response?.data?['message'] as String?
-          ?? error.message
-          ?? 'Network error.';
+      final msg = error.response?.data;
+      if (msg is Map) return msg['message'] as String? ?? error.message ?? 'Request failed.';
+      return error.message ?? 'Network error.';
     }
     return error.toString();
   }
