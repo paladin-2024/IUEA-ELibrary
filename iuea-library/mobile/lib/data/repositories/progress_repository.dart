@@ -7,32 +7,43 @@ class ProgressRepository {
   ProgressRepository(this._api);
 
   Future<ProgressModel?> getProgress(String bookId) async {
-    final data = await _api.get(ApiConstants.progress(bookId));
-    if (data['progress'] == null) return null;
-    return ProgressModel.fromJson(data['progress'] as Map<String, dynamic>);
+    final response = await _api.get(ApiConstants.progress(bookId));
+    if (response.data['progress'] == null) return null;
+    return ProgressModel.fromJson(response.data['progress'] as Map<String, dynamic>);
   }
 
-  Future<ProgressModel> saveProgress(String bookId, {
+  Future<ProgressModel> saveProgress(
+    String bookId, {
     required int    currentPage,
     required int    totalPages,
     String?         currentCfi,
-    double?         percentage,
+    double?         percentComplete,
+    String?         currentChapter,
+    String?         readingLanguage,
+    List<dynamic>?  highlights,
+    List<dynamic>?  bookmarks,
+    String          device = 'mobile',
   }) async {
-    final data = await _api.put(
+    final response = await _api.put(
       ApiConstants.progress(bookId),
-      body: {
-        'currentPage': currentPage,
-        'totalPages':  totalPages,
-        if (currentCfi != null) 'currentCfi': currentCfi,
-        if (percentage != null) 'percentage': percentage,
+      data: {
+        'currentPage':  currentPage,
+        'totalPages':   totalPages,
+        'device':       device,
+        if (currentCfi      != null) 'currentCfi':      currentCfi,
+        if (percentComplete != null) 'percentComplete':  percentComplete,
+        if (currentChapter  != null) 'currentChapter':  currentChapter,
+        if (readingLanguage != null) 'readingLanguage': readingLanguage,
+        if (highlights      != null) 'highlights':      highlights,
+        if (bookmarks       != null) 'bookmarks':       bookmarks,
       },
     );
-    return ProgressModel.fromJson(data['progress'] as Map<String, dynamic>);
+    return ProgressModel.fromJson(response.data['progress'] as Map<String, dynamic>);
   }
 
   Future<List<ProgressModel>> getAllProgress() async {
-    final data = await _api.get(ApiConstants.allProgress);
-    return (data['progresses'] as List<dynamic>)
+    final response = await _api.get(ApiConstants.allProgress);
+    return (response.data['progresses'] as List<dynamic>)
         .map((p) => ProgressModel.fromJson(p as Map<String, dynamic>))
         .toList();
   }

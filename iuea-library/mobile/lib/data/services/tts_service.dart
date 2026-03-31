@@ -12,14 +12,30 @@ class TtsService {
     _tts.setErrorHandler((msg) { _isPlaying = false; });
   }
 
-  Future<void> speak(String text, {String language = 'en-US', double rate = 1.0}) async {
+  Future<void> speak(
+    String text, {
+    String language = 'en-US',
+    double rate     = 1.0,
+    void Function(int wordStart, int wordLength)? onProgress,
+  }) async {
     await stop();
     await _tts.setLanguage(language);
     await _tts.setSpeechRate(rate);
     await _tts.setVolume(1.0);
     await _tts.setPitch(1.0);
+
+    if (onProgress != null) {
+      _tts.setProgressHandler((String words, int start, int end, String word) {
+        onProgress(start, word.length);
+      });
+    }
+
     _isPlaying = true;
     await _tts.speak(text);
+  }
+
+  Future<void> setRate(double rate) async {
+    await _tts.setSpeechRate(rate);
   }
 
   Future<void> stop() async {
@@ -32,8 +48,20 @@ class TtsService {
     _isPlaying = false;
   }
 
-  Future<List<dynamic>> getAvailableLanguages() async {
-    return await _tts.getLanguages as List<dynamic>;
+  Future<List<String>> getAvailableLanguages() async {
+    final langs = await _tts.getLanguages;
+    return List<String>.from(langs as List);
+  }
+
+  Future<List<Map<String, String>>> getAvailableVoices() async {
+    try {
+      final voices = await _tts.getVoices;
+      return List<Map<String, String>>.from(
+        (voices as List).map((v) => Map<String, String>.from(v as Map)),
+      );
+    } catch (_) {
+      return [];
+    }
   }
 
   void dispose() {

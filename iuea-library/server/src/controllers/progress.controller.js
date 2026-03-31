@@ -3,26 +3,32 @@ const { UserProgress } = require('../models');
 // PUT /api/progress/:bookId
 const saveProgress = async (req, res, next) => {
   try {
-    const { currentPage, currentCfi, totalPages, percentage, highlights, bookmarks } = req.body;
+    const {
+      currentPage, currentCfi, totalPages, percentComplete,
+      currentChapter, readingLanguage, highlights, bookmarks, device,
+    } = req.body;
     const { bookId } = req.params;
 
     const update = {
       lastReadAt: new Date(),
-      ...(currentPage  !== undefined && { currentPage }),
-      ...(currentCfi   !== undefined && { currentCfi }),
-      ...(totalPages   !== undefined && { totalPages }),
-      ...(percentage   !== undefined && { percentage }),
-      ...(highlights   !== undefined && { highlights }),
-      ...(bookmarks    !== undefined && { bookmarks }),
+      ...(currentPage      !== undefined && { currentPage }),
+      ...(currentCfi       !== undefined && { currentCfi }),
+      ...(totalPages       !== undefined && { totalPages }),
+      ...(percentComplete  !== undefined && { percentComplete }),
+      ...(currentChapter   !== undefined && { currentChapter }),
+      ...(readingLanguage  !== undefined && { readingLanguage }),
+      ...(highlights       !== undefined && { highlights }),
+      ...(bookmarks        !== undefined && { bookmarks }),
+      ...(device           !== undefined && { lastDevice: device }),
     };
 
-    if (percentage >= 100) {
+    if (percentComplete >= 100) {
       update.isCompleted = true;
-      update.completedAt  = new Date();
+      update.completedAt = new Date();
     }
 
     const progress = await UserProgress.findOneAndUpdate(
-      { user: req.user._id, book: bookId },
+      { userId: req.user._id, bookId },
       { $set: update },
       { new: true, upsert: true }
     );
@@ -36,8 +42,8 @@ const saveProgress = async (req, res, next) => {
 const getProgress = async (req, res, next) => {
   try {
     const progress = await UserProgress.findOne({
-      user: req.user._id,
-      book: req.params.bookId,
+      userId: req.user._id,
+      bookId: req.params.bookId,
     });
     res.json({ progress: progress || null });
   } catch (err) {
@@ -48,8 +54,8 @@ const getProgress = async (req, res, next) => {
 // GET /api/progress
 const getAllProgress = async (req, res, next) => {
   try {
-    const progresses = await UserProgress.find({ user: req.user._id })
-      .populate('book', 'title author coverUrl category')
+    const progresses = await UserProgress.find({ userId: req.user._id })
+      .populate('bookId', 'title author coverUrl category')
       .sort({ lastReadAt: -1 });
     res.json({ progresses });
   } catch (err) {
