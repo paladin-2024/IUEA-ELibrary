@@ -12,7 +12,13 @@ import 'widgets/language_switcher_sheet.dart';
 
 class ReaderScreen extends StatefulWidget {
   final String bookId;
-  const ReaderScreen({super.key, required this.bookId});
+  final bool   audioMode;
+
+  const ReaderScreen({
+    super.key,
+    required this.bookId,
+    this.audioMode = false,
+  });
 
   @override
   State<ReaderScreen> createState() => _ReaderScreenState();
@@ -20,39 +26,54 @@ class ReaderScreen extends StatefulWidget {
 
 class _ReaderScreenState extends State<ReaderScreen> {
   final _epubController = EpubController();
-  bool   _initialized   = false;
-  Timer? _autoSaveTimer;
-  String _currentChapterText = '';
+  Timer?  _autoSaveTimer;
+  bool    _initialized  = false;
+  String  _mode         = 'read'; // 'read' | 'audio'
 
   @override
   void initState() {
     super.initState();
+    _mode = widget.audioMode ? 'audio' : 'read';
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final reader = context.read<ReaderProvider>();
+      await reader.initTts();
+
       final book = await context.read<BookProvider>().getBook(widget.bookId);
       if (!mounted || book == null) return;
-      final reader = context.read<ReaderProvider>();
-      reader.setBook(book);
-      await reader.loadProgress();
+
+      reader.currentBook = book;
+      await reader.loadProgress(widget.bookId);
       setState(() => _initialized = true);
-      // Start auto-save every 30 s
-      _autoSaveTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-        context.read<ReaderProvider>().saveProgress();
-      });
+
+      // Auto-save every 30 seconds
+      _autoSaveTimer = Timer.periodic(
+        const Duration(seconds: 30),
+        (_) => reader.saveProgress(widget.bookId),
+      );
     });
   }
 
   @override
   void dispose() {
     _autoSaveTimer?.cancel();
-    // Save on exit
-    context.read<ReaderProvider>().saveProgress();
     super.dispose();
   }
 
   Future<bool> _onWillPop() async {
-    await context.read<ReaderProvider>().saveProgress();
+    await context.read<ReaderProvider>().saveProgress(widget.bookId);
     return true;
   }
+
+  Color _bgColor(ReaderProvider reader) {
+    return switch (reader.theme) {
+      'sepia' => const Color(0xFFF5ECD7),
+      'dark'  => const Color(0xFF1A1A2E),
+      _       => AppColors.white,
+    };
+  }
+
+  Color _textColor(ReaderProvider reader) =>
+      reader.theme == 'dark' ? AppColors.white : AppColors.textPrimary;
 
   void _openLanguageSwitcher() {
     showModalBottomSheet(
@@ -61,56 +82,18 @@ class _ReaderScreenState extends State<ReaderScreen> {
       backgroundColor:    Colors.transparent,
       builder: (_) => ChangeNotifierProvider.value(
         value: context.read<ReaderProvider>(),
-        child: LanguageSwitcherSheet(
-          currentChapterText: _currentChapterText,
-        ),
+        child: const LanguageSwitcherSheet(),
       ),
     );
   }
 
-  void _showSettings() {
-    final reader = context.read<ReaderProvider>();
+  void _showFontSheet(ReaderProvider reader) {
     showModalBottomSheet(
       context: context,
       builder: (_) => ChangeNotifierProvider.value(
         value: reader,
         child: Consumer<ReaderProvider>(
-          builder: (_, r, __) => Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Font Size', style: TextStyle(fontWeight: FontWeight.w600)),
-                Row(
-                  children: [
-                    IconButton(
-                      icon:      const Icon(Icons.text_decrease),
-                      onPressed: () => r.setFontSize(r.fontSize - 2),
-                    ),
-                    Text('${r.fontSize.toInt()}px'),
-                    IconButton(
-                      icon:      const Icon(Icons.text_increase),
-                      onPressed: () => r.setFontSize(r.fontSize + 2),
-                    ),
-                  ],
-                ),
-                const Text('Theme', style: TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                Row(
-                  children: ReaderTheme.values.map((t) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label:    Text(t.name[0].toUpperCase() + t.name.substring(1)),
-                      selected: r.theme == t,
-                      onSelected: (_) => r.setTheme(t),
-                    ),
-                  )).toList(),
-                ),
-                const SizedBox(height: 12),
-              ],
-            ),
-          ),
+          builder: (_, r, __) => _FontSheet(reader: r),
         ),
       ),
     );
@@ -119,84 +102,111 @@ class _ReaderScreenState extends State<ReaderScreen> {
   @override
   Widget build(BuildContext context) {
     final reader = context.watch<ReaderProvider>();
-    final book   = reader.book;
+    final book   = reader.currentBook;
 
     if (!_initialized || book == null) {
       return const Scaffold(body: LoadingWidget());
     }
 
-    final bgColor = switch (reader.theme) {
-      ReaderTheme.sepia => AppColors.readerSepia,
-      ReaderTheme.dark  => AppColors.readerDark,
-      _                 => AppColors.readerLight,
-    };
+    final bg   = _bgColor(reader);
+    final fg   = _textColor(reader);
 
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        backgroundColor: bgColor,
+        backgroundColor: bg,
         body: SafeArea(
           child: Stack(
             children: [
-              // ── EPUB viewer ──────────────────────────────────────────
+              // ── EPUB / Audio content ───────────────────────────────────
               Positioned.fill(
-                bottom: 72, // leave space for bottom toolbar
-                child: book.fileType == 'epub' && book.fileUrl.isNotEmpty
-                    ? EpubViewer(
-                        epubSource:       EpubSource.fromUrl(book.fileUrl),
-                        epubController:   _epubController,
-                        onChaptersLoaded: (_) {},
-                        onEpubLoaded:     () {},
-                        onRelocated: (value) {
-                          reader.setCfi(value.startCfi);
-                        },
-                      )
-                    : book.fileUrl.isNotEmpty
-                        ? _PdfFallback(url: book.fileUrl, bgColor: bgColor)
+                bottom: 64, // toolbar height
+                child: _mode == 'audio'
+                    ? _AudioPlayerWidget(reader: reader, book: book)
+                    : book.fileUrl != null && book.fileUrl!.isNotEmpty
+                        ? EpubViewer(
+                            epubSource:     EpubSource.fromUrl(book.fileUrl!),
+                            epubController: _epubController,
+                            onChaptersLoaded: (_) {},
+                            onEpubLoaded:     () {},
+                            onRelocated: (value) {
+                              reader.setCurrentCfi(value.startCfi);
+                              if (value.progress != null) {
+                                reader.setPage(
+                                  reader.currentPage,
+                                  (value.progress! * 100),
+                                );
+                              }
+                            },
+                          )
                         : Center(
                             child: Text(
-                              'No file available.',
-                              style: TextStyle(
-                                color: reader.theme == ReaderTheme.dark
-                                    ? AppColors.white
-                                    : AppColors.textSecondary,
-                              ),
+                              'No readable file available.',
+                              style: TextStyle(color: fg),
                             ),
                           ),
               ),
 
-              // ── Translated overlay ───────────────────────────────────
-              if (reader.translatedContent != null)
+              // ── Translated text overlay ────────────────────────────────
+              if (reader.translatedContent != null && _mode == 'read')
                 Positioned.fill(
-                  bottom: 72,
+                  bottom: 64,
                   child: ColoredBox(
-                    color: bgColor,
+                    color: bg,
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
                       child: Text(
                         reader.translatedContent!,
                         style: TextStyle(
                           fontSize:   reader.fontSize,
                           height:     reader.lineHeight,
-                          color:      reader.theme == ReaderTheme.dark
-                              ? AppColors.white
-                              : AppColors.textPrimary,
+                          color:      fg,
+                          fontFamily: 'Lora',
                         ),
                       ),
                     ),
                   ),
                 ),
 
-              // ── Bottom toolbar ───────────────────────────────────────
+              // ── TOC overlay ───────────────────────────────────────────
+              if (reader.showTOC)
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: reader.toggleTOC,
+                    child: ColoredBox(
+                      color: Colors.black54,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          width: 260,
+                          color: AppColors.background,
+                          child: const Center(
+                            child: Text('TOC', style: TextStyle(color: AppColors.textSecondary)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+              // ── Bottom toolbar ────────────────────────────────────────
               Positioned(
                 bottom: 0, left: 0, right: 0,
-                child: ReaderBottomToolbar(
-                  book:                book,
+                child: ReaderToolbar(
                   reader:              reader,
-                  onBack:              () { context.pop(); },
-                  onSettings:          _showSettings,
-                  onLanguageSwitcher:  _openLanguageSwitcher,
-                  onTts:               () => reader.speakCurrentChapter(_currentChapterText),
+                  onFontTap:           () => _showFontSheet(reader),
+                  onLanguageTap:       _openLanguageSwitcher,
+                  onTtsTap:            () => reader.isPlaying
+                      ? reader.stopSpeaking()
+                      : reader.speakCurrentChapter(),
+                  onModeTap:           () => setState(() {
+                    _mode = _mode == 'read' ? 'audio' : 'read';
+                    reader.setReadingMode(_mode);
+                  }),
+                  onTOCTap:            reader.toggleTOC,
+                  onChatTap:           reader.toggleChatbot,
+                  bgColor:             bg,
                 ),
               ),
             ],
@@ -207,26 +217,125 @@ class _ReaderScreenState extends State<ReaderScreen> {
   }
 }
 
-class _PdfFallback extends StatelessWidget {
-  final String url;
-  final Color  bgColor;
-  const _PdfFallback({required this.url, required this.bgColor});
+// ── Inline audio player widget ─────────────────────────────────────────────────
+class _AudioPlayerWidget extends StatelessWidget {
+  final ReaderProvider reader;
+  final dynamic        book;
+  const _AudioPlayerWidget({required this.reader, required this.book});
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.picture_as_pdf, size: 64, color: AppColors.primary.withOpacity(0.5)),
-            const SizedBox(height: 12),
-            const Text('PDF Viewer', style: TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            SelectableText(url, style: const TextStyle(color: AppColors.primary, fontSize: 12)),
-          ],
+    final fg = reader.theme == 'dark' ? AppColors.white : AppColors.textPrimary;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (book.coverUrl != null && book.coverUrl!.isNotEmpty)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.network(
+              book.coverUrl!,
+              width: 180, height: 240, fit: BoxFit.cover,
+            ),
+          )
+        else
+          Container(
+            width: 180, height: 240,
+            decoration: BoxDecoration(
+              color:        AppColors.primary.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.book_outlined, size: 64, color: AppColors.primary),
+          ),
+
+        const SizedBox(height: 24),
+        Text(book.title,
+          style: TextStyle(
+            fontSize: 18, fontWeight: FontWeight.bold, color: fg),
+          textAlign: TextAlign.center,
+          maxLines: 2,
         ),
+        const SizedBox(height: 8),
+        Text(book.author,
+          style: TextStyle(fontSize: 13, color: fg.withOpacity(0.6)),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Audio by your device\'s speech engine',
+          style: TextStyle(
+            fontSize: 11,
+            color:    AppColors.textHint,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        const SizedBox(height: 32),
+        // Play/stop control
+        GestureDetector(
+          onTap: reader.isPlaying
+              ? reader.stopSpeaking
+              : reader.speakCurrentChapter,
+          child: Container(
+            width: 72, height: 72,
+            decoration: const BoxDecoration(
+              color: AppColors.primary, shape: BoxShape.circle),
+            child: Icon(
+              reader.isPlaying ? Icons.stop : Icons.play_arrow,
+              color: AppColors.white, size: 36,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Font / theme settings sheet ────────────────────────────────────────────────
+class _FontSheet extends StatelessWidget {
+  final ReaderProvider reader;
+  const _FontSheet({required this.reader});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Font Size',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+          Row(
+            children: [
+              IconButton(
+                icon:      const Icon(Icons.text_decrease),
+                onPressed: () => reader.setFontSize(reader.fontSize - 2),
+              ),
+              Text('${reader.fontSize.toInt()}px'),
+              IconButton(
+                icon:      const Icon(Icons.text_increase),
+                onPressed: () => reader.setFontSize(reader.fontSize + 2),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text('Theme',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              for (final t in ['white', 'sepia', 'dark'])
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label:    Text(t[0].toUpperCase() + t.substring(1)),
+                    selected: reader.theme == t,
+                    onSelected: (_) => reader.setTheme(t),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }

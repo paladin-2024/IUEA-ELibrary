@@ -1,30 +1,36 @@
 const { UserProgress } = require('../models');
 
+// ── saveProgress ──────────────────────────────────────────────────────────────
 // PUT /api/progress/:bookId
 const saveProgress = async (req, res, next) => {
   try {
-    const {
-      currentPage, currentCfi, totalPages, percentComplete,
-      currentChapter, readingLanguage, highlights, bookmarks, device,
-    } = req.body;
     const { bookId } = req.params;
+    const {
+      currentPage,
+      currentCfi,
+      percentComplete,
+      currentChapter,
+      readingLanguage,
+      highlights,
+      bookmarks,
+      device,
+    } = req.body;
 
-    const update = {
-      lastReadAt: new Date(),
-      ...(currentPage      !== undefined && { currentPage }),
-      ...(currentCfi       !== undefined && { currentCfi }),
-      ...(totalPages       !== undefined && { totalPages }),
-      ...(percentComplete  !== undefined && { percentComplete }),
-      ...(currentChapter   !== undefined && { currentChapter }),
-      ...(readingLanguage  !== undefined && { readingLanguage }),
-      ...(highlights       !== undefined && { highlights }),
-      ...(bookmarks        !== undefined && { bookmarks }),
-      ...(device           !== undefined && { lastDevice: device }),
-    };
+    const update = { lastReadAt: new Date() };
 
-    if (percentComplete >= 100) {
-      update.isCompleted = true;
-      update.completedAt = new Date();
+    if (currentPage     !== undefined) update.currentPage     = currentPage;
+    if (currentCfi      !== undefined) update.currentCfi      = currentCfi;
+    if (currentChapter  !== undefined) update.currentChapter  = currentChapter;
+    if (readingLanguage !== undefined) update.readingLanguage = readingLanguage;
+    if (highlights      !== undefined) update.highlights      = highlights;
+    if (bookmarks       !== undefined) update.bookmarks       = bookmarks;
+    if (device          !== undefined) update.lastDevice      = device;
+
+    if (percentComplete !== undefined) {
+      update.percentComplete = percentComplete;
+      if (percentComplete >= 100) {
+        update.isCompleted = true;
+      }
     }
 
     const progress = await UserProgress.findOneAndUpdate(
@@ -32,14 +38,16 @@ const saveProgress = async (req, res, next) => {
       { $set: update },
       { new: true, upsert: true }
     );
+
     res.json({ progress });
   } catch (err) {
     next(err);
   }
 };
 
+// ── loadProgress ──────────────────────────────────────────────────────────────
 // GET /api/progress/:bookId
-const getProgress = async (req, res, next) => {
+const loadProgress = async (req, res, next) => {
   try {
     const progress = await UserProgress.findOne({
       userId: req.user._id,
@@ -51,11 +59,12 @@ const getProgress = async (req, res, next) => {
   }
 };
 
+// ── getAllProgress ────────────────────────────────────────────────────────────
 // GET /api/progress
 const getAllProgress = async (req, res, next) => {
   try {
     const progresses = await UserProgress.find({ userId: req.user._id })
-      .populate('bookId', 'title author coverUrl category')
+      .populate('bookId', 'title author coverUrl category fileFormat fileUrl')
       .sort({ lastReadAt: -1 });
     res.json({ progresses });
   } catch (err) {
@@ -63,4 +72,4 @@ const getAllProgress = async (req, res, next) => {
   }
 };
 
-module.exports = { saveProgress, getProgress, getAllProgress };
+module.exports = { saveProgress, loadProgress, getAllProgress };

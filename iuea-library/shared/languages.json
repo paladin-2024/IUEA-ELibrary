@@ -1,10 +1,10 @@
 [
-  { "name": "English",     "code": "en", "ttsLang": "en-US", "flutterLocale": "en" },
-  { "name": "Swahili",     "code": "sw", "ttsLang": "sw-KE", "flutterLocale": "sw" },
-  { "name": "French",      "code": "fr", "ttsLang": "fr-FR", "flutterLocale": "fr" },
-  { "name": "Arabic",      "code": "ar", "ttsLang": "ar-SA", "flutterLocale": "ar" },
-  { "name": "Luganda",     "code": "lg", "ttsLang": "lg",    "flutterLocale": "lg" },
-  { "name": "Kinyarwanda", "code": "rw", "ttsLang": "rw",    "flutterLocale": "rw" },
-  { "name": "Somali",      "code": "so", "ttsLang": "so",    "flutterLocale": "so" },
-  { "name": "Amharic",     "code": "am", "ttsLang": "am-ET", "flutterLocale": "am" }
+  { "name": "English",     "native": "English",     "code": "en", "flag": "🇬🇧", "ttsLang": "en-US", "flutterLocale": "en" },
+  { "name": "Swahili",     "native": "Kiswahili",   "code": "sw", "flag": "🇹🇿", "ttsLang": "sw-KE", "flutterLocale": "sw" },
+  { "name": "French",      "native": "Français",    "code": "fr", "flag": "🇫🇷", "ttsLang": "fr-FR", "flutterLocale": "fr" },
+  { "name": "Arabic",      "native": "العربية",     "code": "ar", "flag": "🇸🇦", "ttsLang": "ar-SA", "flutterLocale": "ar" },
+  { "name": "Luganda",     "native": "Luganda",     "code": "lg", "flag": "🇺🇬", "ttsLang": "lg",    "flutterLocale": "lg" },
+  { "name": "Kinyarwanda", "native": "Kinyarwanda", "code": "rw", "flag": "🇷🇼", "ttsLang": "rw",    "flutterLocale": "rw" },
+  { "name": "Somali",      "native": "Soomaali",    "code": "so", "flag": "🇸🇴", "ttsLang": "so",    "flutterLocale": "so" },
+  { "name": "Amharic",     "native": "አማርኛ",      "code": "am", "flag": "🇪🇹", "ttsLang": "am-ET", "flutterLocale": "am" }
 ]

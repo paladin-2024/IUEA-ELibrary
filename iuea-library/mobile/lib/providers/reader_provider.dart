@@ -1,232 +1,179 @@
 import 'package:flutter/foundation.dart';
 import '../data/models/book_model.dart';
-import '../data/models/progress_model.dart';
-import '../data/repositories/progress_repository.dart';
 import '../data/services/api_service.dart';
 import '../data/services/tts_service.dart';
 import '../core/constants/api_constants.dart';
 
-enum ReaderTheme { light, sepia, dark }
-enum ReaderMode  { read, audio }
+// Language name → BCP-47 code (mirrors server langMap)
+const _langMap = {
+  'English':     'en-US',
+  'Swahili':     'sw-KE',
+  'French':      'fr-FR',
+  'Arabic':      'ar-SA',
+  'Luganda':     'lg',
+  'Kinyarwanda': 'rw',
+  'Somali':      'so',
+  'Amharic':     'am-ET',
+};
+
+String _getLangCode(String name) => _langMap[name] ?? 'en-US';
 
 class ReaderProvider extends ChangeNotifier {
-  // ── Book ─────────────────────────────────────────────────────────────────
-  BookModel?      _book;
-  ProgressModel?  _progress;
+  // ── State ────────────────────────────────────────────────────────────────────
+  BookModel? currentBook;
+  int    currentPage        = 0;
+  String? currentCfi;
+  double percentComplete    = 0;
+  int    currentChapter     = 0;
+  String currentChapterText = '';
+  String readingMode        = 'read';   // 'read' | 'audio'
+  String readingLanguage    = 'English';
+  bool   isTranslating      = false;
+  String? translatedContent;
+  double fontSize           = 18;
+  double lineHeight         = 1.8;
+  String theme              = 'white';  // 'white' | 'sepia' | 'dark'
+  bool   isPlaying          = false;
+  bool   showTOC            = false;
+  bool   showChatbot        = false;
 
-  // ── Position ─────────────────────────────────────────────────────────────
-  int    _currentPage    = 0;
-  int    _totalPages     = 0;
-  double _percentComplete = 0;
-  String _currentCfi     = '';
-  String _currentChapter = '';
+  final _api = ApiService();
+  final _tts = TTSService();
 
-  // ── Mode ─────────────────────────────────────────────────────────────────
-  ReaderMode  _mode            = ReaderMode.read;
-  String      _readingLanguage = 'en';
+  // ── TTS init ─────────────────────────────────────────────────────────────────
+  Future<void> initTts() async {
+    await _tts.init();
+  }
 
-  // ── Translation ───────────────────────────────────────────────────────────
-  bool    _isTranslating      = false;
-  String? _translatedContent;
+  // ── loadProgress ─────────────────────────────────────────────────────────────
+  Future<void> loadProgress(String bookId) async {
+    try {
+      final response = await _api.get(ApiConstants.progress(bookId));
+      final data     = response.data as Map<String, dynamic>?;
+      final progress = data?['progress'] as Map<String, dynamic>?;
+      if (progress != null) {
+        currentPage       = (progress['currentPage']      as num?)?.toInt()    ?? 0;
+        currentCfi        =  progress['currentCfi']       as String?;
+        percentComplete   = (progress['percentComplete']  as num?)?.toDouble() ?? 0;
+        currentChapter    = (progress['currentChapter']   as num?)?.toInt()    ?? 0;
+        readingLanguage   =  progress['readingLanguage']  as String? ?? 'English';
+        notifyListeners();
+      }
+    } catch (_) {
+      // Non-fatal — first read has no progress record
+    }
+  }
 
-  // ── Display ───────────────────────────────────────────────────────────────
-  ReaderTheme _theme      = ReaderTheme.light;
-  double      _fontSize   = 18;
-  double      _lineHeight = 1.6;
+  // ── saveProgress ─────────────────────────────────────────────────────────────
+  Future<void> saveProgress(String bookId) async {
+    try {
+      await _api.put(
+        ApiConstants.progress(bookId),
+        data: {
+          'currentPage':     currentPage,
+          'currentCfi':      currentCfi,
+          'percentComplete': percentComplete,
+          'currentChapter':  currentChapter,
+          'readingLanguage': readingLanguage,
+          'device':          'mobile',
+        },
+      );
+    } catch (_) {}
+  }
 
-  // ── Audio ─────────────────────────────────────────────────────────────────
-  bool   _isTtsPlaying = false;
-  bool   _isTtsPaused  = false;
-  double _playbackSpeed = 1.0;
+  // ── translateCurrentChapter ───────────────────────────────────────────────────
+  Future<void> translateCurrentChapter(String targetLanguage) async {
+    if (currentChapterText.isEmpty) return;
 
-  // ── UI ─────────────────────────────────────────────────────────────────────
-  bool _showTOC        = false;
-  bool _isChatOpen     = false;
+    isTranslating = true;
+    notifyListeners();
 
-  // Getters
-  BookModel?     get book              => _book;
-  ProgressModel? get progress          => _progress;
-  int            get currentPage       => _currentPage;
-  int            get totalPages        => _totalPages;
-  double         get percentComplete   => _percentComplete;
-  String         get currentCfi        => _currentCfi;
-  String         get currentChapter    => _currentChapter;
-  ReaderMode     get mode              => _mode;
-  String         get readingLanguage   => _readingLanguage;
-  bool           get isTranslating     => _isTranslating;
-  String?        get translatedContent => _translatedContent;
-  ReaderTheme    get theme             => _theme;
-  double         get fontSize          => _fontSize;
-  double         get lineHeight        => _lineHeight;
-  bool           get isTtsPlaying      => _isTtsPlaying;
-  bool           get isTtsPaused       => _isTtsPaused;
-  double         get playbackSpeed     => _playbackSpeed;
-  bool           get showTOC           => _showTOC;
-  bool           get isChatOpen        => _isChatOpen;
+    try {
+      final response = await _api.post(
+        ApiConstants.translate,
+        data: {
+          'text':           currentChapterText,
+          'targetLanguage': targetLanguage,
+          'sourceLanguage': 'en',
+        },
+      );
+      final data = response.data as Map<String, dynamic>?;
+      translatedContent = data?['translatedText'] as String?;
+      readingLanguage   = targetLanguage;
+    } catch (_) {
+      translatedContent = null;
+    } finally {
+      isTranslating = false;
+      notifyListeners();
+    }
+  }
 
-  final ProgressRepository _progressRepo = ProgressRepository(ApiService());
-  final TtsService         _tts          = TtsService();
+  // ── speakCurrentChapter ───────────────────────────────────────────────────────
+  Future<void> speakCurrentChapter() async {
+    final text     = translatedContent ?? currentChapterText;
+    final langCode = _getLangCode(readingLanguage);
+    if (text.isEmpty) return;
 
-  // ── Book / Mode ───────────────────────────────────────────────────────────
-  void setBook(BookModel book) {
-    _book = book;
+    await _tts.setRate(1.0);
+    await _tts.speak(text, langCode);
+    isPlaying = true;
     notifyListeners();
   }
 
-  void setMode(ReaderMode mode) {
-    _mode = mode;
+  // ── stopSpeaking ──────────────────────────────────────────────────────────────
+  Future<void> stopSpeaking() async {
+    await _tts.stop();
+    isPlaying = false;
     notifyListeners();
   }
 
-  // ── Position ─────────────────────────────────────────────────────────────
-  void setPage(int page, int total) {
-    _currentPage    = page;
-    _totalPages     = total;
-    _percentComplete = total > 0 ? (page / total * 100) : 0;
-    notifyListeners();
-  }
-
-  void setCfi(String cfi) {
-    _currentCfi = cfi;
-    notifyListeners();
-  }
-
-  void setChapter(String chapter) {
-    if (_currentChapter == chapter) return;
-    _currentChapter  = chapter;
-    _translatedContent = null;   // clear translation on chapter change
-    notifyListeners();
-  }
-
-  // ── Display ───────────────────────────────────────────────────────────────
-  void setTheme(ReaderTheme theme) {
-    _theme = theme;
-    notifyListeners();
-  }
-
+  // ── Display setters ───────────────────────────────────────────────────────────
   void setFontSize(double size) {
-    _fontSize = size.clamp(12, 28);
+    fontSize = size.clamp(12, 30);
+    notifyListeners();
+  }
+
+  void setTheme(String t) {
+    theme = t;
     notifyListeners();
   }
 
   void setLineHeight(double lh) {
-    _lineHeight = lh.clamp(1.2, 2.5);
+    lineHeight = lh;
     notifyListeners();
   }
 
-  // ── UI ─────────────────────────────────────────────────────────────────────
+  void setReadingMode(String mode) {
+    readingMode = mode;
+    notifyListeners();
+  }
+
+  void setCurrentCfi(String cfi) {
+    currentCfi = cfi;
+    notifyListeners();
+  }
+
+  void setCurrentChapterText(String text) {
+    currentChapterText = text;
+    translatedContent  = null; // clear stale translation on chapter change
+    notifyListeners();
+  }
+
+  void setPage(int page, double percent) {
+    currentPage     = page;
+    percentComplete = percent;
+    notifyListeners();
+  }
+
   void toggleTOC() {
-    _showTOC = !_showTOC;
+    showTOC = !showTOC;
+    showChatbot = false;
     notifyListeners();
   }
 
-  void toggleChat() {
-    _isChatOpen = !_isChatOpen;
-    notifyListeners();
-  }
-
-  // ── Progress ─────────────────────────────────────────────────────────────
-  Future<void> loadProgress() async {
-    if (_book == null) return;
-    try {
-      final p = await _progressRepo.getProgress(_book!.id);
-      if (p != null) {
-        _progress        = p;
-        _currentPage     = p.currentPage;
-        _percentComplete = p.percentComplete;
-        _currentCfi      = p.currentCfi ?? '';
-        _readingLanguage = p.readingLanguage.toLowerCase().contains('en') ? 'en' : p.readingLanguage;
-        notifyListeners();
-      }
-    } catch (_) {}
-  }
-
-  Future<void> saveProgress() async {
-    if (_book == null) return;
-    try {
-      await _progressRepo.saveProgress(
-        _book!.id,
-        currentPage:     _currentPage,
-        totalPages:      _totalPages,
-        currentCfi:      _currentCfi.isNotEmpty ? _currentCfi : null,
-        percentComplete: _percentComplete,
-        currentChapter:  _currentChapter.isNotEmpty ? _currentChapter : null,
-        readingLanguage: _readingLanguage,
-        device:          'mobile',
-      );
-    } catch (_) {}
-  }
-
-  // ── Translation ───────────────────────────────────────────────────────────
-  Future<void> translateCurrentChapter(String text, String targetLanguage) async {
-    if (text.isEmpty || targetLanguage == 'en') {
-      _translatedContent = null;
-      notifyListeners();
-      return;
-    }
-    _isTranslating = true;
-    notifyListeners();
-    try {
-      final api      = ApiService();
-      final response = await api.post(
-        ApiConstants.translate,
-        data: {
-          'text':            text,
-          'targetLanguage':  targetLanguage,
-          'sourceLanguage':  'en',
-        },
-      );
-      _translatedContent = response.data['translated'] as String?;
-      _readingLanguage   = targetLanguage;
-    } catch (_) {
-      _translatedContent = null;
-    } finally {
-      _isTranslating = false;
-      notifyListeners();
-    }
-  }
-
-  void clearTranslation() {
-    _translatedContent = null;
-    _readingLanguage   = 'en';
-    notifyListeners();
-  }
-
-  // ── TTS ───────────────────────────────────────────────────────────────────
-  Future<void> speakCurrentChapter(String text) async {
-    if (_isTtsPlaying) {
-      await _tts.stop();
-      _isTtsPlaying = false;
-      _isTtsPaused  = false;
-      notifyListeners();
-      return;
-    }
-    if (_isTtsPaused) {
-      // flutter_tts doesn't support true resume — restart
-      _isTtsPaused = false;
-    }
-    await _tts.speak(
-      _translatedContent ?? text,
-      language: _readingLanguage == 'en' ? 'en-US' : _readingLanguage,
-      rate:     _playbackSpeed,
-      onProgress: (start, length) {
-        // Could emit word-level events if needed
-      },
-    );
-    _isTtsPlaying = true;
-    notifyListeners();
-  }
-
-  Future<void> stopSpeaking() async {
-    await _tts.stop();
-    _isTtsPlaying = false;
-    _isTtsPaused  = false;
-    notifyListeners();
-  }
-
-  Future<void> setPlaybackSpeed(double speed) async {
-    _playbackSpeed = speed;
-    if (_isTtsPlaying) await _tts.setRate(speed);
+  void toggleChatbot() {
+    showChatbot = !showChatbot;
+    showTOC     = false;
     notifyListeners();
   }
 

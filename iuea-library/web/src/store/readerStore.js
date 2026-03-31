@@ -1,130 +1,116 @@
 import { create } from 'zustand';
-import api from '../services/api';
-
-export const READER_THEMES = {
-  light: { background: '#FFFFFF', color: '#1A1A1A', borderColor: '#E5E7EB' },
-  sepia: { background: '#F4E4C1', color: '#3D2B1F', borderColor: '#C9A77A' },
-  dark:  { background: '#1A1A2E', color: '#E0E0E0', borderColor: '#374151' },
-};
+import api         from '../services/api';
 
 const useReaderStore = create((set, get) => ({
-  // ── Book ─────────────────────────────────────────────────────────────────
+  // ── Book ─────────────────────────────────────────────────────────────────────
   currentBook:        null,
 
-  // ── Position ─────────────────────────────────────────────────────────────
+  // ── Reading position ─────────────────────────────────────────────────────────
   currentPage:        0,
-  totalPages:         0,
-  percentComplete:    0,
   currentCfi:         '',
-  currentChapter:     '',
-  currentChapterText: '',
+  currentChapter:     0,        // chapter index
+  currentChapterText: '',       // plain text of current chapter for TTS/translation
+  percentComplete:    0,
 
-  // ── Mode ─────────────────────────────────────────────────────────────────
-  readingMode:        'read',    // 'read' | 'audio'
-  readingLanguage:    'en',
+  // ── Mode ─────────────────────────────────────────────────────────────────────
+  readingMode:        'read',   // 'read' | 'audio'
 
-  // ── Translation ───────────────────────────────────────────────────────────
+  // ── Language & translation ───────────────────────────────────────────────────
+  readingLanguage:    'English',
   isTranslating:      false,
-  translatedContent:  null,
+  translatedContent:  null,     // string — translated text for current chapter
 
-  // ── Display ───────────────────────────────────────────────────────────────
+  // ── Display settings ─────────────────────────────────────────────────────────
   fontSize:           18,
-  lineHeight:         1.6,
-  fontFamily:         'serif',
-  theme:              'light',
+  lineHeight:         1.8,
+  fontFamily:         'serif',  // 'serif' | 'sans' | 'mono'
+  theme:              'white',  // 'white' | 'sepia' | 'dark'
 
-  // ── Audio ─────────────────────────────────────────────────────────────────
+  // ── Audio (Web Speech API) ───────────────────────────────────────────────────
   isPlaying:          false,
   isPaused:           false,
-  playbackSpeed:      1.0,
+  playbackSpeed:      1,
   currentWordIndex:   -1,
 
-  // ── UI panels ─────────────────────────────────────────────────────────────
+  // ── UI overlay visibility ────────────────────────────────────────────────────
   showToolbar:        true,
   showTOC:            false,
   showChatbot:        false,
   showLanguageSwitcher: false,
   showFontPanel:      false,
 
-  // ── Annotations ───────────────────────────────────────────────────────────
+  // ── Annotations ──────────────────────────────────────────────────────────────
   highlights: [],
   bookmarks:  [],
 
-  // ── Setters ───────────────────────────────────────────────────────────────
-  setBook:            (b) => set({ currentBook: b }),
-  setCfi:             (cfi) => set({ currentCfi: cfi }),
-  setChapter:         (ch, text) => set({
-    currentChapter: ch,
-    currentChapterText: text ?? get().currentChapterText,
-    translatedContent: null,
-  }),
-  setPage:            (page, total) => set({
-    currentPage:     page,
-    totalPages:      total,
-    percentComplete: total > 0 ? Math.round((page / total) * 100) : 0,
-  }),
-  setReadingMode:     (mode) => set({ readingMode: mode }),
-  setReadingLanguage: (lang) => set({ readingLanguage: lang, translatedContent: null }),
-  setTranslating:     (v)    => set({ isTranslating: v }),
-  setTranslatedContent: (c)  => set({ translatedContent: c }),
-  setFontSize:        (n)    => set({ fontSize: Math.min(28, Math.max(12, n)) }),
-  setLineHeight:      (n)    => set({ lineHeight: n }),
-  setFontFamily:      (f)    => set({ fontFamily: f }),
-  setTheme:           (t)    => set({ theme: t }),
-  setIsPlaying:       (v)    => set({ isPlaying: v }),
-  setIsPaused:        (v)    => set({ isPaused: v }),
-  setPlaybackSpeed:   (n)    => set({ playbackSpeed: n }),
-  setCurrentWordIndex:(i)    => set({ currentWordIndex: i }),
+  // ── Setters ───────────────────────────────────────────────────────────────────
+  setCurrentBook:      (book)  => set({ currentBook: book }),
+  setCurrentPage:      (page)  => set({ currentPage: page }),
+  setCurrentCfi:       (cfi)   => set({ currentCfi: cfi }),
+  setCurrentChapter:   (idx)   => set({ currentChapter: idx, translatedContent: null }),
+  setChapterText:      (text)  => set({ currentChapterText: text }),
+  setPercentComplete:  (pct)   => set({ percentComplete: pct }),
+  setReadingMode:      (mode)  => set({ readingMode: mode }),
+  setReadingLanguage:  (lang)  => set({ readingLanguage: lang }),
+  setIsTranslating:    (v)     => set({ isTranslating: v }),
+  setTranslatedContent:(text)  => set({ translatedContent: text }),
+  setFontSize:         (n)     => set({ fontSize: Math.max(12, Math.min(30, n)) }),
+  setLineHeight:       (n)     => set({ lineHeight: n }),
+  setFontFamily:       (f)     => set({ fontFamily: f }),
+  setTheme:            (t)     => set({ theme: t }),
+  setIsPlaying:        (v)     => set({ isPlaying: v }),
+  setIsPaused:         (v)     => set({ isPaused: v }),
+  setPlaybackSpeed:    (n)     => set({ playbackSpeed: n }),
+  setCurrentWordIndex: (i)     => set({ currentWordIndex: i }),
 
-  toggleToolbar:      () => set((s) => ({ showToolbar: !s.showToolbar })),
-  toggleTOC:          () => set((s) => ({ showTOC: !s.showTOC, showChatbot: false, showLanguageSwitcher: false })),
-  toggleChatbot:      () => set((s) => ({ showChatbot: !s.showChatbot, showTOC: false })),
+  toggleToolbar:          () => set((s) => ({ showToolbar: !s.showToolbar })),
+  toggleTOC:              () => set((s) => ({ showTOC: !s.showTOC, showChatbot: false, showLanguageSwitcher: false })),
+  toggleChatbot:          () => set((s) => ({ showChatbot: !s.showChatbot, showTOC: false })),
   toggleLanguageSwitcher: () => set((s) => ({ showLanguageSwitcher: !s.showLanguageSwitcher })),
-  toggleFontPanel:    () => set((s) => ({ showFontPanel: !s.showFontPanel })),
+  toggleFontPanel:        () => set((s) => ({ showFontPanel: !s.showFontPanel })),
 
   addHighlight:    (h)   => set((s) => ({ highlights: [...s.highlights, h] })),
-  addBookmark:     (b)   => set((s) => ({ bookmarks:  [...s.bookmarks,  b] })),
+  addBookmark:     (cfi) => set((s) => ({ bookmarks:  [...s.bookmarks, cfi] })),
   removeHighlight: (cfi) => set((s) => ({ highlights: s.highlights.filter((h) => h.cfi !== cfi) })),
-  removeBookmark:  (cfi) => set((s) => ({ bookmarks:  s.bookmarks.filter((b)  => b.cfi  !== cfi) })),
+  removeBookmark:  (cfi) => set((s) => ({ bookmarks:  s.bookmarks.filter((c) => c !== cfi) })),
 
-  themeStyles: () => READER_THEMES[get().theme] || READER_THEMES.light,
-
-  // ── Server sync ───────────────────────────────────────────────────────────
+  // ── Sync actions ─────────────────────────────────────────────────────────────
   saveProgress: async (bookId) => {
     const {
-      currentPage, totalPages, percentComplete, currentCfi,
+      currentPage, currentCfi, percentComplete,
       currentChapter, readingLanguage, highlights, bookmarks,
     } = get();
-    if (!bookId || currentPage === 0) return;
+    if (!bookId) return;
     try {
       await api.put(`/progress/${bookId}`, {
         currentPage,
-        totalPages,
-        percentComplete,
         currentCfi,
+        percentComplete,
         currentChapter,
         readingLanguage,
         highlights,
         bookmarks,
         device: 'web',
       });
-    } catch (_) {}
+    } catch (_) {
+      // Silent — progress save failure is non-fatal
+    }
   },
 
   loadProgress: async (bookId) => {
+    if (!bookId) return;
     try {
       const { data } = await api.get(`/progress/${bookId}`);
       if (data.progress) {
         const p = data.progress;
         set({
-          currentPage:     p.currentPage      || 0,
-          totalPages:      p.totalPages       || 0,
-          percentComplete: p.percentComplete  || 0,
-          currentCfi:      p.currentCfi       || '',
-          currentChapter:  p.currentChapter   || '',
-          readingLanguage: p.readingLanguage  || 'en',
-          highlights:      p.highlights       || [],
-          bookmarks:       p.bookmarks        || [],
+          currentPage:     p.currentPage      ?? 0,
+          currentCfi:      p.currentCfi       ?? '',
+          currentChapter:  p.currentChapter   ?? 0,
+          percentComplete: p.percentComplete  ?? 0,
+          readingLanguage: p.readingLanguage  ?? 'English',
+          highlights:      p.highlights       ?? [],
+          bookmarks:       p.bookmarks        ?? [],
         });
       }
     } catch (_) {}

@@ -1,76 +1,99 @@
 const MYMEMORY_EMAIL = process.env.MYMEMORY_EMAIL || '';
 
 const langMap = {
-  english:    'en', french:     'fr', arabic:     'ar',
-  swahili:    'sw', luganda:    'lg', spanish:    'es',
-  portuguese: 'pt', german:     'de', chinese:    'zh',
-  japanese:   'ja', hindi:      'hi', russian:    'ru',
-  kiswahili:  'sw', luganda:    'lg',
+  English:     'en',
+  Swahili:     'sw',
+  French:      'fr',
+  Arabic:      'ar',
+  Luganda:     'lg',
+  Kinyarwanda: 'rw',
+  Somali:      'so',
+  Amharic:     'am',
 };
 
-function toCode(lang) {
-  if (!lang) return 'en';
-  const lower = lang.toLowerCase().trim();
-  return langMap[lower] || lower;
+// Resolve a value that may be a full language name ("Swahili") or already a
+// BCP-47 code ("sw").  Falls back to the raw value so codes pass through.
+function resolveCode(value) {
+  if (!value) return 'en';
+  return langMap[value] ?? value;
 }
 
-async function translateChunk(text, targetLang, sourceLang) {
-  const params = new URLSearchParams({
-    q:        text,
-    langpair: `${sourceLang}|${targetLang}`,
-    ...(MYMEMORY_EMAIL && { de: MYMEMORY_EMAIL }),
-  });
-  const resp = await fetch(`https://api.mymemory.translated.net/get?${params}`);
-  if (!resp.ok) throw new Error(`MyMemory HTTP ${resp.status}`);
-  const json = await resp.json();
-  if (json.responseStatus !== 200) {
-    throw new Error(json.responseDetails || 'Translation failed');
-  }
-  return json.responseData.translatedText;
-}
-
-async function translateLong(text, targetLang, sourceLang) {
-  const CHUNK = 450;
-  // Split on sentence boundaries, keeping delimiters
-  const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+// Split text into ≤450-char chunks on sentence boundaries where possible.
+function splitIntoChunks(text, maxLen = 450) {
   const chunks = [];
-  let current  = '';
+  // Split on sentence-ending punctuation first, then fall back to words.
+  const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) ?? [text];
+  let current = '';
 
-  for (const s of sentences) {
-    if ((current + s).length > CHUNK) {
-      if (current.trim()) chunks.push(current.trim());
-      current = s;
+  for (const sentence of sentences) {
+    if (sentence.length > maxLen) {
+      // Long sentence with no punctuation — split on spaces
+      if (current) { chunks.push(current.trim()); current = ''; }
+      let remaining = sentence;
+      while (remaining.length > maxLen) {
+        const cut = remaining.lastIndexOf(' ', maxLen);
+        const pos = cut > 0 ? cut : maxLen;
+        chunks.push(remaining.slice(0, pos).trim());
+        remaining = remaining.slice(pos).trim();
+      }
+      current = remaining;
+    } else if ((current + sentence).length > maxLen) {
+      if (current) chunks.push(current.trim());
+      current = sentence;
     } else {
-      current += s;
+      current += sentence;
     }
   }
   if (current.trim()) chunks.push(current.trim());
-
-  const results = [];
-  for (const chunk of chunks) {
-    // Sequential to avoid rate-limit on free tier
-    results.push(await translateChunk(chunk, targetLang, sourceLang));
-  }
-  return results.join(' ');
+  return chunks;
 }
 
+async function translateChunk(chunk, sourceLang, targetLang) {
+  const params = new URLSearchParams({
+    q:        chunk,
+    langpair: `${sourceLang}|${targetLang}`,
+  });
+  if (MYMEMORY_EMAIL) params.set('de', MYMEMORY_EMAIL);
+
+  const url  = `https://api.mymemory.translated.net/get?${params.toString()}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`MyMemory HTTP ${resp.status}`);
+
+  const json = await resp.json();
+  if (json.responseStatus !== 200) {
+    throw new Error(json.responseDetails ?? 'Translation failed');
+  }
+  return json.responseData.translatedText ?? chunk;
+}
+
+// ── translate ─────────────────────────────────────────────────────────────────
 // POST /api/translate
 const translate = async (req, res, next) => {
   try {
     const { text, targetLanguage, sourceLanguage = 'en' } = req.body;
+
     if (!text || !targetLanguage) {
       return res.status(400).json({ message: 'text and targetLanguage are required.' });
     }
 
-    const targetCode = toCode(targetLanguage);
-    const sourceCode = toCode(sourceLanguage);
+    const sourceLang = resolveCode(sourceLanguage);
+    const targetLang = resolveCode(targetLanguage);
 
-    if (targetCode === sourceCode) {
-      return res.json({ translated: text, targetLanguage: targetCode, sourceLanguage: sourceCode });
+    // If same language, return as-is
+    if (sourceLang === targetLang) {
+      return res.json({ translatedText: text, sourceLang, targetLang });
     }
 
-    const translated = await translateLong(text, targetCode, sourceCode);
-    res.json({ translated, targetLanguage: targetCode, sourceLanguage: sourceCode });
+    const chunks   = splitIntoChunks(text.trim());
+    const results  = [];
+
+    // Sequential — MyMemory free tier has no parallel budget
+    for (const chunk of chunks) {
+      const translated = await translateChunk(chunk, sourceLang, targetLang);
+      results.push(translated);
+    }
+
+    res.json({ translatedText: results.join(' '), sourceLang, targetLang });
   } catch (err) {
     next(err);
   }

@@ -1,171 +1,180 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../../data/models/book_model.dart';
 import '../../../providers/reader_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_text_styles.dart';
 
-class ReaderBottomToolbar extends StatelessWidget {
-  final BookModel        book;
-  final ReaderProvider   reader;
-  final VoidCallback     onBack;
-  final VoidCallback     onSettings;
-  final VoidCallback     onLanguageSwitcher;
-  final VoidCallback     onTts;
+class ReaderToolbar extends StatelessWidget {
+  final ReaderProvider reader;
+  final VoidCallback   onFontTap;
+  final VoidCallback   onLanguageTap;
+  final VoidCallback   onTtsTap;
+  final VoidCallback   onModeTap;
+  final VoidCallback   onTOCTap;
+  final VoidCallback   onChatTap;
+  final Color          bgColor;
 
-  const ReaderBottomToolbar({
+  const ReaderToolbar({
     super.key,
-    required this.book,
     required this.reader,
-    required this.onBack,
-    required this.onSettings,
-    required this.onLanguageSwitcher,
-    required this.onTts,
+    required this.onFontTap,
+    required this.onLanguageTap,
+    required this.onTtsTap,
+    required this.onModeTap,
+    required this.onTOCTap,
+    required this.onChatTap,
+    required this.bgColor,
   });
-
-  Color get _bgColor => switch (reader.theme) {
-    ReaderTheme.sepia => AppColors.readerSepia,
-    ReaderTheme.dark  => AppColors.readerDark,
-    _                 => AppColors.readerLight,
-  };
-
-  Color get _fgColor => reader.theme == ReaderTheme.dark
-      ? AppColors.white
-      : AppColors.textPrimary;
-
-  Color get _borderColor => reader.theme == ReaderTheme.dark
-      ? Colors.white12
-      : Colors.black12;
 
   @override
   Widget build(BuildContext context) {
-    final pct = reader.percentComplete.clamp(0, 100).toDouble();
+    final isDark = reader.theme == 'dark';
+    final iconColor  = isDark ? AppColors.white  : AppColors.textPrimary;
+    final labelColor = isDark ? AppColors.white.withOpacity(0.6)
+                               : AppColors.textSecondary;
 
-    return Material(
-      color:   _bgColor,
-      elevation: 0,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Progress bar
-          Container(
-            height: 3,
-            color:  _borderColor,
-            child: FractionallySizedBox(
-              widthFactor: pct / 100,
-              alignment:   Alignment.centerLeft,
-              child: Container(color: AppColors.primary),
-            ),
-          ),
-
-          // Toolbar buttons
-          Container(
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: _borderColor, width: 0.5)),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _ToolBtn(
-                      icon:    Icons.arrow_back,
-                      label:   'Back',
-                      color:   _fgColor,
-                      onTap:   onBack,
-                    ),
-                    _ToolBtn(
-                      icon:    Icons.menu_book_outlined,
-                      label:   'Contents',
-                      color:   _fgColor,
-                      onTap:   () => reader.toggleTOC(),
-                      active:  reader.showTOC,
-                    ),
-                    _ToolBtn(
-                      icon:    Icons.translate,
-                      label:   'Translate',
-                      color:   _fgColor,
-                      onTap:   onLanguageSwitcher,
-                      active:  reader.translatedContent != null,
-                    ),
-                    _ToolBtn(
-                      icon:    Icons.text_fields,
-                      label:   'Font',
-                      color:   _fgColor,
-                      onTap:   onSettings,
-                    ),
-                    _ToolBtn(
-                      icon:    Icons.brightness_4_outlined,
-                      label:   'Theme',
-                      color:   _fgColor,
-                      onTap:   () {
-                        final next = switch (reader.theme) {
-                          ReaderTheme.light => ReaderTheme.sepia,
-                          ReaderTheme.sepia => ReaderTheme.dark,
-                          ReaderTheme.dark  => ReaderTheme.light,
-                        };
-                        reader.setTheme(next);
-                      },
-                    ),
-                    _ToolBtn(
-                      icon:    reader.isTtsPlaying
-                          ? Icons.stop_circle_outlined
-                          : Icons.volume_up_outlined,
-                      label:   reader.isTtsPlaying ? 'Stop' : 'Listen',
-                      color:   _fgColor,
-                      onTap:   onTts,
-                      active:  reader.isTtsPlaying,
-                    ),
-                    _ToolBtn(
-                      icon:    Icons.chat_bubble_outline,
-                      label:   'Ask AI',
-                      color:   _fgColor,
-                      onTap:   () => reader.toggleChat(),
-                      active:  reader.isChatOpen,
-                    ),
-                  ],
-                ),
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: bgColor.withOpacity(0.92),
+            border: Border(
+              top: BorderSide(
+                color: isDark
+                    ? Colors.white.withOpacity(0.12)
+                    : Colors.black.withOpacity(0.08),
+                width: 0.5,
               ),
             ),
           ),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ── 7 action buttons ────────────────────────────────────────
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.xs),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _ToolItem(
+                        icon:     Icons.format_size,
+                        label:    'Font',
+                        color:    iconColor,
+                        lblColor: labelColor,
+                        onTap:    onFontTap,
+                      ),
+                      _ToolItem(
+                        icon:     Icons.brightness_6,
+                        label:    'Theme',
+                        color:    iconColor,
+                        lblColor: labelColor,
+                        onTap: () {
+                          const cycle = ['white', 'sepia', 'dark'];
+                          final idx   = cycle.indexOf(reader.theme);
+                          reader.setTheme(cycle[(idx + 1) % cycle.length]);
+                        },
+                      ),
+                      _ToolItem(
+                        icon:     reader.isPlaying
+                            ? Icons.stop_circle_outlined
+                            : Icons.mic,
+                        label:    reader.isPlaying ? 'Stop' : 'Listen',
+                        color:    reader.isPlaying ? AppColors.primary : iconColor,
+                        lblColor: reader.isPlaying ? AppColors.primary : labelColor,
+                        onTap:    onTtsTap,
+                      ),
+                      _ToolItem(
+                        icon:     Icons.translate,
+                        label:    'Translate',
+                        color:    reader.readingLanguage != 'English'
+                            ? AppColors.primary
+                            : iconColor,
+                        lblColor: reader.readingLanguage != 'English'
+                            ? AppColors.primary
+                            : labelColor,
+                        onTap:    onLanguageTap,
+                      ),
+                      _ToolItem(
+                        icon:     Icons.menu_book_outlined,
+                        label:    'Contents',
+                        color:    reader.showTOC ? AppColors.primary : iconColor,
+                        lblColor: reader.showTOC ? AppColors.primary : labelColor,
+                        onTap:    onTOCTap,
+                      ),
+                      _ToolItem(
+                        icon:     Icons.highlight,
+                        label:    'Highlight',
+                        color:    iconColor,
+                        lblColor: labelColor,
+                        onTap:    () {}, // selection-based, always active
+                      ),
+                      _ToolItem(
+                        icon:     Icons.smart_toy_outlined,
+                        label:    'Ask AI',
+                        color:    reader.showChatbot ? AppColors.primary : iconColor,
+                        lblColor: reader.showChatbot ? AppColors.primary : labelColor,
+                        onTap:    onChatTap,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── Progress bar ─────────────────────────────────────────────
+              LinearProgressIndicator(
+                value:            (reader.percentComplete / 100).clamp(0.0, 1.0),
+                color:            AppColors.primary,
+                backgroundColor:  isDark
+                    ? Colors.white.withOpacity(0.1)
+                    : Colors.black.withOpacity(0.08),
+                minHeight:        3,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
-class _ToolBtn extends StatelessWidget {
+// ── Individual toolbar icon + label ──────────────────────────────────────────
+class _ToolItem extends StatelessWidget {
   final IconData     icon;
   final String       label;
   final Color        color;
+  final Color        lblColor;
   final VoidCallback onTap;
-  final bool         active;
 
-  const _ToolBtn({
+  const _ToolItem({
     required this.icon,
     required this.label,
     required this.color,
+    required this.lblColor,
     required this.onTap,
-    this.active = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColor = active ? AppColors.primary : color;
     return InkWell(
       onTap:        onTap,
       borderRadius: BorderRadius.circular(AppSpacing.sm),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xs, vertical: AppSpacing.xs + 2),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 22, color: effectiveColor),
+            Icon(icon, size: 22, color: color),
             const SizedBox(height: 2),
             Text(
               label,
-              style: TextStyle(fontSize: 9, color: effectiveColor),
+              style: AppTextStyles.label.copyWith(
+                fontSize: 9, color: lblColor),
             ),
           ],
         ),
