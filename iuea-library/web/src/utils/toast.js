@@ -11,7 +11,7 @@ export const success = (msg) =>
 export const error = (msg) =>
   toast.error(msg, {
     ...base,
-    style: { ...base.style, background: '#fff1f2', color: '#7B0D1E', border: '1px solid #fecdd3' },
+    style: { ...base.style, background: '#fff1f2', color: '#5C0F1F', border: '1px solid #fecdd3' },
   });
 
 export const info = (msg) =>

@@ -33,9 +33,9 @@ export default function ProfilePage() {
     : '?';
 
   const QUICK_LINKS = [
-    { icon: 'library_books',  label: 'My Library',  to: '/home/library',              bg: '#7b0d1e' },
-    { icon: 'download',       label: 'Downloads',   to: '/home/library/downloads',     bg: '#56000f' },
-    { icon: 'bookmark',       label: 'Bookmarks',   to: '/home/library/highlights',    bg: '#c9a84c' },
+    { icon: 'library_books',  label: 'My Library',  to: '/home/library',              bg: '#5C0F1F' },
+    { icon: 'download',       label: 'Downloads',   to: '/home/library/downloads',     bg: '#8A1228' },
+    { icon: 'bookmark',       label: 'Bookmarks',   to: '/home/library/highlights',    bg: '#B8964A' },
     { icon: 'history',        label: 'History',     to: '/home/library',              bg: '#984447' },
   ];
 
@@ -52,7 +52,7 @@ export default function ProfilePage() {
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <div style={{
         borderRadius: 24,
-        background: 'linear-gradient(135deg, #56000f 0%, #7b0d1e 50%, #3d0009 100%)',
+        background: 'linear-gradient(135deg, #8A1228 0%, #5C0F1F 50%, #3d0009 100%)',
         padding: '2rem',
         marginBottom: '1.5rem',
         position: 'relative',
@@ -76,7 +76,7 @@ export default function ProfilePage() {
           {/* Avatar */}
           <div style={{
             width: 80, height: 80, borderRadius: '50%', flexShrink: 0,
-            background: 'linear-gradient(135deg, #c9a84c, #e6c96a)',
+            background: 'linear-gradient(135deg, #B8964A, #e6c96a)',
             border: '3px solid rgba(255,255,255,0.2)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
@@ -149,20 +149,20 @@ export default function ProfilePage() {
           <div key={label} style={{
             background: '#fff', borderRadius: 16,
             padding: '1rem', textAlign: 'center',
-            boxShadow: '0 2px 8px rgba(86,0,15,0.07)',
+            boxShadow: '0 2px 8px rgba(138,18,40,0.07)',
             border: '1px solid rgba(223,191,190,0.3)',
           }}>
             <span className="material-symbols-outlined" style={{
-              fontSize: 20, color: '#c9a84c',
+              fontSize: 20, color: '#B8964A',
               fontVariationSettings: "'FILL' 1", display: 'block', marginBottom: 4,
             }}>{icon}</span>
             <p style={{
               fontFamily: 'Playfair Display, Georgia, serif',
-              fontSize: 24, fontWeight: 800, color: '#7b0d1e', margin: 0, lineHeight: 1,
+              fontSize: 24, fontWeight: 800, color: '#5C0F1F', margin: 0, lineHeight: 1,
             }}>{value}</p>
             <p style={{
               fontFamily: 'Inter, sans-serif',
-              fontSize: 10, color: '#8b7170', marginTop: 4, fontWeight: 500,
+              fontSize: 10, color: '#A89597', marginTop: 4, fontWeight: 500,
             }}>{label}</p>
           </div>
         ))}
@@ -171,7 +171,7 @@ export default function ProfilePage() {
       {/* ── Annual reading goal ────────────────────────────────────────────── */}
       <div style={{
         background: '#fff', borderRadius: 16, padding: '1.25rem 1.5rem',
-        boxShadow: '0 2px 8px rgba(86,0,15,0.07)',
+        boxShadow: '0 2px 8px rgba(138,18,40,0.07)',
         border: '1px solid rgba(223,191,190,0.3)',
         marginBottom: '1.5rem',
       }}>
@@ -180,20 +180,20 @@ export default function ProfilePage() {
             <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#1a0609', margin: 0 }}>
               Annual Reading Goal
             </p>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#8b7170', margin: '2px 0 0' }}>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#A89597', margin: '2px 0 0' }}>
               {stats.booksRead} of {user?.readingGoal ?? 12} books completed
             </p>
           </div>
           <span style={{
             fontFamily: 'Playfair Display, Georgia, serif',
-            fontSize: 22, fontWeight: 800, color: '#7b0d1e',
+            fontSize: 22, fontWeight: 800, color: '#5C0F1F',
           }}>{stats.goalPct}%</span>
         </div>
         <div style={{ height: 8, background: '#ffd9dc', borderRadius: 99, overflow: 'hidden' }}>
           <div style={{
             height: '100%',
             width: `${stats.goalPct}%`,
-            background: 'linear-gradient(90deg, #7b0d1e, #c9a84c)',
+            background: 'linear-gradient(90deg, #5C0F1F, #B8964A)',
             borderRadius: 99,
             transition: 'width 0.6s ease',
           }} />
@@ -214,11 +214,11 @@ export default function ProfilePage() {
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', gap: 8,
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(86,0,15,0.06)',
+            boxShadow: '0 2px 8px rgba(138,18,40,0.06)',
             transition: 'transform 0.18s ease, box-shadow 0.18s ease',
           }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(86,0,15,0.12)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(86,0,15,0.06)'; }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(138,18,40,0.12)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(138,18,40,0.06)'; }}
           >
             <div style={{
               width: 40, height: 40, borderRadius: 12,
@@ -240,7 +240,7 @@ export default function ProfilePage() {
       <p style={sectionLabel}>Settings</p>
       <div style={{
         background: '#fff', borderRadius: 16,
-        boxShadow: '0 2px 8px rgba(86,0,15,0.07)',
+        boxShadow: '0 2px 8px rgba(138,18,40,0.07)',
         border: '1px solid rgba(223,191,190,0.3)',
         overflow: 'hidden',
         marginBottom: '1.5rem',
@@ -253,21 +253,21 @@ export default function ProfilePage() {
             cursor: 'pointer', textAlign: 'left',
             transition: 'background 0.15s ease',
           }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#fff8f7')}
+            onMouseEnter={e => (e.currentTarget.style.background = '#FCE8E6')}
             onMouseLeave={e => (e.currentTarget.style.background = 'none')}
           >
             <div style={{
               width: 38, height: 38, borderRadius: 10,
-              background: 'rgba(123,13,30,0.08)',
+              background: 'rgba(107,15,26,0.08)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#7b0d1e' }}>{icon}</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#5C0F1F' }}>{icon}</span>
             </div>
             <div style={{ flex: 1 }}>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#1a0609', margin: 0 }}>{label}</p>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#8b7170', margin: '2px 0 0' }}>{sub}</p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#A89597', margin: '2px 0 0' }}>{sub}</p>
             </div>
-            <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#dfbfbe' }}>chevron_right</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#EBD2CF' }}>chevron_right</span>
           </button>
         ))}
       </div>
@@ -313,6 +313,6 @@ function Pill({ label, light, gold }) {
 const sectionLabel = {
   fontFamily: 'Inter, sans-serif',
   fontSize: 10, fontWeight: 700, letterSpacing: '0.12em',
-  textTransform: 'uppercase', color: '#8b7170',
+  textTransform: 'uppercase', color: '#A89597',
   marginBottom: '0.75rem', display: 'block',
 };

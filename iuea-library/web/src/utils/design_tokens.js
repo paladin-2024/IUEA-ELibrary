@@ -16,8 +16,8 @@ export const tokens = {
     full: '9999px',
   },
   shadow: {
-    card:  '0 2px 8px rgba(123,13,30,0.08)',
-    modal: '0 8px 32px rgba(123,13,30,0.16)',
+    card:  '0 2px 8px rgba(107,15,26,0.08)',
+    modal: '0 8px 32px rgba(107,15,26,0.16)',
     nav:   '0 -2px 8px rgba(0,0,0,0.06)',
   },
   animation: {
@@ -26,9 +26,9 @@ export const tokens = {
     slow:   '350ms ease',
   },
   color: {
-    primary:     '#7B0D1E',
+    primary:     '#5C0F1F',
     primaryDark: '#4A0810',
-    accent:      '#C9A84C',
+    accent:      '#B8964A',
     surface:     '#FDF6F7',
     border:      '#E5D0D2',
   },

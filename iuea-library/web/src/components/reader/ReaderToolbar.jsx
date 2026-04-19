@@ -126,22 +126,22 @@ function ToolBtn({ icon, label, active, onClick, iconColor }) {
         gap: 2, padding: '6px 10px', borderRadius: 90, border: 'none',
         cursor: 'pointer',
         background: active
-          ? '#7b0d1e'
-          : hov ? 'rgba(123,13,30,0.08)' : 'transparent',
+          ? '#5C0F1F'
+          : hov ? 'rgba(107,15,26,0.08)' : 'transparent',
         transition: 'background 0.18s ease',
         minWidth: 48,
       }}
     >
       <span className="material-symbols-outlined" style={{
         fontSize: 20,
-        color: active ? '#fff' : (hov ? '#7b0d1e' : iconColor),
+        color: active ? '#fff' : (hov ? '#5C0F1F' : iconColor),
         fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0",
         transition: 'color 0.18s ease',
       }}>{icon}</span>
       <span style={{
         fontFamily: 'Inter, sans-serif',
         fontSize: 9, fontWeight: 600, letterSpacing: '0.02em',
-        color: active ? '#fff' : (hov ? '#7b0d1e' : iconColor),
+        color: active ? '#fff' : (hov ? '#5C0F1F' : iconColor),
         opacity: active ? 1 : 0.65,
         transition: 'color 0.18s ease',
         userSelect: 'none',
@@ -177,7 +177,7 @@ function SettingsDrawer({ theme: t, iconColor, onClose }) {
   const rowLabel = {
     fontFamily: 'Inter, sans-serif',
     fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
-    color: '#7b0d1e', textTransform: 'uppercase',
+    color: '#5C0F1F', textTransform: 'uppercase',
     marginBottom: 10, display: 'block',
   };
 
@@ -226,7 +226,7 @@ function SettingsDrawer({ theme: t, iconColor, onClose }) {
           <div style={{
             position: 'absolute', left: 0, top: 0, height: '100%',
             width: `${((fontSize - 12) / (32 - 12)) * 100}%`,
-            background: 'linear-gradient(90deg,#7b0d1e,#c9a84c)',
+            background: 'linear-gradient(90deg,#5C0F1F,#B8964A)',
             borderRadius: 99,
           }} />
         </div>
@@ -238,7 +238,7 @@ function SettingsDrawer({ theme: t, iconColor, onClose }) {
         </button>
         <span style={{
           fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700,
-          color: '#7b0d1e', minWidth: 28, textAlign: 'right',
+          color: '#5C0F1F', minWidth: 28, textAlign: 'right',
         }}>{fontSize}px</span>
       </div>
 
@@ -250,7 +250,7 @@ function SettingsDrawer({ theme: t, iconColor, onClose }) {
         {[1.4, 1.6, 1.8, 2.0].map(v => (
           <button key={v} onClick={() => setLineHeight(v)} style={{
             flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
-            background: lineHeight === v ? '#7b0d1e' : 'rgba(123,13,30,0.07)',
+            background: lineHeight === v ? '#5C0F1F' : 'rgba(107,15,26,0.07)',
             color: lineHeight === v ? '#fff' : iconColor,
             fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
             transition: 'background 0.18s ease, color 0.18s ease',
@@ -268,19 +268,19 @@ function SettingsDrawer({ theme: t, iconColor, onClose }) {
         {FONTS.map(({ key, label, sample }) => (
           <button key={key} onClick={() => setFontFamily(key)} style={{
             flex: 1, padding: '8px 4px', borderRadius: 8,
-            border: `1.5px solid ${fontFamily === key ? '#7b0d1e' : border}`,
-            background: fontFamily === key ? 'rgba(123,13,30,0.06)' : 'transparent',
+            border: `1.5px solid ${fontFamily === key ? '#5C0F1F' : border}`,
+            background: fontFamily === key ? 'rgba(107,15,26,0.06)' : 'transparent',
             cursor: 'pointer', textAlign: 'center',
             transition: 'border-color 0.18s ease, background 0.18s ease',
           }}>
             <span style={{
               display: 'block', fontFamily: sample,
-              fontSize: 16, color: fontFamily === key ? '#7b0d1e' : iconColor,
+              fontSize: 16, color: fontFamily === key ? '#5C0F1F' : iconColor,
               lineHeight: 1.1, marginBottom: 3,
             }}>Aa</span>
             <span style={{
               fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 600,
-              color: fontFamily === key ? '#7b0d1e' : iconColor, opacity: 0.7,
+              color: fontFamily === key ? '#5C0F1F' : iconColor, opacity: 0.7,
             }}>{label}</span>
           </button>
         ))}
@@ -295,9 +295,9 @@ function SettingsDrawer({ theme: t, iconColor, onClose }) {
           <button key={key} onClick={() => setTheme(key)} style={{
             flex: 1, padding: '10px 4px', borderRadius: 10,
             background: swatch,
-            border: `2px solid ${theme === key ? '#7b0d1e' : 'transparent'}`,
+            border: `2px solid ${theme === key ? '#5C0F1F' : 'transparent'}`,
             boxShadow: theme === key
-              ? '0 0 0 2px rgba(123,13,30,0.25)'
+              ? '0 0 0 2px rgba(107,15,26,0.25)'
               : '0 1px 4px rgba(0,0,0,0.12)',
             cursor: 'pointer', textAlign: 'center',
             transition: 'border-color 0.18s ease, box-shadow 0.18s ease',
@@ -317,7 +317,7 @@ function SettingsDrawer({ theme: t, iconColor, onClose }) {
 /* helper */
 const stepBtn = (color) => ({
   width: 34, height: 34, borderRadius: '50%', border: 'none',
-  background: 'rgba(123,13,30,0.08)', color,
+  background: 'rgba(107,15,26,0.08)', color,
   cursor: 'pointer', display: 'flex', alignItems: 'center',
   justifyContent: 'center', flexShrink: 0,
 });

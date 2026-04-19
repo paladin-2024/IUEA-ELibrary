@@ -111,9 +111,9 @@ export default function BookReader({ bookId }) {
         {},
         null,
         'epubjs-hl',
-        { fill: '#C9A84C', 'fill-opacity': '0.3', 'mix-blend-mode': 'multiply' }
+        { fill: '#B8964A', 'fill-opacity': '0.3', 'mix-blend-mode': 'multiply' }
       );
-      addHighlight({ cfi: cfiRange, text: selected, color: '#C9A84C' });
+      addHighlight({ cfi: cfiRange, text: selected, color: '#B8964A' });
     };
 
     r.on('selected', onSelected);
@@ -128,7 +128,7 @@ export default function BookReader({ bookId }) {
       try {
         r.annotations.add(
           'highlight', h.cfi, {}, null, 'epubjs-hl',
-          { fill: h.color ?? '#C9A84C', 'fill-opacity': '0.3' }
+          { fill: h.color ?? '#B8964A', 'fill-opacity': '0.3' }
         );
       } catch (_) {}
     });
@@ -179,7 +179,7 @@ export default function BookReader({ bookId }) {
                 key={i}
                 className={
                   i === (ttsWordIndex ?? currentWordIndex)
-                    ? 'bg-[#C9A84C]/40 rounded px-0.5'
+                    ? 'bg-[#B8964A]/40 rounded px-0.5'
                     : ''
                 }
                 style={{ fontSize: `${fontSize}px`, lineHeight }}

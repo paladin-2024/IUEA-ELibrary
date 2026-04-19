@@ -52,9 +52,9 @@ export default function BookCard({
           aspectRatio: '2/3',
           borderRadius: 14,
           overflow: 'hidden',
-          background: 'linear-gradient(135deg,#ffe9ea,#ffd9dc)',
+          background: 'linear-gradient(135deg,#FDF4F2,#ffd9dc)',
           boxShadow: hovered
-            ? '0 20px 40px rgba(86,0,15,0.22), 0 4px 12px rgba(0,0,0,0.08)'
+            ? '0 20px 40px rgba(138,18,40,0.22), 0 4px 12px rgba(0,0,0,0.08)'
             : '0 4px 14px rgba(0,0,0,0.10)',
           transition: 'box-shadow 0.25s ease',
         }}>
@@ -120,7 +120,7 @@ export default function BookCard({
               height: 3, background: 'rgba(255,255,255,0.2)',
             }}>
               <div style={{
-                height: '100%', background: '#c9a84c',
+                height: '100%', background: '#B8964A',
                 width: `${progress}%`,
                 transition: 'width 0.4s ease',
               }} />
@@ -143,7 +143,7 @@ export default function BookCard({
               transition: 'transform 0.25s cubic-bezier(.22,1,.36,1)',
             }}>
               <span className="material-symbols-outlined" style={{
-                color: '#7b0d1e', fontSize: 20,
+                color: '#5C0F1F', fontSize: 20,
                 fontVariationSettings: "'FILL' 1",
               }}>
                 {book.isExternal ? 'open_in_new' : 'menu_book'}
@@ -167,7 +167,7 @@ export default function BookCard({
           {book.author && (
             <p style={{
               fontFamily: 'Inter, sans-serif',
-              fontSize: 11, color: '#8b7170',
+              fontSize: 11, color: '#A89597',
               marginTop: 3, lineClamp: 1,
               whiteSpace: 'nowrap', overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -185,12 +185,12 @@ export default function BookCard({
                 overflow: 'hidden',
               }}>
                 <div style={{
-                  height: '100%', background: '#7b0d1e', width: `${progress}%`,
+                  height: '100%', background: '#5C0F1F', width: `${progress}%`,
                 }} />
               </div>
               <span style={{
                 fontFamily: 'Inter, sans-serif', fontSize: 9,
-                color: '#7b0d1e', fontWeight: 700,
+                color: '#5C0F1F', fontWeight: 700,
               }}>
                 {progress}%
               </span>
@@ -200,11 +200,11 @@ export default function BookCard({
           {book.rating > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 4 }}>
               <span className="material-symbols-outlined" style={{
-                fontSize: 11, color: '#c9a84c', fontVariationSettings: "'FILL' 1",
+                fontSize: 11, color: '#B8964A', fontVariationSettings: "'FILL' 1",
               }}>star</span>
               <span style={{
                 fontFamily: 'Inter, sans-serif', fontSize: 10,
-                color: '#584141', fontWeight: 600,
+                color: '#6B5456', fontWeight: 600,
               }}>
                 {book.rating.toFixed(1)}
               </span>
@@ -231,7 +231,7 @@ export default function BookCard({
           borderRadius: 16,
           cursor: 'pointer',
           boxShadow: hovered
-            ? '0 12px 32px rgba(86,0,15,0.14)'
+            ? '0 12px 32px rgba(138,18,40,0.14)'
             : '0 2px 8px rgba(0,0,0,0.06)',
           border: '1px solid rgba(223,191,190,0.3)',
           transition: 'box-shadow 0.22s ease, transform 0.22s ease',
@@ -243,7 +243,7 @@ export default function BookCard({
         <div style={{
           width: 72, height: 100, flexShrink: 0,
           borderRadius: 10, overflow: 'hidden',
-          background: 'linear-gradient(135deg,#ffe9ea,#ffd9dc)',
+          background: 'linear-gradient(135deg,#FDF4F2,#ffd9dc)',
           boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
         }}>
           {book.coverUrl
@@ -256,7 +256,7 @@ export default function BookCard({
           {book.category && (
             <span style={{
               fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 700,
-              color: '#7b0d1e', textTransform: 'uppercase', letterSpacing: '0.1em',
+              color: '#5C0F1F', textTransform: 'uppercase', letterSpacing: '0.1em',
               marginBottom: 4,
             }}>
               {book.category}
@@ -273,7 +273,7 @@ export default function BookCard({
           </p>
           <p style={{
             fontFamily: 'Inter, sans-serif', fontSize: 12,
-            color: '#8b7170', margin: 0,
+            color: '#A89597', margin: 0,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
             {book.author}
@@ -282,15 +282,15 @@ export default function BookCard({
           <div style={{ marginTop: 'auto', paddingTop: 10 }}>
             <div style={{
               display: 'flex', justifyContent: 'space-between',
-              fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#584141',
+              fontFamily: 'Inter, sans-serif', fontSize: 10, color: '#6B5456',
               marginBottom: 4,
             }}>
               <span>Progress</span>
-              <span style={{ fontWeight: 700, color: '#7b0d1e' }}>{progress}%</span>
+              <span style={{ fontWeight: 700, color: '#5C0F1F' }}>{progress}%</span>
             </div>
             <div style={{ height: 4, background: '#ffd9dc', borderRadius: 99, overflow: 'hidden' }}>
               <div style={{
-                height: '100%', background: 'linear-gradient(90deg,#7b0d1e,#c9a84c)',
+                height: '100%', background: 'linear-gradient(90deg,#5C0F1F,#B8964A)',
                 width: `${progress}%`, transition: 'width 0.4s ease',
               }} />
             </div>
@@ -300,7 +300,7 @@ export default function BookCard({
         {/* Arrow */}
         <div style={{
           display: 'flex', alignItems: 'center',
-          color: hovered ? '#7b0d1e' : '#dfbfbe',
+          color: hovered ? '#5C0F1F' : '#EBD2CF',
           transition: 'color 0.2s ease',
         }}>
           <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chevron_right</span>
@@ -320,7 +320,7 @@ export default function BookCard({
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', gap: 12, padding: '12px 14px',
-        background: hovered ? '#fff8f7' : '#ffffff',
+        background: hovered ? '#FCE8E6' : '#ffffff',
         borderRadius: 12, cursor: 'pointer',
         border: '1px solid rgba(223,191,190,0.2)',
         transition: 'background 0.15s ease',
@@ -330,7 +330,7 @@ export default function BookCard({
       <div style={{
         width: 44, height: 60, flexShrink: 0,
         borderRadius: 6, overflow: 'hidden',
-        background: 'linear-gradient(135deg,#ffe9ea,#ffd9dc)',
+        background: 'linear-gradient(135deg,#FDF4F2,#ffd9dc)',
       }}>
         {book.coverUrl
           ? <img src={book.coverUrl} alt={book.title} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
@@ -346,14 +346,14 @@ export default function BookCard({
           {book.title}
         </p>
         <p style={{
-          fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#8b7170', margin: 0,
+          fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#A89597', margin: 0,
         }}>
           {book.author}
         </p>
         {book.category && (
           <span style={{
             display: 'inline-block', marginTop: 5,
-            background: '#ffe9ea', color: '#7b0d1e',
+            background: '#FDF4F2', color: '#5C0F1F',
             fontSize: 9, fontWeight: 700, padding: '2px 6px',
             borderRadius: 4, fontFamily: 'Inter, sans-serif',
             textTransform: 'uppercase', letterSpacing: '0.05em',
@@ -364,7 +364,7 @@ export default function BookCard({
       </div>
       {book.isExternal && (
         <span className="material-symbols-outlined" style={{
-          fontSize: 16, color: '#8b7170', alignSelf: 'center',
+          fontSize: 16, color: '#A89597', alignSelf: 'center',
         }}>open_in_new</span>
       )}
     </div>
@@ -376,7 +376,7 @@ function Nocover({ title = '', size = 28 }) {
   return (
     <div style={{
       width: '100%', height: '100%',
-      background: 'linear-gradient(135deg,#56000f 0%,#7b0d1e 100%)',
+      background: 'linear-gradient(135deg,#8A1228 0%,#5C0F1F 100%)',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center', gap: 6,
     }}>

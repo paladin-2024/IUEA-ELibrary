@@ -92,7 +92,7 @@ export default function AudioPlayer({ bookId }) {
         <p className="text-white/60 text-sm text-center">
           Try Chrome or Edge on desktop for full audio support.
         </p>
-        <button onClick={() => navigate(-1)} className="text-sm text-[#C9A84C] underline mt-2">
+        <button onClick={() => navigate(-1)} className="text-sm text-[#B8964A] underline mt-2">
           Go back
         </button>
       </div>
@@ -124,7 +124,7 @@ export default function AudioPlayer({ bookId }) {
               className="w-44 h-60 object-cover rounded-2xl shadow-2xl"
             />
           : <div className="w-44 h-60 rounded-2xl bg-primary/30 flex items-center justify-center">
-              <MdVolumeUp size={56} className="text-[#C9A84C]" />
+              <MdVolumeUp size={56} className="text-[#B8964A]" />
             </div>
         }
       </div>
@@ -133,7 +133,7 @@ export default function AudioPlayer({ bookId }) {
       <div className="text-center mt-5 px-6">
         <p className="font-bold text-lg leading-tight line-clamp-2">{currentBook?.title}</p>
         <p className="text-white/60 text-sm mt-1">{currentBook?.author}</p>
-        <p className="text-[#C9A84C] text-xs mt-1 uppercase tracking-wide">{langEntry.name}</p>
+        <p className="text-[#B8964A] text-xs mt-1 uppercase tracking-wide">{langEntry.name}</p>
       </div>
 
       {/* ── "Audio by device" note ────────────────────────────────────────── */}
@@ -146,7 +146,7 @@ export default function AudioPlayer({ bookId }) {
         {barHeights.map((h, i) => (
           <div
             key={i}
-            className="w-1.5 rounded-full bg-[#C9A84C] transition-none"
+            className="w-1.5 rounded-full bg-[#B8964A] transition-none"
             style={{ height: `${h}px`, opacity: isPlaying ? 0.8 + Math.random() * 0.2 : 0.3 }}
           />
         ))}
@@ -160,7 +160,7 @@ export default function AudioPlayer({ bookId }) {
             return (
               <span
                 key={i}
-                className={absIdx === currentWordIndex ? 'text-[#C9A84C] font-bold' : ''}
+                className={absIdx === currentWordIndex ? 'text-[#B8964A] font-bold' : ''}
               >
                 {w}{' '}
               </span>
@@ -179,7 +179,7 @@ export default function AudioPlayer({ bookId }) {
             onClick={() => handleSpeedChange(s)}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
               playbackSpeed === s
-                ? 'border-[#C9A84C] text-[#C9A84C] bg-[#C9A84C]/10'
+                ? 'border-[#B8964A] text-[#B8964A] bg-[#B8964A]/10'
                 : 'border-white/20 text-white/50 hover:border-white/40'
             }`}
           >
@@ -229,7 +229,7 @@ export default function AudioPlayer({ bookId }) {
         {/* Play / Pause — primary */}
         <button
           onClick={isPlaying ? pause : handlePlay}
-          className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 bg-[#C9A84C]"
+          className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 bg-[#B8964A]"
           title={isPlaying ? 'Pause' : 'Play'}
         >
           {isPlaying

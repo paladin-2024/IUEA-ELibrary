@@ -107,11 +107,11 @@ export default function AdminLayout() {
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
               <div style={{ position: 'relative' }}>
-                <span className="material-symbols-outlined" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#584141', fontSize: '1rem', pointerEvents: 'none' }}>search</span>
+                <span className="material-symbols-outlined" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6B5456', fontSize: '1rem', pointerEvents: 'none' }}>search</span>
                 <input
                   placeholder="Search archive..."
                   style={{ background: '#ffffff', border: 'none', borderRadius: 9999, padding: '0.4rem 1rem 0.4rem 2.25rem', fontSize: '0.875rem', width: 256, fontFamily: 'Inter, sans-serif', outline: 'none' }}
-                  onFocus={e => (e.target.style.boxShadow = '0 0 0 2px rgba(123,13,30,0.2)')}
+                  onFocus={e => (e.target.style.boxShadow = '0 0 0 2px rgba(107,15,26,0.2)')}
                   onBlur={e => (e.target.style.boxShadow = 'none')}
                 />
               </div>

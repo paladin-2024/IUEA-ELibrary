@@ -20,10 +20,10 @@ export default function SplashPage() {
       {/* ── Global styles injected inline so no Tailwind custom tokens needed ── */}
       <style>{`
         .splash-hero-gradient {
-          background: radial-gradient(circle at top right, rgba(123,13,30,0.2) 0%, rgba(86,0,15,0) 50%);
+          background: radial-gradient(circle at top right, rgba(107,15,26,0.2) 0%, rgba(138,18,40,0) 50%);
         }
         .splash-glass {
-          background: rgba(86,0,15,0.2);
+          background: rgba(138,18,40,0.2);
           backdrop-filter: blur(12px);
         }
       `}</style>
@@ -31,7 +31,7 @@ export default function SplashPage() {
       {/* overflow-hidden h-screen w-full flex */}
       <main
         className="relative h-screen w-full flex flex-col md:flex-row items-stretch overflow-hidden"
-        style={{ fontFamily: 'Inter, sans-serif', backgroundColor: '#56000f', color: '#fff' }}
+        style={{ fontFamily: 'Inter, sans-serif', backgroundColor: '#8A1228', color: '#fff' }}
       >
 
         {/* ══════════════════════════════════════════════════════
@@ -39,7 +39,7 @@ export default function SplashPage() {
         ══════════════════════════════════════════════════════ */}
         <section
           className="relative w-full md:w-1/2 flex items-center justify-center p-8 md:p-16 overflow-hidden"
-          style={{ backgroundColor: '#56000f' }}
+          style={{ backgroundColor: '#8A1228' }}
         >
           {/* Radial hero gradient overlay */}
           <div
@@ -99,7 +99,7 @@ export default function SplashPage() {
                   fontFamily: 'Playfair Display, Georgia, serif',
                   fontStyle: 'italic',
                   fontSize: 'clamp(1rem, 1.8vw, 1.5rem)',
-                  color: '#ffe08f',
+                  color: '#D9B96B',
                   opacity: 0.9,
                   lineHeight: 1.5,
                 }}
@@ -111,7 +111,7 @@ export default function SplashPage() {
             {/* Gold divider */}
             <div
               className="hidden md:block rounded-full"
-              style={{ height: 4, width: 96, backgroundColor: '#c9a84c' }}
+              style={{ height: 4, width: 96, backgroundColor: '#B8964A' }}
             />
 
             {/* Body text */}
@@ -135,7 +135,7 @@ export default function SplashPage() {
         ══════════════════════════════════════════════════════ */}
         <section
           className="w-full md:w-1/2 flex flex-col items-center justify-center p-8 md:p-16 relative overflow-hidden"
-          style={{ backgroundColor: '#7b0d1e' }}
+          style={{ backgroundColor: '#5C0F1F' }}
         >
           <div className="w-full flex flex-col" style={{ maxWidth: 448, gap: '3rem' }}>
 
@@ -147,7 +147,7 @@ export default function SplashPage() {
               {/* Dark gradient over image */}
               <div
                 className="absolute inset-0 z-10 pointer-events-none"
-                style={{ background: 'linear-gradient(to top, rgba(86,0,15,0.8) 0%, transparent 55%)' }}
+                style={{ background: 'linear-gradient(to top, rgba(138,18,40,0.8) 0%, transparent 55%)' }}
               />
 
               {/* Library photo */}
@@ -162,7 +162,7 @@ export default function SplashPage() {
                 <span
                   className="inline-block font-bold uppercase"
                   style={{
-                    backgroundColor: '#c9a84c',
+                    backgroundColor: '#B8964A',
                     color: '#503d00',
                     fontSize: '10px',
                     letterSpacing: '0.15em',
@@ -194,7 +194,7 @@ export default function SplashPage() {
                 className="w-full flex items-center justify-center gap-3 font-bold active:scale-95 group"
                 style={{
                   backgroundColor: '#ffffff',
-                  color: '#56000f',
+                  color: '#8A1228',
                   padding: '1.25rem 2rem',
                   borderRadius: '0.5rem',
                   fontSize: '1.0625rem',
@@ -204,7 +204,7 @@ export default function SplashPage() {
                   cursor: 'pointer',
                   transition: 'background 0.15s',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#fff8f7')}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#FCE8E6')}
                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#ffffff')}
               >
                 Get Started
@@ -278,10 +278,10 @@ export default function SplashPage() {
               className="bg-transparent border-none text-white text-xs cursor-pointer focus:outline-none focus:ring-0"
               style={{ fontFamily: 'Inter, sans-serif', padding: 0, paddingRight: 20 }}
             >
-              <option style={{ backgroundColor: '#56000f' }} value="en">English (US)</option>
-              <option style={{ backgroundColor: '#56000f' }} value="fr">Français</option>
-              <option style={{ backgroundColor: '#56000f' }} value="sw">Kiswahili</option>
-              <option style={{ backgroundColor: '#56000f' }} value="ar">العربية</option>
+              <option style={{ backgroundColor: '#8A1228' }} value="en">English (US)</option>
+              <option style={{ backgroundColor: '#8A1228' }} value="fr">Français</option>
+              <option style={{ backgroundColor: '#8A1228' }} value="sw">Kiswahili</option>
+              <option style={{ backgroundColor: '#8A1228' }} value="ar">العربية</option>
             </select>
           </div>
 

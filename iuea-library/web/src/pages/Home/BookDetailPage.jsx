@@ -163,10 +163,10 @@ export default function BookDetailPage() {
                 setSaved(v => !v);
               }}
               className="p-2.5 border border-gray-300 rounded-btn transition-colors"
-              style={{ color: saved ? '#7b0d1e' : undefined, borderColor: saved ? '#7b0d1e' : undefined }}
+              style={{ color: saved ? '#5C0F1F' : undefined, borderColor: saved ? '#5C0F1F' : undefined }}
               title={saved ? 'Remove from saved' : 'Save book'}
             >
-              <FiBookmark size={16} fill={saved ? '#7b0d1e' : 'none'} />
+              <FiBookmark size={16} fill={saved ? '#5C0F1F' : 'none'} />
             </button>
           </div>
         </div>

@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
           align-items: center;
           padding: 1.5rem;
           font-family: Inter, sans-serif;
-          color: #2d1418;
+          color: #1C0A0C;
         }
         .fp-main {
           width: 100%;
@@ -51,24 +51,24 @@ export default function ForgotPasswordPage() {
           display: block;
           width: 100%;
           padding: 0.875rem 1rem 0.875rem 2.75rem;
-          background: #fff0f0;
+          background: #FCE8E6;
           border: none;
           border-radius: 0.5rem;
           font-family: Inter, sans-serif;
           font-size: 0.9375rem;
-          color: #2d1418;
+          color: #1C0A0C;
           outline: none;
           box-sizing: border-box;
           transition: box-shadow 0.2s, background 0.2s;
         }
         .fp-input::placeholder { color: rgba(139,113,112,0.6); }
         .fp-input:focus {
-          box-shadow: 0 0 0 2px rgba(123,13,30,0.4);
+          box-shadow: 0 0 0 2px rgba(107,15,26,0.4);
           background: #ffffff;
         }
         .fp-btn {
           width: 100%;
-          background: #7b0d1e;
+          background: #5C0F1F;
           color: #fff;
           font-family: Inter, sans-serif;
           font-weight: 600;
@@ -81,20 +81,20 @@ export default function ForgotPasswordPage() {
           transition: background 0.3s, transform 0.1s;
           box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .fp-btn:hover:not(:disabled) { background: #56000f; }
+        .fp-btn:hover:not(:disabled) { background: #8A1228; }
         .fp-btn:active { transform: scale(0.98); }
         .fp-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .fp-back-link {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          color: #56000f;
+          color: #8A1228;
           font-weight: 600;
           font-size: 0.875rem;
           text-decoration: none;
           transition: color 0.2s;
         }
-        .fp-back-link:hover { color: #7b0d1e; }
+        .fp-back-link:hover { color: #5C0F1F; }
         .fp-back-link .fp-back-icon {
           transition: transform 0.2s;
         }
@@ -118,12 +118,12 @@ export default function ForgotPasswordPage() {
             <h1 style={{
               fontFamily: 'Playfair Display, Georgia, serif',
               fontSize: '2.5rem', lineHeight: 1.2,
-              color: '#2d1418', fontWeight: 700,
+              color: '#1C0A0C', fontWeight: 700,
               marginBottom: '1rem',
             }}>
               Reset your password
             </h1>
-            <p style={{ color: '#584141', fontFamily: 'Inter, sans-serif', fontSize: '1.125rem', maxWidth: '24rem', margin: '0 auto' }}>
+            <p style={{ color: '#6B5456', fontFamily: 'Inter, sans-serif', fontSize: '1.125rem', maxWidth: '24rem', margin: '0 auto' }}>
               Enter your university email to receive a password reset link.
             </p>
           </div>
@@ -139,17 +139,17 @@ export default function ForgotPasswordPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 1.25rem',
                 }}>
-                  <span className="material-symbols-outlined" style={{ color: '#c9a84c', fontSize: '1.75rem' }}>mark_email_read</span>
+                  <span className="material-symbols-outlined" style={{ color: '#B8964A', fontSize: '1.75rem' }}>mark_email_read</span>
                 </div>
-                <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.375rem', fontWeight: 700, color: '#56000f', margin: '0 0 0.5rem' }}>
+                <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.375rem', fontWeight: 700, color: '#8A1228', margin: '0 0 0.5rem' }}>
                   Check your inbox
                 </h2>
-                <p style={{ fontSize: '0.875rem', color: '#584141', lineHeight: 1.6, margin: '0 0 1.5rem' }}>
+                <p style={{ fontSize: '0.875rem', color: '#6B5456', lineHeight: 1.6, margin: '0 0 1.5rem' }}>
                   We've sent a password reset link to <strong>{email}</strong>. Check your email and follow the instructions.
                 </p>
                 <Link to="/login" style={{
                   display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                  padding: '0.625rem 1.5rem', background: '#7b0d1e',
+                  padding: '0.625rem 1.5rem', background: '#5C0F1F',
                   color: '#fff', borderRadius: '0.5rem', textDecoration: 'none',
                   fontSize: '0.875rem', fontWeight: 600,
                 }}>
@@ -163,14 +163,14 @@ export default function ForgotPasswordPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <label style={{
                     display: 'block', fontSize: '0.875rem', fontWeight: 600,
-                    color: '#56000f', letterSpacing: '0.025em',
+                    color: '#8A1228', letterSpacing: '0.025em',
                   }}>
                     University Email
                   </label>
                   <div style={{ position: 'relative' }}>
                     <span className="material-symbols-outlined" style={{
                       position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
-                      color: '#8b7170', fontSize: '1.25rem', pointerEvents: 'none',
+                      color: '#A89597', fontSize: '1.25rem', pointerEvents: 'none',
                     }}>
                       mail
                     </span>
@@ -218,14 +218,14 @@ export default function ForgotPasswordPage() {
             marginTop: '3rem', display: 'flex', justifyContent: 'center',
             alignItems: 'center', gap: '1rem', opacity: 0.4, userSelect: 'none',
           }}>
-            <div style={{ height: 1, width: 48, background: '#c9a84c' }} />
+            <div style={{ height: 1, width: 48, background: '#B8964A' }} />
             <span className="material-symbols-outlined" style={{
               color: '#755b00', fontSize: '1.25rem',
               fontVariationSettings: "'FILL' 1",
             }}>
               auto_stories
             </span>
-            <div style={{ height: 1, width: 48, background: '#c9a84c' }} />
+            <div style={{ height: 1, width: 48, background: '#B8964A' }} />
           </div>
 
         </main>
@@ -234,7 +234,7 @@ export default function ForgotPasswordPage() {
         <footer style={{ marginTop: 'auto', paddingTop: '2rem', paddingBottom: '2rem', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.75rem',
-            padding: '0.5rem 1rem', background: '#fff0f0', borderRadius: 9999,
+            padding: '0.5rem 1rem', background: '#FCE8E6', borderRadius: 9999,
           }}>
             <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(88,65,65,0.6)' }}>
               Search and Auth powered by

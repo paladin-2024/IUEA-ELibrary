@@ -226,7 +226,7 @@ export default function DashboardLayout() {
               <form onSubmit={handleSearch} style={{ position: 'relative' }}>
                 <span className="material-symbols-outlined" style={{
                   position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-                  color: '#584141', fontSize: '1rem', pointerEvents: 'none',
+                  color: '#6B5456', fontSize: '1rem', pointerEvents: 'none',
                 }}>search</span>
                 <input
                   value={search}
@@ -237,7 +237,7 @@ export default function DashboardLayout() {
                     padding: '0.5rem 1rem 0.5rem 2.5rem', fontSize: '0.875rem',
                     width: 280, fontFamily: 'Inter, sans-serif', outline: 'none',
                   }}
-                  onFocus={e => (e.target.style.boxShadow = '0 0 0 2px rgba(123,13,30,0.2)')}
+                  onFocus={e => (e.target.style.boxShadow = '0 0 0 2px rgba(107,15,26,0.2)')}
                   onBlur={e => (e.target.style.boxShadow = 'none')}
                 />
               </form>

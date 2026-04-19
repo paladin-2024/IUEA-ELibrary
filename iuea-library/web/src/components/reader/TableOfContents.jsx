@@ -97,7 +97,7 @@ export default function TableOfContents() {
                     size={8}
                     className={
                       isCurrent ? 'text-primary shrink-0' :
-                      isRead    ? 'text-[#C9A84C] shrink-0' :
+                      isRead    ? 'text-[#B8964A] shrink-0' :
                                   'text-gray-300 shrink-0'
                     }
                   />

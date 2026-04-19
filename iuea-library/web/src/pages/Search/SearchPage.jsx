@@ -34,7 +34,7 @@ export default function SearchPage() {
         /* Topbar */
         .sp-topbar {
           position: sticky; top: 0; width: 100%; z-index: 40;
-          height: 80px; background: #fff0f0;
+          height: 80px; background: #FCE8E6;
           display: flex; align-items: center;
           padding: 0 2rem; gap: 2rem;
         }
@@ -47,10 +47,10 @@ export default function SearchPage() {
           border: 1px solid rgba(223,191,190,0.2);
           transition: box-shadow 0.2s;
         }
-        .sp-search-pill:focus-within { box-shadow: 0 0 0 2px rgba(123,13,30,0.2); }
+        .sp-search-pill:focus-within { box-shadow: 0 0 0 2px rgba(107,15,26,0.2); }
         .sp-search-input {
           flex: 1; background: transparent; border: none; outline: none;
-          color: #2d1418; font-family: Inter, sans-serif; font-size: 0.9375rem;
+          color: #1C0A0C; font-family: Inter, sans-serif; font-size: 0.9375rem;
           padding: 0 1rem;
         }
         .sp-search-input::placeholder { color: rgba(88,65,65,0.5); }
@@ -59,12 +59,12 @@ export default function SearchPage() {
           display: flex; align-items: center; gap: 0.5rem;
           padding: 0.625rem 1.25rem; border-radius: 9999px;
           border: 1px solid rgba(223,191,190,0.15);
-          background: #ffffff; color: #56000f;
+          background: #ffffff; color: #8A1228;
           font-family: Inter, sans-serif; font-size: 0.875rem; font-weight: 500;
           cursor: pointer; transition: background 0.2s, color 0.2s;
           white-space: nowrap;
         }
-        .sp-filter-pill:hover { background: #7b0d1e; color: #ffffff; }
+        .sp-filter-pill:hover { background: #5C0F1F; color: #ffffff; }
         /* Book grid */
         .sp-grid {
           display: grid; gap: 2rem;
@@ -105,7 +105,7 @@ export default function SearchPage() {
       {/* ── Topbar ── */}
       <header className="sp-topbar">
         <form className="sp-search-pill" onSubmit={handleSubmit}>
-          <span className="material-symbols-outlined" style={{ color: '#584141' }}>search</span>
+          <span className="material-symbols-outlined" style={{ color: '#6B5456' }}>search</span>
           <input
             className="sp-search-input"
             type="text"
@@ -114,17 +114,17 @@ export default function SearchPage() {
             placeholder="Search by title, author, or ISBN..."
           />
           <button type="button" style={{ padding: 4, background: 'none', border: 'none', cursor: 'pointer', borderRadius: '50%', display: 'flex', alignItems: 'center' }}>
-            <span className="material-symbols-outlined" style={{ color: '#7b0d1e' }}>mic</span>
+            <span className="material-symbols-outlined" style={{ color: '#5C0F1F' }}>mic</span>
           </button>
         </form>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginLeft: 'auto' }}>
           <button style={{ width: 40, height: 40, borderRadius: '50%', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#ffe9ea')}
+            onMouseEnter={e => (e.currentTarget.style.background = '#FDF4F2')}
             onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
-            <span className="material-symbols-outlined" style={{ color: '#56000f' }}>notifications</span>
+            <span className="material-symbols-outlined" style={{ color: '#8A1228' }}>notifications</span>
           </button>
-          <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#7b0d1e', border: '2px solid rgba(123,13,30,0.2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#5C0F1F', border: '2px solid rgba(107,15,26,0.2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
             <span className="material-symbols-outlined" style={{ color:'#fff', fontSize:'1.25rem' }}>person</span>
           </div>
         </div>
@@ -135,10 +135,10 @@ export default function SearchPage() {
 
         {/* Title */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '3rem', fontWeight: 700, color: '#56000f', letterSpacing: '-0.02em', margin: 0 }}>
+          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '3rem', fontWeight: 700, color: '#8A1228', letterSpacing: '-0.02em', margin: 0 }}>
             Library Archive
           </h2>
-          <p style={{ fontFamily: 'Lora, serif', fontStyle: 'italic', color: '#584141', fontSize: '1.125rem', maxWidth: '42rem', margin: 0 }}>
+          <p style={{ fontFamily: 'Lora, serif', fontStyle: 'italic', color: '#6B5456', fontSize: '1.125rem', maxWidth: '42rem', margin: 0 }}>
             "The only thing that you absolutely have to know, is the location of the library." — Albert Einstein
           </p>
         </div>
@@ -183,7 +183,7 @@ export default function SearchPage() {
 
           {/* Active chip */}
           {activeFilter && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#7b0d1e', color: '#fff', borderRadius: 9999, fontSize: '0.75rem', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#5C0F1F', color: '#fff', borderRadius: 9999, fontSize: '0.75rem', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>
               <span>{activeFilter}</span>
               <button onClick={() => setActiveFilter('')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0, color: '#fff' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>close</span>
@@ -191,7 +191,7 @@ export default function SearchPage() {
             </div>
           )}
 
-          <button onClick={() => setActiveFilter('')} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#7b0d1e', fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+          <button onClick={() => setActiveFilter('')} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#5C0F1F', fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
             Clear All Filters
           </button>
         </div>
@@ -201,16 +201,16 @@ export default function SearchPage() {
           <div className="sp-grid">
             {Array.from({ length: 10 }).map((_, i) => (
               <div key={i} style={{ display:'flex', flexDirection:'column', gap:'0.75rem' }}>
-                <div style={{ aspectRatio:'3/4', borderRadius:'0.75rem', background:'linear-gradient(90deg,#ffe9ea 25%,#ffe1e3 50%,#ffe9ea 75%)', backgroundSize:'200% 100%', animation:'sp-shimmer 1.4s infinite' }} />
+                <div style={{ aspectRatio:'3/4', borderRadius:'0.75rem', background:'linear-gradient(90deg,#FDF4F2 25%,#ffe1e3 50%,#FDF4F2 75%)', backgroundSize:'200% 100%', animation:'sp-shimmer 1.4s infinite' }} />
                 <style>{`@keyframes sp-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
-                <div style={{ height:14, borderRadius:4, background:'#ffe9ea' }} />
-                <div style={{ height:11, width:'60%', borderRadius:4, background:'#ffe9ea' }} />
+                <div style={{ height:14, borderRadius:4, background:'#FDF4F2' }} />
+                <div style={{ height:11, width:'60%', borderRadius:4, background:'#FDF4F2' }} />
               </div>
             ))}
           </div>
         ) : displayBooks.length === 0 ? (
-          <div style={{ textAlign:'center', padding:'4rem', color:'#8b7170', fontFamily:'Inter, sans-serif' }}>
-            <span className="material-symbols-outlined" style={{ fontSize:56, color:'#dfbfbe', display:'block', marginBottom:12 }}>search</span>
+          <div style={{ textAlign:'center', padding:'4rem', color:'#A89597', fontFamily:'Inter, sans-serif' }}>
+            <span className="material-symbols-outlined" style={{ fontSize:56, color:'#EBD2CF', display:'block', marginBottom:12 }}>search</span>
             No results found. Try a different search term.
           </div>
         ) : (
@@ -225,10 +225,10 @@ export default function SearchPage() {
         {displayBooks.length > 0 && (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem 0' }}>
             <button style={{
-              padding: '0.75rem 2rem', background: '#7b0d1e', color: '#fff',
+              padding: '0.75rem 2rem', background: '#5C0F1F', color: '#fff',
               borderRadius: 9999, fontFamily: 'Inter, sans-serif', fontWeight: 700,
               border: 'none', cursor: 'pointer',
-              boxShadow: '0 4px 16px rgba(123,13,30,0.3)',
+              boxShadow: '0 4px 16px rgba(107,15,26,0.3)',
               display: 'flex', alignItems: 'center', gap: '0.75rem',
               transition: 'transform 0.2s',
             }}
@@ -249,14 +249,14 @@ export default function SearchPage() {
         <footer style={{ paddingTop: '1.5rem', borderTop: '1px solid rgba(223,191,190,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             {['Privacy', 'Terms', 'Translate', 'Books API'].map(t => (
-              <a key={t} href="#" style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(86,0,15,0.4)', textDecoration: 'none' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#7b0d1e')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(86,0,15,0.4)')}>
+              <a key={t} href="#" style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(138,18,40,0.4)', textDecoration: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#5C0F1F')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(138,18,40,0.4)')}>
                 {t}
               </a>
             ))}
           </div>
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(86,0,15,0.5)' }}>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(138,18,40,0.5)' }}>
             Powered by Google
           </span>
         </footer>

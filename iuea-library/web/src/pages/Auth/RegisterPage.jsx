@@ -37,9 +37,9 @@ export default function RegisterPage() {
         /* ── page shell ── */
         .rp-shell {
           min-height: 100vh;
-          background: #fff0f0;
+          background: #FCE8E6;
           font-family: Inter, sans-serif;
-          color: #2d1418;
+          color: #1C0A0C;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -66,7 +66,7 @@ export default function RegisterPage() {
 
         /* ── left panel ── */
         .rp-left {
-          background: linear-gradient(135deg, #56000F 0%, #7B0D1E 100%);
+          background: linear-gradient(135deg, #8A1228 0%, #5C0F1F 100%);
           padding: 3rem;
           display: flex;
           flex-direction: column;
@@ -78,7 +78,7 @@ export default function RegisterPage() {
         .rp-left-blur-1 {
           position: absolute; bottom: -6rem; left: -6rem;
           width: 20rem; height: 20rem;
-          background: #7b0d1e; border-radius: 50%;
+          background: #5C0F1F; border-radius: 50%;
           filter: blur(48px); opacity: 0.4; pointer-events: none;
         }
         .rp-left-blur-2 {
@@ -104,11 +104,11 @@ export default function RegisterPage() {
         /* ── form inputs ── */
         .rp-input, .rp-select {
           width: 100%;
-          background: #fff0f0;
+          background: #FCE8E6;
           border: none;
           border-radius: 0.5rem;
           padding: 0.875rem 1rem 0.875rem 2.75rem;
-          color: #2d1418;
+          color: #1C0A0C;
           font-family: Inter, sans-serif;
           font-size: 0.875rem;
           outline: none;
@@ -116,20 +116,20 @@ export default function RegisterPage() {
           appearance: none;
           box-sizing: border-box;
         }
-        .rp-input::placeholder { color: #8b7170; }
-        .rp-select::placeholder { color: #8b7170; }
+        .rp-input::placeholder { color: #A89597; }
+        .rp-select::placeholder { color: #A89597; }
         .rp-input:focus, .rp-select:focus {
-          box-shadow: 0 0 0 2px rgba(123,13,30,0.2);
+          box-shadow: 0 0 0 2px rgba(107,15,26,0.2);
         }
         .rp-select { padding-right: 2.5rem; cursor: pointer; }
 
         /* icon turns primary when sibling input focused */
-        .rp-field:focus-within .rp-field-icon { color: #56000f; }
+        .rp-field:focus-within .rp-field-icon { color: #8A1228; }
 
         /* ── submit button ── */
         .rp-btn {
           width: 100%;
-          background: #7b0d1e;
+          background: #8A1228;
           color: #fff;
           font-family: Inter, sans-serif;
           font-weight: 600;
@@ -139,9 +139,9 @@ export default function RegisterPage() {
           font-size: 0.9375rem;
           cursor: pointer;
           transition: background 0.2s, transform 0.1s;
-          box-shadow: 0 4px 16px rgba(123,13,30,0.2);
+          box-shadow: 0 4px 16px rgba(107,15,26,0.2);
         }
-        .rp-btn:hover:not(:disabled) { background: #56000f; }
+        .rp-btn:hover:not(:disabled) { background: #5C0F1F; }  /* already correct */
         .rp-btn:active { transform: scale(0.98); }
         .rp-btn:disabled { opacity: 0.6; cursor: default; }
 
@@ -166,7 +166,7 @@ export default function RegisterPage() {
         <div className="rp-deco-iuea">
           <span style={{
             fontFamily: 'Playfair Display, Georgia, serif', fontSize: '5rem',
-            fontWeight: 700, color: '#56000f',
+            fontWeight: 700, color: '#8A1228',
             transform: 'rotate(-5deg)', display: 'block', lineHeight: 1,
           }}>
             IUEA
@@ -175,7 +175,7 @@ export default function RegisterPage() {
 
         {/* Book icon — bottom-right */}
         <div className="rp-deco-book">
-          <span className="material-symbols-outlined" style={{ fontSize: 120, color: '#56000f', display: 'block' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 120, color: '#8A1228', display: 'block' }}>
             auto_stories
           </span>
         </div>
@@ -194,7 +194,7 @@ export default function RegisterPage() {
               {/* Logo row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2.5rem' }}>
                 <div style={{
-                  width: 40, height: 40, background: '#c9a84c',
+                  width: 40, height: 40, background: '#B8964A',
                   borderRadius: '0.5rem', display: 'flex', alignItems: 'center',
                   justifyContent: 'center', padding: 7, flexShrink: 0,
                 }}>
@@ -213,7 +213,7 @@ export default function RegisterPage() {
                 lineHeight: 1.2, marginBottom: '1.5rem',
               }}>
                 Step into the{' '}
-                <span style={{ fontStyle: 'italic', fontWeight: 400, color: '#ffe08f' }}>
+                <span style={{ fontStyle: 'italic', fontWeight: 400, color: '#D9B96B' }}>
                   Digital Curator.
                 </span>
               </h1>
@@ -252,13 +252,13 @@ export default function RegisterPage() {
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <div style={{
-                    width: 36, height: 36, background: '#c9a84c',
+                    width: 36, height: 36, background: '#B8964A',
                     borderRadius: '0.5rem', display: 'flex', alignItems: 'center',
                     justifyContent: 'center', padding: 6, flexShrink: 0,
                   }}>
                     <img src="/iuea_logo.png" alt="IUEA" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </div>
-                  <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.375rem', fontWeight: 700, color: '#56000f', letterSpacing: '-0.02em' }}>
+                  <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.375rem', fontWeight: 700, color: '#8A1228', letterSpacing: '-0.02em' }}>
                     IUEA Library
                   </span>
                 </div>
@@ -267,10 +267,10 @@ export default function RegisterPage() {
 
             {/* Heading */}
             <div style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2rem', fontWeight: 700, color: '#56000f', marginBottom: '0.5rem' }}>
+              <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2rem', fontWeight: 700, color: '#8A1228', marginBottom: '0.5rem' }}>
                 Create Account
               </h2>
-              <p style={{ color: '#584141', fontSize: '0.875rem' }}>
+              <p style={{ color: '#6B5456', fontSize: '0.875rem' }}>
                 Join our academic community today.
               </p>
             </div>
@@ -303,7 +303,7 @@ export default function RegisterPage() {
                   {FACULTIES.map(f => <option key={f} value={f}>{f}</option>)}
                 </select>
                 {/* chevron */}
-                <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, paddingRight: '0.875rem', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: '#8b7170' }}>
+                <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, paddingRight: '0.875rem', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: '#A89597' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: 20, lineHeight: 1 }}>expand_more</span>
                 </div>
               </RpField>
@@ -323,10 +323,10 @@ export default function RegisterPage() {
 
               {/* Sign in link */}
               <div style={{ textAlign: 'center', paddingTop: '0.5rem' }}>
-                <p style={{ color: '#584141', fontSize: '0.875rem' }}>
+                <p style={{ color: '#6B5456', fontSize: '0.875rem' }}>
                   Already have an account?{' '}
                   <Link to="/login"
-                    style={{ color: '#56000f', fontWeight: 700, marginLeft: 4, textDecoration: 'none' }}
+                    style={{ color: '#8A1228', fontWeight: 700, marginLeft: 4, textDecoration: 'none' }}
                     onMouseEnter={e => (e.target.style.textDecoration = 'underline')}
                     onMouseLeave={e => (e.target.style.textDecoration = 'none')}>
                     Sign in
@@ -336,18 +336,18 @@ export default function RegisterPage() {
             </form>
 
             {/* Footer */}
-            <footer style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid #ffe9ea', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            <footer style={{ marginTop: '2.5rem', paddingTop: '1.5rem', borderTop: '1px solid #FDF4F2', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                 {['Privacy', 'Terms', 'Books API'].map(t => (
                   <a key={t} href="#"
-                    style={{ fontSize: 10, color: '#8b7170', textTransform: 'uppercase', letterSpacing: '0.12em', textDecoration: 'none', transition: 'color 0.2s' }}
-                    onMouseEnter={e => (e.target.style.color = '#56000f')}
-                    onMouseLeave={e => (e.target.style.color = '#8b7170')}>
+                    style={{ fontSize: 10, color: '#A89597', textTransform: 'uppercase', letterSpacing: '0.12em', textDecoration: 'none', transition: 'color 0.2s' }}
+                    onMouseEnter={e => (e.target.style.color = '#8A1228')}
+                    onMouseLeave={e => (e.target.style.color = '#A89597')}>
                     {t}
                   </a>
                 ))}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: '#8b7170', textTransform: 'uppercase', letterSpacing: '0.12em', opacity: 0.65 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: '#A89597', textTransform: 'uppercase', letterSpacing: '0.12em', opacity: 0.65 }}>
                 <span>Powered by</span>
                 <svg style={{ height: 11 }} fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12.48 10.92v3.28h4.74c-.2 1.06-1.2 3.12-4.74 3.12-3.07 0-5.57-2.54-5.57-5.68s2.5-5.68 5.57-5.68c1.75 0 2.92.74 3.59 1.39l2.6-2.5c-1.67-1.56-3.83-2.5-6.19-2.5-5.32 0-9.63 4.31-9.63 9.63s4.31 9.63 9.63 9.63c5.55 0 9.24-3.91 9.24-9.41 0-.63-.07-1.11-.15-1.59h-9.09z" />
@@ -370,7 +370,7 @@ function RpField({ label, icon, children }) {
       <label style={{
         fontSize: '0.7rem', fontWeight: 600,
         textTransform: 'uppercase', letterSpacing: '0.1em',
-        color: '#584141', marginLeft: 2,
+        color: '#6B5456', marginLeft: 2,
       }}>
         {label}
       </label>
@@ -378,7 +378,7 @@ function RpField({ label, icon, children }) {
         <div className="rp-field-icon" style={{
           position: 'absolute', top: 0, bottom: 0, left: 0,
           paddingLeft: '0.875rem', display: 'flex', alignItems: 'center',
-          pointerEvents: 'none', color: '#8b7170', transition: 'color 0.2s',
+          pointerEvents: 'none', color: '#A89597', transition: 'color 0.2s',
         }}>
           <span className="material-symbols-outlined" style={{ fontSize: 20, lineHeight: 1 }}>
             {icon}

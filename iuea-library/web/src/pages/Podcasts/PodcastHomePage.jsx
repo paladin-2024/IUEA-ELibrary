@@ -43,7 +43,7 @@ export default function PodcastHomePage() {
         <div
           onClick={() => navigate(`/podcasts/${featured._id}`)}
           className="relative rounded-card overflow-hidden cursor-pointer h-44 flex items-end"
-          style={{ background: 'linear-gradient(135deg, #7B0D1E 0%, #4A0810 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #5C0F1F 0%, #4A0810 100%)' }}
         >
           {featured.coverUrl && (
             <img

@@ -17,10 +17,10 @@ export default function MobileBottomNav() {
     <nav style={{
       position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
       height: 64,
-      background: 'rgba(255,248,247,0.95)',
+      background: 'rgba(252,232,230,0.95)',
       backdropFilter: 'blur(20px)',
-      borderTop: '1px solid rgba(223,191,190,0.25)',
-      boxShadow: '0 -4px 20px rgba(86,0,15,0.08)',
+      borderTop: '1px solid #EBD2CF',
+      boxShadow: '0 -4px 20px rgba(107,15,26,0.08)',
       display: 'flex', alignItems: 'center', justifyContent: 'space-around',
       padding: '0 8px',
     }}>
@@ -35,19 +35,19 @@ export default function MobileBottomNav() {
             <div style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center',
               gap: 3, padding: '6px 14px', borderRadius: 12, minWidth: 52,
-              background: isActive ? 'rgba(123,13,30,0.08)' : 'transparent',
+              background: isActive ? 'rgba(107,15,26,0.08)' : 'transparent',
               transition: 'background 0.18s ease',
             }}>
               <span className="material-symbols-outlined" style={{
                 fontSize: 22,
-                color: isActive ? '#7b0d1e' : '#8b7170',
+                color: isActive ? '#8A1228' : '#A89597',
                 fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
                 transition: 'color 0.18s ease',
               }}>{icon}</span>
               <span style={{
                 fontFamily: 'Inter, sans-serif',
                 fontSize: 9, fontWeight: isActive ? 700 : 500,
-                color: isActive ? '#7b0d1e' : '#8b7170',
+                color: isActive ? '#8A1228' : '#A89597',
                 letterSpacing: '0.01em',
               }}>{label}</span>
             </div>

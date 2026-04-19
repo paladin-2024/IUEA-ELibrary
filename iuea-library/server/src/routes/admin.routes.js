@@ -58,6 +58,8 @@ router.post('/sync-koha',    ctrl.syncKoha);
 router.post('/sync-patrons', ctrl.syncPatrons);
 
 // ── Podcasts ──────────────────────────────────────────────────────────────────
-router.post('/podcasts', ctrl.addPodcast);
+router.post('/podcasts',          ctrl.addPodcast);
+router.patch('/podcasts/:id',     ctrl.updatePodcast);
+router.delete('/podcasts/:id',    ctrl.deletePodcast);
 
 module.exports = router;

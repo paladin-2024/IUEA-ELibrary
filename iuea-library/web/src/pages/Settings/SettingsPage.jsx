@@ -52,7 +52,7 @@ export default function SettingsPage() {
           fontSize: 28, fontWeight: 800, color: '#1a0609', margin: 0, lineHeight: 1.1,
         }}>Settings</h1>
         <p style={{
-          fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#8b7170', marginTop: 4,
+          fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#A89597', marginTop: 4,
         }}>Manage your account and preferences</p>
       </div>
 
@@ -60,7 +60,7 @@ export default function SettingsPage() {
       <div style={{
         display: 'flex', gap: 6,
         background: '#fff', borderRadius: 14, padding: 5,
-        boxShadow: '0 2px 8px rgba(86,0,15,0.07)',
+        boxShadow: '0 2px 8px rgba(138,18,40,0.07)',
         border: '1px solid rgba(223,191,190,0.3)',
         marginBottom: '1.5rem',
         overflowX: 'auto',
@@ -71,8 +71,8 @@ export default function SettingsPage() {
             <button key={id} onClick={() => switchTab(id)} style={{
               display: 'flex', alignItems: 'center', gap: 6,
               padding: '8px 14px', borderRadius: 10, border: 'none',
-              background: active ? '#7b0d1e' : 'transparent',
-              color: active ? '#fff' : '#8b7170',
+              background: active ? '#5C0F1F' : 'transparent',
+              color: active ? '#fff' : '#A89597',
               fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', whiteSpace: 'nowrap',
               transition: 'background 0.18s ease, color 0.18s ease',
@@ -129,9 +129,9 @@ function AccountTab() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <div style={{
             width: 72, height: 72, borderRadius: '50%', flexShrink: 0,
-            background: 'linear-gradient(135deg, #c9a84c, #e6c96a)',
+            background: 'linear-gradient(135deg, #B8964A, #e6c96a)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '3px solid rgba(123,13,30,0.15)',
+            border: '3px solid rgba(107,15,26,0.15)',
             overflow: 'hidden',
           }}>
             {user?.avatar
@@ -141,7 +141,7 @@ function AccountTab() {
           </div>
           <div>
             <p style={fieldLabel}>Profile Photo</p>
-            <p style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#8b7170', margin:0 }}>
+            <p style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#A89597', margin:0 }}>
               Photo upload coming soon
             </p>
           </div>
@@ -165,7 +165,7 @@ function AccountTab() {
               disabled
               style={{ ...inputStyle, opacity: 0.55, cursor: 'not-allowed' }}
             />
-            <p style={{ fontFamily:'Inter, sans-serif', fontSize:11, color:'#8b7170', margin:'4px 0 0' }}>
+            <p style={{ fontFamily:'Inter, sans-serif', fontSize:11, color:'#A89597', margin:'4px 0 0' }}>
               Email changes require support
             </p>
           </Field>
@@ -184,20 +184,20 @@ function AccountTab() {
 
       {/* Reading goal */}
       <Card title="Reading Goal">
-        <p style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#8b7170', margin:'0 0 12px' }}>
+        <p style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#A89597', margin:'0 0 12px' }}>
           How many books do you want to read this year?
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <input
             type="range" min={1} max={52} step={1}
             value={goal} onChange={e => setGoal(Number(e.target.value))}
-            style={{ flex:1, accentColor:'#7b0d1e', height:4 }}
+            style={{ flex:1, accentColor:'#5C0F1F', height:4 }}
           />
           <span style={{
             fontFamily:'Playfair Display, Georgia, serif', fontSize:20, fontWeight:800,
-            color:'#7b0d1e', minWidth:40, textAlign:'center',
+            color:'#5C0F1F', minWidth:40, textAlign:'center',
           }}>{goal}</span>
-          <span style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#8b7170' }}>books</span>
+          <span style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#A89597' }}>books</span>
         </div>
       </Card>
 
@@ -247,13 +247,13 @@ function ReadingTab() {
           {FONTS.map(({ key, label, sample }) => (
             <button key={key} onClick={() => setFontFamily(key)} style={{
               padding: '12px 8px', borderRadius: 12,
-              border: `2px solid ${fontFamily === key ? '#7b0d1e' : 'rgba(223,191,190,0.4)'}`,
-              background: fontFamily === key ? 'rgba(123,13,30,0.04)' : '#fff',
+              border: `2px solid ${fontFamily === key ? '#5C0F1F' : 'rgba(223,191,190,0.4)'}`,
+              background: fontFamily === key ? 'rgba(107,15,26,0.04)' : '#fff',
               cursor: 'pointer', textAlign: 'center',
               transition: 'border-color 0.18s ease',
             }}>
-              <span style={{ display:'block', fontFamily:sample, fontSize:22, color: fontFamily === key ? '#7b0d1e' : '#1a0609', marginBottom:4 }}>Aa</span>
-              <span style={{ fontFamily:'Inter, sans-serif', fontSize:11, fontWeight:600, color: fontFamily === key ? '#7b0d1e' : '#8b7170' }}>{label}</span>
+              <span style={{ display:'block', fontFamily:sample, fontSize:22, color: fontFamily === key ? '#5C0F1F' : '#1a0609', marginBottom:4 }}>Aa</span>
+              <span style={{ fontFamily:'Inter, sans-serif', fontSize:11, fontWeight:600, color: fontFamily === key ? '#5C0F1F' : '#A89597' }}>{label}</span>
             </button>
           ))}
         </div>
@@ -268,16 +268,16 @@ function ReadingTab() {
           <input
             type="range" min={12} max={32} step={2} value={fontSize}
             onChange={e => setFontSize(Number(e.target.value))}
-            style={{ flex:1, accentColor:'#7b0d1e' }}
+            style={{ flex:1, accentColor:'#5C0F1F' }}
           />
           <button onClick={() => setFontSize(Math.min(32, fontSize+2))} style={iconBtn}>
             <span style={{ fontFamily:'serif', fontSize:19, fontWeight:700 }}>A</span>
           </button>
-          <span style={{ fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:700, color:'#7b0d1e', minWidth:34, textAlign:'right' }}>{fontSize}px</span>
+          <span style={{ fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:700, color:'#5C0F1F', minWidth:34, textAlign:'right' }}>{fontSize}px</span>
         </div>
         <p style={{
           marginTop:12, padding:'12px 16px', borderRadius:10,
-          background:'#fff8f7', border:'1px solid rgba(223,191,190,0.3)',
+          background:'#FCE8E6', border:'1px solid rgba(223,191,190,0.3)',
           fontFamily: fontFamily === 'mono' ? 'JetBrains Mono, monospace' : fontFamily === 'sans' ? 'Inter, system-ui' : 'Playfair Display, Georgia, serif',
           fontSize, color:'#1a0609', lineHeight: lineHeight,
         }}>The quick brown fox jumps over the lazy dog.</p>
@@ -289,8 +289,8 @@ function ReadingTab() {
           {[1.4, 1.6, 1.8, 2.0].map(v => (
             <button key={v} onClick={() => setLineHeight(v)} style={{
               flex:1, padding:'8px 0', borderRadius:10, border:'none', cursor:'pointer',
-              background: lineHeight === v ? '#7b0d1e' : 'rgba(123,13,30,0.06)',
-              color: lineHeight === v ? '#fff' : '#584141',
+              background: lineHeight === v ? '#5C0F1F' : 'rgba(107,15,26,0.06)',
+              color: lineHeight === v ? '#fff' : '#6B5456',
               fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:600,
               transition:'background 0.18s ease, color 0.18s ease',
             }}>{v}×</button>
@@ -305,8 +305,8 @@ function ReadingTab() {
             <button key={key} onClick={() => setTheme(key)} style={{
               padding:'16px 8px', borderRadius:12,
               background: bg,
-              border: `2px solid ${theme === key ? '#7b0d1e' : 'rgba(0,0,0,0.08)'}`,
-              boxShadow: theme === key ? '0 0 0 3px rgba(123,13,30,0.15)' : '0 1px 3px rgba(0,0,0,0.1)',
+              border: `2px solid ${theme === key ? '#5C0F1F' : 'rgba(0,0,0,0.08)'}`,
+              boxShadow: theme === key ? '0 0 0 3px rgba(107,15,26,0.15)' : '0 1px 3px rgba(0,0,0,0.1)',
               cursor:'pointer', textAlign:'center',
               transition:'border-color 0.18s ease, box-shadow 0.18s ease',
             }}>
@@ -358,7 +358,7 @@ function LanguageTab() {
     <div style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
 
       <Card title="Primary Language">
-        <p style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#8b7170', margin:'0 0 10px' }}>
+        <p style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#A89597', margin:'0 0 10px' }}>
           Default language for the library interface
         </p>
         <Select value={primary} onChange={setPrimary} options={LANGUAGES.map(l => ({ value: l.code, label: l.name }))} />
@@ -369,7 +369,7 @@ function LanguageTab() {
         <div style={{ marginTop:16 }}>
           <p style={fieldLabel}>Text-to-Speech Language</p>
           <Select value={ttsLang} onChange={setTtsLang} options={LANGUAGES.map(l => ({ value: l.code, label: l.name }))} />
-          <p style={{ fontFamily:'Inter, sans-serif', fontSize:11, color:'#8b7170', marginTop:6 }}>
+          <p style={{ fontFamily:'Inter, sans-serif', fontSize:11, color:'#A89597', marginTop:6 }}>
             Language used when reading text aloud in the reader
           </p>
         </div>
@@ -378,7 +378,7 @@ function LanguageTab() {
       <Card title="AI Assistant">
         <p style={fieldLabel}>Chatbot Reply Language</p>
         <Select value={aiLang} onChange={setAiLang} options={LANGUAGES.map(l => ({ value: l.code, label: l.name }))} />
-        <p style={{ fontFamily:'Inter, sans-serif', fontSize:11, color:'#8b7170', marginTop:6 }}>
+        <p style={{ fontFamily:'Inter, sans-serif', fontSize:11, color:'#A89597', marginTop:6 }}>
           The IUEA AI assistant will respond in this language
         </p>
       </Card>
@@ -440,13 +440,13 @@ function AboutTab() {
 
       {/* App identity */}
       <div style={{
-        background:'linear-gradient(135deg,#56000f,#7b0d1e)',
+        background:'linear-gradient(135deg,#8A1228,#5C0F1F)',
         borderRadius:20, padding:'2rem', textAlign:'center',
         position:'relative', overflow:'hidden',
       }}>
         <div style={{ position:'absolute', top:-30, right:-30, width:120, height:120, borderRadius:'50%', background:'rgba(201,168,76,0.15)' }} />
         <span className="material-symbols-outlined" style={{
-          fontSize:48, color:'#c9a84c', fontVariationSettings:"'FILL' 1",
+          fontSize:48, color:'#B8964A', fontVariationSettings:"'FILL' 1",
           display:'block', marginBottom:12,
         }}>local_library</span>
         <h2 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:24, fontWeight:800, color:'#fff', margin:'0 0 4px' }}>
@@ -480,7 +480,7 @@ function Card({ title, children }) {
   return (
     <div style={{
       background:'#fff', borderRadius:16,
-      boxShadow:'0 2px 8px rgba(86,0,15,0.07)',
+      boxShadow:'0 2px 8px rgba(138,18,40,0.07)',
       border:'1px solid rgba(223,191,190,0.3)',
       padding:'1.25rem 1.5rem',
       overflow:'hidden',
@@ -489,7 +489,7 @@ function Card({ title, children }) {
         <p style={{
           fontFamily:'Inter, sans-serif', fontSize:10, fontWeight:700,
           letterSpacing:'0.12em', textTransform:'uppercase',
-          color:'#7b0d1e', margin:'0 0 14px',
+          color:'#5C0F1F', margin:'0 0 14px',
         }}>{title}</p>
       )}
       {children}
@@ -517,11 +517,11 @@ function Toggle({ label, sub, checked, onChange }) {
     >
       <div>
         <p style={{ fontFamily:'Inter, sans-serif', fontSize:13, fontWeight:600, color:'#1a0609', margin:0 }}>{label}</p>
-        {sub && <p style={{ fontFamily:'Inter, sans-serif', fontSize:11, color:'#8b7170', margin:'2px 0 0' }}>{sub}</p>}
+        {sub && <p style={{ fontFamily:'Inter, sans-serif', fontSize:11, color:'#A89597', margin:'2px 0 0' }}>{sub}</p>}
       </div>
       <div style={{
         width:44, height:24, borderRadius:99, flexShrink:0,
-        background: checked ? '#7b0d1e' : '#dfbfbe',
+        background: checked ? '#5C0F1F' : '#EBD2CF',
         position:'relative', transition:'background 0.2s ease',
       }}>
         <div style={{
@@ -546,7 +546,7 @@ function Select({ value, onChange, options }) {
         fontFamily:'Inter, sans-serif', fontSize:13, color:'#1a0609',
         background:'#fff', outline:'none', cursor:'pointer',
       }}
-      onFocus={e => (e.target.style.borderColor = '#7b0d1e')}
+      onFocus={e => (e.target.style.borderColor = '#5C0F1F')}
       onBlur={e => (e.target.style.borderColor = 'rgba(223,191,190,0.5)')}
     >
       {options.map(o => (
@@ -560,7 +560,7 @@ function SaveButton({ saved, saving, onClick }) {
   return (
     <button onClick={onClick} disabled={saving} style={{
       width:'100%', padding:'0.875rem', borderRadius:14, border:'none',
-      background: saved ? '#16a34a' : '#7b0d1e',
+      background: saved ? '#16a34a' : '#5C0F1F',
       color:'#fff', fontFamily:'Inter, sans-serif', fontSize:13, fontWeight:700,
       cursor: saving ? 'wait' : 'pointer',
       transition:'background 0.2s ease',
@@ -580,7 +580,7 @@ function InfoRow({ label, value, capitalize }) {
       display:'flex', justifyContent:'space-between', alignItems:'center',
       padding:'8px 0', borderTop:'1px solid rgba(223,191,190,0.2)',
     }}>
-      <span style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#8b7170' }}>{label}</span>
+      <span style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#A89597' }}>{label}</span>
       <span style={{
         fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:600, color:'#1a0609',
         textTransform: capitalize ? 'capitalize' : 'none',
@@ -592,7 +592,7 @@ function InfoRow({ label, value, capitalize }) {
 /* shared styles */
 const fieldLabel = {
   fontFamily:'Inter, sans-serif', fontSize:11, fontWeight:600,
-  color:'#584141', margin:'0 0 6px', display:'block',
+  color:'#6B5456', margin:'0 0 6px', display:'block',
 };
 
 const inputStyle = {
@@ -604,7 +604,7 @@ const inputStyle = {
 
 const iconBtn = {
   width:34, height:34, borderRadius:'50%', border:'none',
-  background:'rgba(123,13,30,0.08)', cursor:'pointer',
+  background:'rgba(107,15,26,0.08)', cursor:'pointer',
   display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
   color:'#1a0609',
 };

@@ -4,28 +4,28 @@ import { listPodcasts }  from '../../services/podcast.service';
 import PodcastCard       from '../../components/podcast/PodcastCard';
 
 const C = {
-  primary:             '#56000f',
-  primaryContainer:    '#7b0d1e',
-  tertiaryContainer:   '#c9a84c',
+  primary:             '#8A1228',
+  primaryContainer:    '#5C0F1F',
+  tertiaryContainer:   '#B8964A',
   onTertiaryContainer: '#503d00',
-  surface:             '#fff8f7',
-  surfaceContainerLow: '#fff0f0',
-  surfaceContainer:    '#ffe9ea',
+  surface:             '#FCE8E6',
+  surfaceContainerLow: '#FCE8E6',
+  surfaceContainer:    '#FDF4F2',
   surfaceContainerHigh:'#ffe1e3',
   surfaceContainerHighest:'#ffd9dc',
   surfaceContainerLowest:'#ffffff',
-  surfaceDim:          '#fdcfd3',
-  onSurface:           '#2d1418',
-  onSurfaceVariant:    '#584141',
-  outline:             '#8b7170',
-  outlineVariant:      '#dfbfbe',
+  surfaceDim:          '#F2BEB8',
+  onSurface:           '#1C0A0C',
+  onSurfaceVariant:    '#6B5456',
+  outline:             '#A89597',
+  outlineVariant:      '#EBD2CF',
   secondary:           '#984447',
   onSecondaryContainer:'#782c2f',
 };
 
 function PodcastSkeleton() {
   return (
-    <div style={{ aspectRatio:'1/1', borderRadius:'1rem', background:'linear-gradient(90deg,#ffe9ea 25%,#ffe1e3 50%,#ffe9ea 75%)', backgroundSize:'200% 100%', animation:'pod-shimmer 1.4s infinite' }}>
+    <div style={{ aspectRatio:'1/1', borderRadius:'1rem', background:'linear-gradient(90deg,#FDF4F2 25%,#ffe1e3 50%,#FDF4F2 75%)', backgroundSize:'200% 100%', animation:'pod-shimmer 1.4s infinite' }}>
       <style>{`@keyframes pod-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
     </div>
   );
@@ -101,7 +101,7 @@ export default function PodcastsPage() {
 
         {/* ── Featured Banner ── */}
         {isLoading ? (
-          <div style={{ height: 420, borderRadius: '1.5rem', background: 'linear-gradient(90deg,#ffe9ea 25%,#ffe1e3 50%,#ffe9ea 75%)', backgroundSize:'200% 100%', animation:'pod-shimmer 1.4s infinite' }} />
+          <div style={{ height: 420, borderRadius: '1.5rem', background: 'linear-gradient(90deg,#FDF4F2 25%,#ffe1e3 50%,#FDF4F2 75%)', backgroundSize:'200% 100%', animation:'pod-shimmer 1.4s infinite' }} />
         ) : featured ? (
           <section
             className="pp-banner-group"
@@ -116,11 +116,11 @@ export default function PodcastsPage() {
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.7s' }}
               />
             ) : (
-              <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,#56000f,#7b0d1e)' }} />
+              <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,#8A1228,#5C0F1F)' }} />
             )}
             <div style={{
               position: 'absolute', inset: 0,
-              background: `linear-gradient(to right, rgba(86,0,15,0.9) 0%, rgba(86,0,15,0.4) 50%, transparent 100%)`,
+              background: `linear-gradient(to right, rgba(138,18,40,0.9) 0%, rgba(138,18,40,0.4) 50%, transparent 100%)`,
               display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
               padding: '3rem',
             }}>
@@ -196,7 +196,7 @@ export default function PodcastsPage() {
             <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
               {isLoading
                 ? Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} style={{ height:80, borderRadius:'1rem', background:'linear-gradient(90deg,#ffe9ea 25%,#ffe1e3 50%,#ffe9ea 75%)', backgroundSize:'200% 100%', animation:'pod-shimmer 1.4s infinite' }} />
+                    <div key={i} style={{ height:80, borderRadius:'1rem', background:'linear-gradient(90deg,#FDF4F2 25%,#ffe1e3 50%,#FDF4F2 75%)', backgroundSize:'200% 100%', animation:'pod-shimmer 1.4s infinite' }} />
                   ))
                 : trending.map((ep, i) => (
                     <PodcastCard key={ep.id ?? ep._id ?? i} podcast={ep} variant="row" />
@@ -253,7 +253,7 @@ export default function PodcastsPage() {
 
         {/* ── Footer ── */}
         <footer style={{ paddingTop:'1rem', paddingBottom:'2rem', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem' }}>
-          <p style={{ fontFamily:'Inter, sans-serif', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.12em', color:'rgba(86,0,15,0.5)', margin:0 }}>
+          <p style={{ fontFamily:'Inter, sans-serif', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.12em', color:'rgba(138,18,40,0.5)', margin:0 }}>
             Powered by iTunes · Podcast data is live
           </p>
         </footer>

@@ -5,6 +5,7 @@ const User          = require('../models/User');
 const { searchBooks } = require('../services/koha.service');
 const { syncPodcast }  = require('../services/podcast.service');
 const { uploadBookFile, uploadCover } = require('../services/r2.service');
+const { sendMulticast } = require('../services/firebase.service');
 
 
 // GET /api/admin/stats
@@ -339,12 +340,26 @@ const getUserGrowth = async (req, res, next) => {
 // POST /api/admin/notifications/push
 const sendPushNotification = async (req, res, next) => {
   try {
-    const { title, body, targetRole } = req.body;
+    const { title, body, targetRole, data = {} } = req.body;
     if (!title || !body) return res.status(400).json({ message: 'title and body are required.' });
+
     const where = targetRole ? { role: targetRole, isActive: true } : { isActive: true };
-    const users  = await prisma.user.findMany({ where, select: { fcmToken: true } });
-    const tokens = users.map(u => u.fcmToken).filter(Boolean);
-    res.json({ message: `Notification queued for ${tokens.length} device(s).`, sent: tokens.length });
+    const users  = await prisma.user.findMany({
+      where,
+      select: { fcmToken: true, fcmTokenMobile: true, fcmTokenWeb: true },
+    });
+
+    const tokens = [
+      ...new Set(
+        users.flatMap(u => [u.fcmToken, u.fcmTokenMobile, u.fcmTokenWeb].filter(Boolean))
+      ),
+    ];
+
+    if (tokens.length) {
+      await sendMulticast({ tokens, title, body, data });
+    }
+
+    res.json({ message: `Notification sent to ${tokens.length} device(s).`, sent: tokens.length });
   } catch (err) { next(err); }
 };
 
@@ -441,9 +456,35 @@ const getAnalytics = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// PATCH /api/admin/podcasts/:id
+const updatePodcast = async (req, res, next) => {
+  try {
+    const { title, description, category, language } = req.body;
+    const podcast = await prisma.podcast.update({
+      where: { id: req.params.id },
+      data:  { ...(title && { title }), ...(description && { description }), ...(category && { category }), ...(language && { language }) },
+    });
+    res.json({ podcast });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ message: 'Podcast not found.' });
+    next(err);
+  }
+};
+
+// DELETE /api/admin/podcasts/:id
+const deletePodcast = async (req, res, next) => {
+  try {
+    await prisma.podcast.update({ where: { id: req.params.id }, data: { isActive: false } });
+    res.json({ message: 'Podcast archived.' });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ message: 'Podcast not found.' });
+    next(err);
+  }
+};
+
 module.exports = {
   getStats, getBooks, uploadBook, updateBook, deleteBook, toggleBookStatus,
   getUsers, suspendUser, getUserDetail, updateUserRole, deleteUser,
-  syncKoha, syncPatrons, addPodcast, getAnalytics,
+  syncKoha, syncPatrons, addPodcast, updatePodcast, deletePodcast, getAnalytics,
   getTopBooks, getUserGrowth, sendPushNotification,
 };

@@ -68,8 +68,8 @@ export default function LanguageSetupPage() {
     <>
       <style>{`
         .ls-shell {
-          background: #fff8f7;
-          color: #2d1418;
+          background: #FCE8E6;
+          color: #1C0A0C;
           font-family: Inter, sans-serif;
           min-height: 100vh;
           display: flex;
@@ -85,7 +85,7 @@ export default function LanguageSetupPage() {
           justify-content: space-between;
           align-items: center;
           padding: 0 2rem;
-          background: #fff0f0;
+          background: #FCE8E6;
         }
         .ls-curator-grid {
           display: grid;
@@ -98,23 +98,23 @@ export default function LanguageSetupPage() {
           padding: 1.5rem;
           position: relative;
           box-shadow: 0 12px 40px rgba(74,8,16,0.06);
-          ring: 2px solid #7b0d1e;
-          outline: 2px solid #7b0d1e;
+          ring: 2px solid #5C0F1F;
+          outline: 2px solid #5C0F1F;
           cursor: pointer;
           transition: all 0.3s;
         }
         .ls-card {
-          background: #fff0f0;
+          background: #FCE8E6;
           border-radius: 0.75rem;
           padding: 1.5rem;
           position: relative;
-          outline: 1px solid #dfbfbe;
+          outline: 1px solid #EBD2CF;
           cursor: pointer;
           transition: all 0.3s;
         }
         .ls-card:hover {
           background: #ffffff;
-          outline: 1px solid rgba(123,13,30,0.3);
+          outline: 1px solid rgba(107,15,26,0.3);
         }
         .ls-flag-box {
           height: 48px;
@@ -131,7 +131,7 @@ export default function LanguageSetupPage() {
           object-fit: cover;
         }
         .ls-continue-btn {
-          background: #7b0d1e;
+          background: #5C0F1F;
           color: #fff;
           padding: 1rem 3rem;
           border-radius: 0.5rem;
@@ -143,10 +143,10 @@ export default function LanguageSetupPage() {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          box-shadow: 0 4px 20px rgba(123,13,30,0.3);
+          box-shadow: 0 4px 20px rgba(107,15,26,0.3);
           transition: background 0.2s, transform 0.1s;
         }
-        .ls-continue-btn:hover:not(:disabled) { background: #56000f; }
+        .ls-continue-btn:hover:not(:disabled) { background: #8A1228; }
         .ls-continue-btn:active { transform: scale(0.95); }
         .ls-continue-btn:disabled { opacity: 0.6; cursor: default; }
         .ls-skip-btn {
@@ -160,12 +160,12 @@ export default function LanguageSetupPage() {
           padding: 0.5rem 1rem;
           text-decoration: none;
         }
-        .ls-skip-btn:hover { text-decoration: underline; text-decoration-color: #c9a84c; text-decoration-thickness: 2px; }
+        .ls-skip-btn:hover { text-decoration: underline; text-decoration-color: #B8964A; text-decoration-thickness: 2px; }
         .ls-footer {
           width: 100%;
           padding: 2rem;
           margin-top: auto;
-          background: #fff0f0;
+          background: #FCE8E6;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -181,17 +181,17 @@ export default function LanguageSetupPage() {
           font-size: 10px;
           text-transform: uppercase;
           letter-spacing: 0.12em;
-          color: rgba(86,0,15,0.4);
+          color: rgba(138,18,40,0.4);
           text-decoration: none;
           transition: color 0.2s;
         }
-        .ls-footer-link:hover { color: #7b0d1e; }
+        .ls-footer-link:hover { color: #5C0F1F; }
         .ls-footer-powered {
           font-family: Inter, sans-serif;
           font-size: 10px;
           text-transform: uppercase;
           letter-spacing: 0.12em;
-          color: rgba(86,0,15,0.5);
+          color: rgba(138,18,40,0.5);
         }
         .ls-heading-block { text-align: center; }
         .ls-heading-subtitle { justify-content: center; }
@@ -210,19 +210,19 @@ export default function LanguageSetupPage() {
               style={{ height: 40, width: 40, objectFit: 'contain' }} />
             <span style={{
               fontFamily: 'Playfair Display, Georgia, serif', fontWeight: 700,
-              fontSize: '1.125rem', color: '#56000f',
+              fontSize: '1.125rem', color: '#8A1228',
             }}>
               IUEA Library
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(136,0,30,0.6)', padding: 8 }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#7b0d1e')}
+              onMouseEnter={e => (e.currentTarget.style.color = '#5C0F1F')}
               onMouseLeave={e => (e.currentTarget.style.color = 'rgba(136,0,30,0.6)')}>
               <span className="material-symbols-outlined">notifications</span>
             </button>
             <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(136,0,30,0.6)', padding: 8 }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#7b0d1e')}
+              onMouseEnter={e => (e.currentTarget.style.color = '#5C0F1F')}
               onMouseLeave={e => (e.currentTarget.style.color = 'rgba(136,0,30,0.6)')}>
               <span className="material-symbols-outlined">account_circle</span>
             </button>
@@ -238,7 +238,7 @@ export default function LanguageSetupPage() {
               <h1 style={{
                 fontFamily: 'Playfair Display, Georgia, serif',
                 fontSize: 'clamp(2.5rem, 5vw, 3.75rem)',
-                fontWeight: 800, color: '#56000f',
+                fontWeight: 800, color: '#8A1228',
                 letterSpacing: '-0.02em', lineHeight: 1.15,
                 marginBottom: '1rem',
               }}>
@@ -261,7 +261,7 @@ export default function LanguageSetupPage() {
                     onClick={() => toggle(code)}
                   >
                     {isSelected && (
-                      <div style={{ position: 'absolute', top: '1rem', right: '1rem', color: '#7b0d1e' }}>
+                      <div style={{ position: 'absolute', top: '1rem', right: '1rem', color: '#5C0F1F' }}>
                         <span className="material-symbols-outlined"
                           style={{ fontVariationSettings: "'FILL' 1" }}>
                           check_circle
@@ -274,11 +274,11 @@ export default function LanguageSetupPage() {
                     <h3 style={{
                       fontFamily: 'Playfair Display, Georgia, serif',
                       fontSize: '1.5rem', fontWeight: 700,
-                      color: '#56000f',
+                      color: '#8A1228',
                     }}>
                       {name}
                     </h3>
-                    <p style={{ fontSize: '0.875rem', color: '#584141', fontFamily: 'Inter, sans-serif' }}>
+                    <p style={{ fontSize: '0.875rem', color: '#6B5456', fontFamily: 'Inter, sans-serif' }}>
                       {native}
                     </p>
                   </div>
@@ -293,7 +293,7 @@ export default function LanguageSetupPage() {
               paddingTop: '2rem', borderTop: '1px solid #ffd9dc',
               flexWrap: 'wrap',
             }}>
-              <div style={{ color: '#584141', maxWidth: '28rem' }}>
+              <div style={{ color: '#6B5456', maxWidth: '28rem' }}>
                 <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontStyle: 'italic' }}>
                   "The language of the soul is found in the literature of one's own heritage.
                   Choose the tongues that speak best to your curiosity."

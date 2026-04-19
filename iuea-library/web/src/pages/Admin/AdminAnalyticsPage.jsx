@@ -14,7 +14,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) =>
 );
 
 const PIE_COLORS = [
-  '#7B0D1E', '#C9A84C', '#2563EB', '#16A34A',
+  '#5C0F1F', '#B8964A', '#2563EB', '#16A34A',
   '#9333EA', '#EA580C', '#DB2777', '#0891B2', '#6b7280',
 ];
 
@@ -92,9 +92,9 @@ export default function AdminAnalyticsPage() {
                 <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
                 <Tooltip contentStyle={tooltipStyle} formatter={(v) => [v, 'Sessions']} />
                 <Line
-                  type="monotone" dataKey="count" stroke="#7B0D1E" strokeWidth={2}
-                  dot={{ fill: '#C9A84C', r: 3, strokeWidth: 0 }}
-                  activeDot={{ r: 5, fill: '#C9A84C' }}
+                  type="monotone" dataKey="count" stroke="#5C0F1F" strokeWidth={2}
+                  dot={{ fill: '#B8964A', r: 3, strokeWidth: 0 }}
+                  activeDot={{ r: 5, fill: '#B8964A' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -151,7 +151,7 @@ export default function AdminAnalyticsPage() {
                 formatter={(v) => [v, 'Sessions']}
                 labelFormatter={(l) => l}
               />
-              <Bar dataKey="sessions" fill="#7B0D1E" radius={[0, 4, 4, 0]} maxBarSize={20} />
+              <Bar dataKey="sessions" fill="#5C0F1F" radius={[0, 4, 4, 0]} maxBarSize={20} />
             </BarChart>
           </ResponsiveContainer>
         )}

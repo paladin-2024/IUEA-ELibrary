@@ -73,7 +73,7 @@ function PageFallback() {
     }}>
       <div style={{
         width: 36, height: 36, borderRadius: '50%',
-        border: '3px solid #ffe9ea', borderTopColor: '#7b0d1e',
+        border: '3px solid #FDF4F2', borderTopColor: '#5C0F1F',
         animation: 'app-spin 0.7s linear infinite',
       }} />
       <style>{`@keyframes app-spin { to { transform: rotate(360deg); } }`}</style>

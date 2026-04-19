@@ -35,47 +35,47 @@ export default function LoginPage() {
   return (
     <>
       <style>{`
-        .signin-input-group:focus-within .signin-icon { color: #56000f; }
+        .signin-input-group:focus-within .signin-icon { color: #8A1228; }
         .signin-input {
           display: block; width: 100%;
           padding: 0.875rem 1rem 0.875rem 2.75rem;
           background: #ffffff; border: none;
           border-radius: 0.75rem;
-          box-shadow: 0 0 0 1px #dfbfbe;
+          box-shadow: 0 0 0 1px #EBD2CF;
           outline: none; transition: box-shadow 0.2s;
-          color: #2d1418; font-family: Inter, sans-serif; font-size: 0.875rem;
+          color: #1C0A0C; font-family: Inter, sans-serif; font-size: 0.875rem;
         }
         .signin-input::placeholder { color: rgba(139,113,112,0.5); }
-        .signin-input:focus { box-shadow: 0 0 0 2px #7b0d1e; }
+        .signin-input:focus { box-shadow: 0 0 0 2px #5C0F1F; }
         .signin-input-pw { padding-right: 2.75rem; }
         .signin-btn-primary {
-          width: 100%; background: #7b0d1e; color: #fff;
+          width: 100%; background: #8A1228; color: #fff;
           font-family: Inter, sans-serif; font-weight: 700;
           padding: 1rem; border-radius: 0.75rem; border: none;
-          box-shadow: 0 4px 16px rgba(123,13,30,0.2);
+          box-shadow: 0 4px 16px rgba(138,18,40,0.25);
           display: flex; align-items: center; justify-content: center; gap: 0.5rem;
           cursor: pointer; transition: background 0.2s, transform 0.1s;
           font-size: 0.9375rem;
         }
-        .signin-btn-primary:hover { background: #56000f; }
+        .signin-btn-primary:hover { background: #5C0F1F; }
         .signin-btn-primary:active { transform: scale(0.98); }
         .signin-btn-primary:disabled { opacity: 0.6; cursor: default; }
         .signin-btn-google {
-          width: 100%; background: #ffffff; color: #2d1418;
+          width: 100%; background: #ffffff; color: #1C0A0C;
           font-family: Inter, sans-serif; font-weight: 600;
           padding: 1rem; border-radius: 0.75rem; border: none;
-          box-shadow: 0 0 0 1px #dfbfbe;
+          box-shadow: 0 0 0 1px #EBD2CF;
           display: flex; align-items: center; justify-content: center; gap: 0.75rem;
           cursor: pointer; transition: background 0.2s, transform 0.1s;
           font-size: 0.9375rem;
         }
-        .signin-btn-google:hover { background: #fff8f7; }
+        .signin-btn-google:hover { background: #FCE8E6; }
         .signin-btn-google:active { transform: scale(0.98); }
       `}</style>
 
-      {/* body: bg-background = #fff8f7 */}
+      {/* body: bg-background = #FCE8E6 */}
       <main
-        style={{ background: '#fff8f7', fontFamily: 'Inter, sans-serif', color: '#2d1418', minHeight: '100vh', display: 'flex', flexDirection: 'row', alignItems: 'stretch', overflow: 'hidden' }}
+        style={{ background: '#FCE8E6', fontFamily: 'Inter, sans-serif', color: '#1C0A0C', minHeight: '100vh', display: 'flex', flexDirection: 'row', alignItems: 'stretch', overflow: 'hidden' }}
       >
         {/* ══════════════════════════════════════
             LEFT — academic-gradient editorial panel
@@ -85,7 +85,7 @@ export default function LoginPage() {
           width: '50%', position: 'relative',
           flexDirection: 'column', justifyContent: 'space-between',
           padding: '4rem', overflow: 'hidden',
-          background: 'linear-gradient(135deg, #56000f 0%, #7b0d1e 100%)',
+          background: 'linear-gradient(135deg, #8A1228 0%, #5C0F1F 100%)',
         }} className="md-left-panel">
           <style>{`@media(min-width:768px){ .md-left-panel { display: flex !important; } }`}</style>
 
@@ -98,7 +98,7 @@ export default function LoginPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '3rem' }}>
               <div style={{
                 width: 48, height: 48, borderRadius: '0.5rem',
-                background: '#c9a84c', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 8,
+                background: '#B8964A', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 8,
               }}>
                 <img src="/iuea_logo.png" alt="IUEA" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
@@ -115,12 +115,12 @@ export default function LoginPage() {
               lineHeight: 1.1, marginBottom: '2rem', maxWidth: '36rem',
             }}>
               The{' '}
-              <span style={{ fontStyle: 'italic', fontWeight: 400, color: '#ffe08f' }}>Digital Curator</span>
+              <span style={{ fontStyle: 'italic', fontWeight: 400, color: '#D9B96B' }}>Digital Curator</span>
               {' '}of Academic Excellence.
             </h1>
 
             {/* Body */}
-            <p style={{ fontFamily: 'Inter, sans-serif', color: '#ffe9ea', fontSize: '1.125rem', maxWidth: '28rem', lineHeight: 1.7, opacity: 0.9 }}>
+            <p style={{ fontFamily: 'Inter, sans-serif', color: '#FDF4F2', fontSize: '1.125rem', maxWidth: '28rem', lineHeight: 1.7, opacity: 0.9 }}>
               Access over 500,000 digital resources, research papers, and curated collections
               from the heart of the International University of East Africa.
             </p>
@@ -135,17 +135,17 @@ export default function LoginPage() {
               transform: 'rotate(-4deg)', display: 'flex', flexDirection: 'column', padding: 16, flexShrink: 0,
             }}>
               {/* h-40 image area */}
-              <div style={{ width: '100%', height: 160, background: '#fdcfd3', borderRadius: 4, marginBottom: 12, overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: 160, background: '#F2BEB8', borderRadius: 4, marginBottom: 12, overflow: 'hidden' }}>
                 <img src={IMG_BOOK} alt="Book" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               {/* skeleton lines */}
-              <div style={{ height: 8, width: '50%', background: 'rgba(123,13,30,0.2)', borderRadius: 9999, marginBottom: 8 }} />
-              <div style={{ height: 8, width: '75%', background: 'rgba(123,13,30,0.1)', borderRadius: 9999 }} />
+              <div style={{ height: 8, width: '50%', background: 'rgba(107,15,26,0.2)', borderRadius: 9999, marginBottom: 8 }} />
+              <div style={{ height: 8, width: '75%', background: 'rgba(107,15,26,0.1)', borderRadius: 9999 }} />
             </div>
 
             {/* Quote */}
             <div style={{ marginBottom: 16 }}>
-              <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontStyle: 'italic', color: '#ffe08f', fontSize: '1.25rem' }}>
+              <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontStyle: 'italic', color: '#D9B96B', fontSize: '1.25rem' }}>
                 "Knowledge is the light of the mind."
               </p>
               <p style={{ fontFamily: 'Inter, sans-serif', color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>
@@ -164,32 +164,32 @@ export default function LoginPage() {
         </div>
 
         {/* ══════════════════════════════════════
-            RIGHT — bg-white-container-low = #fff0f0
+            RIGHT — bg-white-container-low = #FCE8E6
         ══════════════════════════════════════ */}
         <div style={{
           flex: 1, display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
           padding: 'clamp(1.5rem, 6vw, 6rem)',
-          background: '#fff0f0',
+          background: '#FCE8E6',
         }}>
           <div style={{ width: '100%', maxWidth: 448, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
             {/* Mobile branding */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 32 }} className="md-hide">
               <style>{`@media(min-width:768px){ .md-hide { display: none !important; } }`}</style>
-              <div style={{ width: 64, height: 64, borderRadius: '1rem', background: '#7b0d1e', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, boxShadow: '0 20px 40px rgba(0,0,0,0.2)', padding: 10 }}>
+              <div style={{ width: 64, height: 64, borderRadius: '1rem', background: '#5C0F1F', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, boxShadow: '0 20px 40px rgba(0,0,0,0.2)', padding: 10 }}>
                 <img src="/iuea_logo.png" alt="IUEA" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
-              <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.875rem', fontWeight: 700, color: '#56000f' }}>IUEA Library</h2>
-              <p style={{ color: '#584141', fontSize: '0.875rem' }}>Sign in to your curator account</p>
+              <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.875rem', fontWeight: 700, color: '#8A1228' }}>IUEA Library</h2>
+              <p style={{ color: '#6B5456', fontSize: '0.875rem' }}>Sign in to your curator account</p>
             </div>
 
             {/* Desktop heading */}
             <div>
-              <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f', marginBottom: 8 }}>
+              <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#8A1228', marginBottom: 8 }}>
                 Welcome Back
               </h2>
-              <p style={{ color: '#584141', fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem' }}>
+              <p style={{ color: '#6B5456', fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem' }}>
                 Enter your credentials to access the archive.
               </p>
             </div>
@@ -199,11 +199,11 @@ export default function LoginPage() {
 
               {/* Email */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#584141', marginLeft: 4 }}>
+                <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B5456', marginLeft: 4 }}>
                   University Email
                 </label>
                 <div className="signin-input-group" style={{ position: 'relative' }}>
-                  <div className="signin-icon" style={{ position: 'absolute', top: 0, bottom: 0, left: 0, paddingLeft: '0.875rem', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: '#8b7170', transition: 'color 0.2s' }}>
+                  <div className="signin-icon" style={{ position: 'absolute', top: 0, bottom: 0, left: 0, paddingLeft: '0.875rem', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: '#A89597', transition: 'color 0.2s' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: 20, lineHeight: 1 }}>mail</span>
                   </div>
                   <input
@@ -217,17 +217,17 @@ export default function LoginPage() {
               {/* Password */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginLeft: 4 }}>
-                  <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#584141' }}>
+                  <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B5456' }}>
                     Security Key
                   </label>
-                  <Link to="/forgot-password" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#56000f', textDecoration: 'none', transition: 'color 0.2s' }}
-                    onMouseEnter={e => (e.target.style.color = '#7b0d1e')}
-                    onMouseLeave={e => (e.target.style.color = '#56000f')}>
+                  <Link to="/forgot-password" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#8A1228', textDecoration: 'none', transition: 'color 0.2s' }}
+                    onMouseEnter={e => (e.target.style.color = '#5C0F1F')}
+                    onMouseLeave={e => (e.target.style.color = '#8A1228')}>
                     Forgot password?
                   </Link>
                 </div>
                 <div className="signin-input-group" style={{ position: 'relative' }}>
-                  <div className="signin-icon" style={{ position: 'absolute', top: 0, bottom: 0, left: 0, paddingLeft: '0.875rem', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: '#8b7170', transition: 'color 0.2s' }}>
+                  <div className="signin-icon" style={{ position: 'absolute', top: 0, bottom: 0, left: 0, paddingLeft: '0.875rem', display: 'flex', alignItems: 'center', pointerEvents: 'none', color: '#A89597', transition: 'color 0.2s' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: 20, lineHeight: 1 }}>lock</span>
                   </div>
                   <input
@@ -238,9 +238,9 @@ export default function LoginPage() {
                   />
                   <button
                     type="button" onClick={() => setShowPw(v => !v)}
-                    style={{ position: 'absolute', top: 0, bottom: 0, right: 0, paddingRight: '0.875rem', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#8b7170', transition: 'color 0.2s' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#56000f')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#8b7170')}
+                    style={{ position: 'absolute', top: 0, bottom: 0, right: 0, paddingRight: '0.875rem', display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#A89597', transition: 'color 0.2s' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#8A1228')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#A89597')}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                       {showPw ? 'visibility_off' : 'visibility'}
@@ -254,9 +254,9 @@ export default function LoginPage() {
                 <input
                   type="checkbox" id="remember" checked={keepMe}
                   onChange={e => setKeepMe(e.target.checked)}
-                  style={{ width: 16, height: 16, accentColor: '#7b0d1e', cursor: 'pointer', borderRadius: 4 }}
+                  style={{ width: 16, height: 16, accentColor: '#5C0F1F', cursor: 'pointer', borderRadius: 4 }}
                 />
-                <label htmlFor="remember" style={{ fontSize: '0.875rem', color: '#584141', userSelect: 'none', cursor: 'pointer' }}>
+                <label htmlFor="remember" style={{ fontSize: '0.875rem', color: '#6B5456', userSelect: 'none', cursor: 'pointer' }}>
                   Keep me signed in for 30 days
                 </label>
               </div>
@@ -272,13 +272,13 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Divider — bg must match panel: #fff0f0 */}
+            {/* Divider — bg must match panel: #FCE8E6 */}
             <div style={{ position: 'relative', padding: '1rem 0' }}>
               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center' }}>
-                <div style={{ width: '100%', borderTop: '1px solid #dfbfbe' }} />
+                <div style={{ width: '100%', borderTop: '1px solid #EBD2CF' }} />
               </div>
               <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-                <span style={{ padding: '0 1rem', background: '#fff0f0', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#584141', fontWeight: 500 }}>
+                <span style={{ padding: '0 1rem', background: '#FCE8E6', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6B5456', fontWeight: 500 }}>
                   Authentication Options
                 </span>
               </div>
@@ -298,9 +298,9 @@ export default function LoginPage() {
 
             {/* Register link */}
             <div style={{ textAlign: 'center', paddingTop: '1rem' }}>
-              <p style={{ fontSize: '0.875rem', color: '#584141' }}>
+              <p style={{ fontSize: '0.875rem', color: '#6B5456' }}>
                 New student?{' '}
-                <Link to="/register" style={{ color: '#56000f', fontWeight: 700, marginLeft: 4, textDecoration: 'none', textUnderlineOffset: 4 }}
+                <Link to="/register" style={{ color: '#8A1228', fontWeight: 700, marginLeft: 4, textDecoration: 'none', textUnderlineOffset: 4 }}
                   onMouseEnter={e => (e.target.style.textDecoration = 'underline')}
                   onMouseLeave={e => (e.target.style.textDecoration = 'none')}>
                   Register here
@@ -311,17 +311,17 @@ export default function LoginPage() {
 
           {/* Footer */}
           <footer style={{ marginTop: 'auto', paddingTop: '3rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, opacity: 0.5 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', fontSize: 10, fontFamily: 'Inter, sans-serif', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#584141' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', fontSize: 10, fontFamily: 'Inter, sans-serif', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#6B5456' }}>
               {['Privacy Policy', 'Terms of Service', 'Help Center'].map((t, i, a) => (
                 <span key={t} style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                   <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}
-                    onMouseEnter={e => (e.target.style.color = '#56000f')}
-                    onMouseLeave={e => (e.target.style.color = '#584141')}>{t}</a>
-                  {i < a.length - 1 && <span style={{ width: 4, height: 4, borderRadius: 9999, background: '#dfbfbe', display: 'inline-block' }} />}
+                    onMouseEnter={e => (e.target.style.color = '#8A1228')}
+                    onMouseLeave={e => (e.target.style.color = '#6B5456')}>{t}</a>
+                  {i < a.length - 1 && <span style={{ width: 4, height: 4, borderRadius: 9999, background: '#EBD2CF', display: 'inline-block' }} />}
                 </span>
               ))}
             </div>
-            <p style={{ fontSize: 9, fontFamily: 'Inter, sans-serif', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#584141', opacity: 0.8 }}>
+            <p style={{ fontSize: 9, fontFamily: 'Inter, sans-serif', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#6B5456', opacity: 0.8 }}>
               © 2024 International University of East Africa • Digital Curator v2.4
             </p>
           </footer>

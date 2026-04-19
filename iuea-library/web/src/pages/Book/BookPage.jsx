@@ -72,7 +72,7 @@ export default function BookPage() {
   if (isLoading) {
     return (
       <div style={{ padding: '2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-        <div style={{ width: 40, height: 40, border: '3px solid #ffd9dc', borderTopColor: '#7b0d1e', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: 40, height: 40, border: '3px solid #ffd9dc', borderTopColor: '#5C0F1F', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -83,7 +83,7 @@ export default function BookPage() {
       <style>{`
         .bdp-topbar {
           position: sticky; top: 0; width: 100%; z-index: 40;
-          height: 64px; background: #fff0f0;
+          height: 64px; background: #FCE8E6;
           display: flex; justify-content: space-between; align-items: center;
           padding: 0 2rem; flex-shrink: 0;
           border-bottom: 1px solid #ffe1e3;
@@ -121,27 +121,27 @@ export default function BookPage() {
         .bdp-half-btn {
           flex: 1; height: 48px;
           border-radius: 0.75rem;
-          border: 1.5px solid #dfbfbe; background: #ffffff;
+          border: 1.5px solid #EBD2CF; background: #ffffff;
           cursor: pointer;
           display: flex; align-items: center; justify-content: center;
           gap: 0.5rem;
           font-family: Inter, sans-serif; font-weight: 600; font-size: 0.875rem;
-          color: #56000f; transition: background 0.15s;
+          color: #8A1228; transition: background 0.15s;
         }
-        .bdp-half-btn:hover { background: #fff0f0; }
+        .bdp-half-btn:hover { background: #FCE8E6; }
         .bdp-stat-box {
           flex: 1; background: #ffffff;
-          border: 1.5px solid #dfbfbe; border-radius: 0.75rem;
+          border: 1.5px solid #EBD2CF; border-radius: 0.75rem;
           padding: 1rem; text-align: center;
         }
         .bdp-genre-pill {
           display: inline-flex; align-items: center;
           padding: 4px 14px;
           border-radius: 9999px;
-          border: 1.5px solid #dfbfbe;
+          border: 1.5px solid #EBD2CF;
           font-family: Inter, sans-serif; font-size: 0.75rem;
           font-weight: 700; letter-spacing: 0.08em;
-          color: #2d1418; background: transparent;
+          color: #1C0A0C; background: transparent;
           text-transform: uppercase; white-space: nowrap;
         }
         .bdp-meta-col {
@@ -163,8 +163,8 @@ export default function BookPage() {
                 fontFamily: 'Playfair Display, Georgia, serif',
                 fontWeight: active ? 700 : 600,
                 fontSize: '0.9375rem',
-                color: active ? '#7b0d1e' : 'rgba(86,0,15,0.55)',
-                borderBottom: active ? '2px solid #7b0d1e' : 'none',
+                color: active ? '#5C0F1F' : 'rgba(138,18,40,0.55)',
+                borderBottom: active ? '2px solid #5C0F1F' : 'none',
                 paddingBottom: active ? 2 : 0,
                 textDecoration: 'none',
               }}>
@@ -178,22 +178,22 @@ export default function BookPage() {
             onSubmit={e => { e.preventDefault(); if (search.trim()) navigate(`/home/search?q=${encodeURIComponent(search.trim())}`); }}
             style={{ position: 'relative' }}
           >
-            <span className="material-symbols-outlined" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#584141', fontSize: '1rem', pointerEvents: 'none' }}>search</span>
+            <span className="material-symbols-outlined" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6B5456', fontSize: '1rem', pointerEvents: 'none' }}>search</span>
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search the collection..."
               style={{ background: '#ffffff', border: 'none', borderRadius: 9999, padding: '0.4rem 1rem 0.4rem 2.25rem', fontSize: '0.875rem', width: 220, fontFamily: 'Inter, sans-serif', outline: 'none' }}
-              onFocus={e => (e.target.style.boxShadow = '0 0 0 2px rgba(123,13,30,0.2)')}
+              onFocus={e => (e.target.style.boxShadow = '0 0 0 2px rgba(107,15,26,0.2)')}
               onBlur={e => (e.target.style.boxShadow = 'none')}
             />
           </form>
           <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(136,0,30,0.6)' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#7b0d1e')}
+            onMouseEnter={e => (e.currentTarget.style.color = '#5C0F1F')}
             onMouseLeave={e => (e.currentTarget.style.color = 'rgba(136,0,30,0.6)')}>
             <span className="material-symbols-outlined">notifications</span>
           </button>
-          <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', background: '#7b0d1e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', background: '#5C0F1F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlTLJBiPQxRRyNZ6u6UWsSeXwgTPPMVLl-RtylPoX5zhNVKefW2ACYioBQ3RT53aGOP3eM6yh_-tbNGA5n5Jd6mrDsB-tXfBOJvMFtUSZHCnjltxr-1ZWGx98rqEkALoeoE-bdJ-PlxsQZjieEHa9eVUid3eAdjjPjq63nA3dQCUASPqyxKZoU0_78duexDAyZudUHzDVOH9XWb0f0EJeDY-U_2oMMRzJ9QakzG3waKZN_8pCMALtBSldlFeLdzZZYRRuhWRgoMKo"
               alt="avatar"
@@ -223,7 +223,7 @@ export default function BookPage() {
             {/* Badge */}
             <div style={{
               position: 'absolute', top: '1rem', left: '1rem',
-              background: '#7b0d1e', color: '#ffffff',
+              background: '#5C0F1F', color: '#ffffff',
               fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em',
               textTransform: 'uppercase', padding: '4px 12px',
               borderRadius: 9999, fontFamily: 'Inter, sans-serif',
@@ -238,7 +238,7 @@ export default function BookPage() {
                 width: 220, height: 310,
                 objectFit: 'cover',
                 borderRadius: '0.75rem',
-                boxShadow: '0 20px 50px rgba(86,0,15,0.35)',
+                boxShadow: '0 20px 50px rgba(138,18,40,0.35)',
               }}
             />
           </div>
@@ -246,7 +246,7 @@ export default function BookPage() {
           {/* Read Now */}
           <button
             className="bdp-action-btn"
-            style={{ background: '#7b0d1e', color: '#ffffff' }}
+            style={{ background: '#5C0F1F', color: '#ffffff' }}
             onClick={() => navigate(`/reader/${id}`)}
           >
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: '1.125rem' }}>auto_stories</span>
@@ -256,7 +256,7 @@ export default function BookPage() {
           {/* Listen to Audiobook */}
           <button
             className="bdp-action-btn"
-            style={{ background: '#c9a84c', color: '#503d00' }}
+            style={{ background: '#B8964A', color: '#503d00' }}
             onClick={() => navigate(`/reader/${id}?mode=audio`)}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>headphones</span>
@@ -266,7 +266,7 @@ export default function BookPage() {
           {/* Save + Share */}
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <button className="bdp-half-btn"
-              style={saved ? { background: '#fff0f0', color: '#7b0d1e', borderColor: '#7b0d1e' } : {}}
+              style={saved ? { background: '#FCE8E6', color: '#5C0F1F', borderColor: '#5C0F1F' } : {}}
               onClick={() => setSaved(v => !v)}>
               <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: saved ? "'FILL' 1" : "'FILL' 0" }}>bookmark</span>
               {saved ? 'Saved' : 'Save'}
@@ -283,18 +283,18 @@ export default function BookPage() {
           {/* Stats */}
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <div className="bdp-stat-box">
-              <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.75rem', fontWeight: 700, color: '#2d1418', lineHeight: 1 }}>
+              <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.75rem', fontWeight: 700, color: '#1C0A0C', lineHeight: 1 }}>
                 {book?.rating ?? '4.8'}
               </p>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#584141', marginTop: 4 }}>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6B5456', marginTop: 4 }}>
                 Rating
               </p>
             </div>
             <div className="bdp-stat-box">
-              <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.75rem', fontWeight: 700, color: '#2d1418', lineHeight: 1 }}>
+              <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.75rem', fontWeight: 700, color: '#1C0A0C', lineHeight: 1 }}>
                 {book?.readers ? (book.readers >= 1000 ? `${(book.readers / 1000).toFixed(1)}k` : book.readers) : '12.4k'}
               </p>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#584141', marginTop: 4 }}>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6B5456', marginTop: 4 }}>
                 Readers
               </p>
             </div>
@@ -316,13 +316,13 @@ export default function BookPage() {
                   fontFamily: 'Inter, sans-serif',
                   fontSize: '0.6875rem', fontWeight: 700,
                   textTransform: 'uppercase', letterSpacing: '0.1em',
-                  color: i === arr.length - 1 ? '#7b0d1e' : 'rgba(86,0,15,0.45)',
+                  color: i === arr.length - 1 ? '#5C0F1F' : 'rgba(138,18,40,0.45)',
                   textDecoration: 'none',
                 }}>
                   {label.toUpperCase()}
                 </a>
                 {i < arr.length - 1 && (
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: 'rgba(86,0,15,0.4)' }}>chevron_right</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: 'rgba(138,18,40,0.4)' }}>chevron_right</span>
                 )}
               </span>
             ))}
@@ -332,7 +332,7 @@ export default function BookPage() {
           <h1 style={{
             fontFamily: 'Playfair Display, Georgia, serif',
             fontSize: 'clamp(2rem, 3.5vw, 3rem)',
-            fontWeight: 700, color: '#2d1418',
+            fontWeight: 700, color: '#1C0A0C',
             lineHeight: 1.15, margin: 0,
           }}>
             {title}
@@ -341,7 +341,7 @@ export default function BookPage() {
           {/* Author */}
           <p style={{
             fontFamily: 'Lora, serif', fontStyle: 'italic',
-            fontSize: '1.0625rem', color: '#584141', margin: 0,
+            fontSize: '1.0625rem', color: '#6B5456', margin: 0,
           }}>
             by {author}
           </p>
@@ -352,7 +352,7 @@ export default function BookPage() {
               <span key={g} className="bdp-genre-pill">{g}</span>
             ))}
             {(book?.isBestseller !== false) && (
-              <span className="bdp-genre-pill" style={{ background: '#c9a84c', border: '1.5px solid #c9a84c', color: '#503d00' }}>
+              <span className="bdp-genre-pill" style={{ background: '#B8964A', border: '1.5px solid #B8964A', color: '#503d00' }}>
                 Bestseller
               </span>
             )}
@@ -360,10 +360,10 @@ export default function BookPage() {
 
           {/* Description */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem', color: '#2d1418', lineHeight: 1.7, margin: 0 }}>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem', color: '#1C0A0C', lineHeight: 1.7, margin: 0 }}>
               {description1}
             </p>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem', color: '#2d1418', lineHeight: 1.7, margin: 0 }}>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem', color: '#1C0A0C', lineHeight: 1.7, margin: 0 }}>
               {description2}
             </p>
           </div>
@@ -381,10 +381,10 @@ export default function BookPage() {
               { label: 'Format',        value: `Hardcover, ${pageCount}p` },
             ].map(({ label, value }) => (
               <div key={label} className="bdp-meta-col">
-                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8b7170', margin: 0 }}>
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#A89597', margin: 0 }}>
                   {label}
                 </p>
-                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontWeight: 700, color: '#2d1418', margin: 0 }}>
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontWeight: 700, color: '#1C0A0C', margin: 0 }}>
                   {value}
                 </p>
               </div>
@@ -394,13 +394,13 @@ export default function BookPage() {
           {/* Related by Authors */}
           <div style={{ paddingTop: '0.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', fontWeight: 700, color: '#2d1418', margin: 0 }}>
+              <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', fontWeight: 700, color: '#1C0A0C', margin: 0 }}>
                 Related by Authors
               </h3>
               <a href="#" onClick={e => { e.preventDefault(); navigate(`/home/search?category=${encodeURIComponent(category)}`); }} style={{
                 fontFamily: 'Inter, sans-serif', fontSize: '0.6875rem',
                 fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em',
-                color: '#7b0d1e', textDecoration: 'none',
+                color: '#5C0F1F', textDecoration: 'none',
               }}>
                 View Collection
               </a>
@@ -419,22 +419,22 @@ export default function BookPage() {
                       <img src={b.coverUrl} alt={b.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s' }} />
                     ) : (
                       <div style={{ width: '100%', height: '100%', background: '#ffd9dc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span className="material-symbols-outlined" style={{ color: '#7b0d1e', fontSize: '2rem', opacity: 0.3 }}>menu_book</span>
+                        <span className="material-symbols-outlined" style={{ color: '#5C0F1F', fontSize: '2rem', opacity: 0.3 }}>menu_book</span>
                       </div>
                     )}
                     <div
                       className="bdp-similar-overlay"
-                      style={{ position: 'absolute', inset: 0, background: 'rgba(86,0,15,0.25)', opacity: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'opacity 0.2s' }}
+                      style={{ position: 'absolute', inset: 0, background: 'rgba(138,18,40,0.25)', opacity: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'opacity 0.2s' }}
                     >
-                      <div style={{ width: 40, height: 40, background: 'rgba(255,255,255,0.9)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#56000f' }}>
+                      <div style={{ width: 40, height: 40, background: 'rgba(255,255,255,0.9)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8A1228' }}>
                         <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1", fontSize: '1.25rem' }}>play_arrow</span>
                       </div>
                     </div>
                   </div>
-                  <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '0.875rem', fontWeight: 700, color: '#2d1418', lineHeight: 1.3, margin: '0 0 2px' }}>
+                  <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '0.875rem', fontWeight: 700, color: '#1C0A0C', lineHeight: 1.3, margin: '0 0 2px' }}>
                     {b.title?.length > 20 ? b.title.slice(0, 20) + '…' : b.title}
                   </p>
-                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: '#584141', margin: 0 }}>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: '#6B5456', margin: 0 }}>
                     {Array.isArray(b.author) ? b.author[0] : b.author}
                   </p>
                 </div>

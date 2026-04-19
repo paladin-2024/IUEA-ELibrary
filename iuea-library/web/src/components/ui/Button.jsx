@@ -5,11 +5,11 @@ import { cn }       from '../../utils/cn';
  * Button — pixel-perfect Stitch design system
  *
  * Variants:
- *   primary   — bg-primary-container (#7b0d1e) white text   (main CTA)
+ *   primary   — bg-primary-container (#5C0F1F) white text   (main CTA)
  *   secondary — white bg, primary border+text               (outline)
  *   ghost     — transparent bg, primary text                (low-emphasis)
  *   danger    — error bg (#ba1a1a), white text
- *   accent    — tertiary-container (#c9a84c) gold bg
+ *   accent    — tertiary-container (#B8964A) gold bg
  */
 
 const variants = {
@@ -40,7 +40,7 @@ export default function Button({
   return (
     <button
       className={cn(
-        'font-label font-bold transition-all duration-150',
+        'font-sans font-bold transition-all duration-150',
         'inline-flex items-center justify-center gap-2',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
         variants[variant] ?? variants.primary,

@@ -77,9 +77,9 @@ export default function ReaderPage() {
         <div style={{
           height: '100%',
           width: `${Math.min(100, percentComplete)}%`,
-          background: 'linear-gradient(90deg, #7b0d1e, #c9a84c)',
+          background: 'linear-gradient(90deg, #5C0F1F, #B8964A)',
           transition: 'width 0.6s ease',
-          boxShadow: '0 0 8px rgba(123,13,30,0.4)',
+          boxShadow: '0 0 8px rgba(107,15,26,0.4)',
         }} />
       </div>
 
@@ -149,7 +149,7 @@ function TopHeader({ book, progress, theme: t, onBack, onTOC, sidebarOpen }) {
       {/* Back */}
       <button onClick={onBack} style={{
         width: 36, height: 36, borderRadius: '50%', border: 'none',
-        background: 'rgba(123,13,30,0.1)', color: '#7b0d1e',
+        background: 'rgba(107,15,26,0.1)', color: '#5C0F1F',
         cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0,
       }}>
@@ -159,8 +159,8 @@ function TopHeader({ book, progress, theme: t, onBack, onTOC, sidebarOpen }) {
       {/* TOC toggle */}
       <button onClick={onTOC} style={{
         width: 36, height: 36, borderRadius: '50%', border: 'none',
-        background: sidebarOpen ? '#7b0d1e' : 'rgba(123,13,30,0.08)',
-        color: sidebarOpen ? '#fff' : '#7b0d1e',
+        background: sidebarOpen ? '#5C0F1F' : 'rgba(107,15,26,0.08)',
+        color: sidebarOpen ? '#fff' : '#5C0F1F',
         cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0, transition: 'background 0.2s ease, color 0.2s ease',
       }}>
@@ -188,15 +188,15 @@ function TopHeader({ book, progress, theme: t, onBack, onTOC, sidebarOpen }) {
       {/* Progress badge */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 6,
-        background: 'rgba(123,13,30,0.08)', borderRadius: 20,
+        background: 'rgba(107,15,26,0.08)', borderRadius: 20,
         padding: '4px 10px', flexShrink: 0,
       }}>
         <div style={{ width: 36, height: 4, background: 'rgba(0,0,0,0.1)', borderRadius: 99, overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${progress}%`, background: '#7b0d1e', borderRadius: 99 }} />
+          <div style={{ height: '100%', width: `${progress}%`, background: '#5C0F1F', borderRadius: 99 }} />
         </div>
         <span style={{
           fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700,
-          color: '#7b0d1e',
+          color: '#5C0F1F',
         }}>{progress}%</span>
       </div>
     </header>
@@ -215,11 +215,11 @@ function LoadingScreen() {
     }}>
       <div style={{
         width: 48, height: 48, borderRadius: '50%',
-        border: '3px solid #ffe9ea', borderTopColor: '#7b0d1e',
+        border: '3px solid #FDF4F2', borderTopColor: '#5C0F1F',
         animation: 'rdr-spin 0.8s linear infinite',
       }} />
       <style>{`@keyframes rdr-spin { to { transform: rotate(360deg); } }`}</style>
-      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#8b7170' }}>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#A89597' }}>
         Loading book…
       </p>
     </div>
@@ -233,10 +233,10 @@ function ErrorScreen({ message, onBack }) {
       alignItems: 'center', justifyContent: 'center',
       background: '#fff', gap: 16,
     }}>
-      <span className="material-symbols-outlined" style={{ fontSize: 48, color: '#dfbfbe' }}>menu_book</span>
-      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#8b7170', margin: 0 }}>{message}</p>
+      <span className="material-symbols-outlined" style={{ fontSize: 48, color: '#EBD2CF' }}>menu_book</span>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#A89597', margin: 0 }}>{message}</p>
       <button onClick={onBack} style={{
-        background: '#7b0d1e', color: '#fff', border: 'none', borderRadius: 10,
+        background: '#5C0F1F', color: '#fff', border: 'none', borderRadius: 10,
         padding: '10px 20px', fontFamily: 'Inter, sans-serif', fontSize: 13,
         fontWeight: 600, cursor: 'pointer',
       }}>Go back</button>
