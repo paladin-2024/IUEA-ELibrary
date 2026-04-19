@@ -14,8 +14,9 @@ const signToken = (userId, role) =>
   });
 
 const safeUser = (user) => {
-  const { passwordHash, ...rest } = user;
-  return { ...rest, _id: rest.id };
+  // eslint-disable-next-line no-unused-vars
+  const { passwordHash, passwordResetToken, passwordResetExpiresAt, ...rest } = user;
+  return rest;
 };
 
 // POST /api/auth/register
