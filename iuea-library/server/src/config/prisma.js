@@ -265,4 +265,6 @@ module.exports = {
   get podcast()       { return wrap(() => require('../models/Podcast')); },
   get audioCache()    { return wrap(() => require('../models/AudioCache')); },
   get collection()    { return wrap(() => require('../models/Collection')); },
+  get borrowRequest() { return wrap(() => require('../models/BorrowRequest')); },
+  get review()        { return wrap(() => require('../models/Review')); },
 };

@@ -27,6 +27,7 @@ const LibraryPage             = lazy(() => import('./pages/Library/LibraryPage')
 const DownloadsPage           = lazy(() => import('./pages/Library/DownloadsPage'));
 const CollectionsPage         = lazy(() => import('./pages/Library/CollectionsPage'));
 const HighlightsPage          = lazy(() => import('./pages/Library/HighlightsPage'));
+const MyLoansPage             = lazy(() => import('./pages/Library/MyLoansPage'));
 
 const PodcastsPage            = lazy(() => import('./pages/Podcasts/PodcastsPage'));
 const PodcastPage             = lazy(() => import('./pages/Podcasts/PodcastPage'));
@@ -36,6 +37,7 @@ const ProfilePage             = lazy(() => import('./pages/Profile/ProfilePage')
 const ReadingPreferencesPage  = lazy(() => import('./pages/Profile/ReadingPreferencesPage'));
 const LanguagePreferencesPage = lazy(() => import('./pages/Profile/LanguagePreferencesPage'));
 const NotificationsPage       = lazy(() => import('./pages/Profile/NotificationsPage'));
+const StreaksPage             = lazy(() => import('./pages/Profile/StreaksPage'));
 
 const SettingsPage            = lazy(() => import('./pages/Settings/SettingsPage'));
 
@@ -46,6 +48,7 @@ const AdminDashboard          = lazy(() => import('./pages/Admin/AdminDashboard'
 const AdminBooksPage          = lazy(() => import('./pages/Admin/AdminBooksPage'));
 const AdminUsersPage          = lazy(() => import('./pages/Admin/AdminUsersPage'));
 const AdminAnalyticsPage      = lazy(() => import('./pages/Admin/AdminAnalyticsPage'));
+const AdminLoansPage          = lazy(() => import('./pages/Admin/AdminLoansPage'));
 
 // ── Route guards ──────────────────────────────────────────────────────────────
 const _getToken = () => {
@@ -113,6 +116,7 @@ export default function App() {
           <Route path="library/downloads"   element={<DownloadsPage />}   />
           <Route path="library/collections" element={<CollectionsPage />} />
           <Route path="library/highlights"  element={<HighlightsPage />}  />
+          <Route path="library/loans"       element={<MyLoansPage />}     />
 
           {/* Podcasts */}
           <Route path="podcasts"                   element={<PodcastsPage />}      />
@@ -124,6 +128,7 @@ export default function App() {
           <Route path="profile/reading-preferences"  element={<ReadingPreferencesPage />}  />
           <Route path="profile/language-preferences" element={<LanguagePreferencesPage />} />
           <Route path="profile/notifications"        element={<NotificationsPage />}       />
+          <Route path="profile/streaks"             element={<StreaksPage />}              />
 
           {/* Settings */}
           <Route path="settings" element={<SettingsPage />} />
@@ -142,6 +147,7 @@ export default function App() {
           <Route path="books"     element={<AdminBooksPage />}     />
           <Route path="users"     element={<AdminUsersPage />}     />
           <Route path="analytics" element={<AdminAnalyticsPage />} />
+          <Route path="loans"     element={<AdminLoansPage />}     />
         </Route>
 
         {/* ── Catch-all ───────────────────────────────────────────────────── */}

@@ -1,6 +1,93 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useBook, useSimilarBooks } from '../../hooks/useBooks';
+import { useState, useEffect }                          from 'react';
+import { useParams, useNavigate }                       from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient }        from '@tanstack/react-query';
+import { useBook, useSimilarBooks }                     from '../../hooks/useBooks';
+import api                                              from '../../services/api';
+import toast                                            from 'react-hot-toast';
+
+// ── API helpers ────────────────────────────────────────────────────────────────
+const borrowBook    = (bookId)        => api.post('/borrowing', { bookId }).then(r => r.data);
+const fetchReviews  = (bookId)        => api.get(`/reviews/${bookId}`).then(r => r.data);
+const fetchMyReview = (bookId)        => api.get(`/reviews/my/${bookId}`).then(r => r.data);
+const submitReview  = ({ bookId, rating, text }) => api.post(`/reviews/${bookId}`, { rating, text }).then(r => r.data);
+const voteHelpful   = ({ bookId, reviewId })     => api.post(`/reviews/${bookId}/helpful`, { reviewId }).then(r => r.data);
+
+// ── Star Rating Component ─────────────────────────────────────────────────────
+function StarRating({ value, onChange, readonly = false, size = 20 }) {
+  const [hover, setHover] = useState(0);
+  return (
+    <div style={{ display: 'flex', gap: 2 }}>
+      {[1,2,3,4,5].map(s => (
+        <span key={s}
+          onClick={() => !readonly && onChange?.(s)}
+          onMouseEnter={() => !readonly && setHover(s)}
+          onMouseLeave={() => !readonly && setHover(0)}
+          style={{ fontSize: size, cursor: readonly ? 'default' : 'pointer', color: s <= (hover || value) ? '#F59E0B' : '#D1D5DB', transition: 'color 0.1s' }}
+        >★</span>
+      ))}
+    </div>
+  );
+}
+
+// ── Citation Modal ────────────────────────────────────────────────────────────
+function CitationModal({ book, onClose }) {
+  const [style, setStyle]   = useState('APA');
+  const [copied, setCopied] = useState(false);
+
+  const year   = book?.publishedYear ?? new Date().getFullYear();
+  const author = book?.author ?? 'Unknown';
+  const title  = book?.title  ?? 'Untitled';
+  const pub    = 'Project Gutenberg';
+
+  const citations = {
+    APA:     `${author} (${year}). *${title}*. ${pub}.`,
+    MLA:     `${author}. *${title}*. ${pub}, ${year}.`,
+    Chicago: `${author}. *${title}*. ${pub}, ${year}.`,
+    Harvard: `${author} ${year}, *${title}*, ${pub}.`,
+    BibTeX:  `@book{${author.split(',')[0].toLowerCase().replace(/\s/g,'')}${year},\n  author = {${author}},\n  title  = {${title}},\n  year   = {${year}},\n  publisher = {${pub}}\n}`,
+  };
+  const text = citations[style];
+
+  const copy = () => {
+    navigator.clipboard.writeText(text.replace(/\*/g, ''));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ background: '#fff', borderRadius: 16, padding: '1.5rem', width: '100%', maxWidth: 480 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h3 style={{ margin: 0, fontFamily: 'Playfair Display,serif', color: '#8A1228', fontSize: '1.125rem' }}>Cite this Book</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: '#6B7280' }}>×</button>
+        </div>
+
+        {/* Style tabs */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+          {Object.keys(citations).map(s => (
+            <button key={s} onClick={() => setStyle(s)}
+              style={{ padding: '0.3rem 0.75rem', borderRadius: 999, fontSize: '0.813rem', fontWeight: 600, border: 'none', cursor: 'pointer',
+                background: style === s ? '#8A1228' : '#F3F4F6', color: style === s ? '#fff' : '#374151' }}>
+              {s}
+            </button>
+          ))}
+        </div>
+
+        {/* Citation text */}
+        <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: '1rem', fontFamily: style === 'BibTeX' ? 'monospace' : 'inherit', fontSize: '0.875rem', color: '#1A1A1A', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: '1rem' }}>
+          {text.replace(/\*/g, '')}
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button onClick={copy} style={{ flex: 1, padding: '0.6rem', borderRadius: 8, border: 'none', background: copied ? '#D1FAE5' : '#8A1228', color: copied ? '#065F46' : '#fff', fontWeight: 700, cursor: 'pointer', transition: 'background 0.2s' }}>
+            {copied ? '✓ Copied!' : 'Copy Citation'}
+          </button>
+          <button onClick={onClose} style={{ padding: '0.6rem 1rem', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer' }}>Close</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ── Static fallback similar books ──────────────────────────────────────── */
 const STATIC_SIMILAR = [
@@ -33,8 +120,40 @@ const STATIC_SIMILAR = [
 export default function BookPage() {
   const { id }     = useParams();
   const navigate   = useNavigate();
-  const [search, setSearch] = useState('');
-  const [saved,  setSaved]  = useState(false);
+  const qc         = useQueryClient();
+  const [search,      setSearch]      = useState('');
+  const [saved,       setSaved]       = useState(false);
+  const [showCitation, setShowCitation] = useState(false);
+  const [reviewText,   setReviewText]   = useState('');
+  const [reviewRating, setReviewRating] = useState(0);
+
+  const { data: reviewsData }  = useQuery({ queryKey: ['reviews', id], queryFn: () => fetchReviews(id),  enabled: !!id, staleTime: 60_000 });
+  const { data: myReviewData } = useQuery({ queryKey: ['my-review', id], queryFn: () => fetchMyReview(id), enabled: !!id, staleTime: 60_000 });
+
+  const reviews     = reviewsData?.reviews ?? [];
+  const ratingBreak = reviewsData?.ratingBreakdown ?? {};
+  const myReview    = myReviewData?.review;
+
+  useEffect(() => {
+    if (myReview) { setReviewRating(myReview.rating); setReviewText(myReview.text ?? ''); }
+  }, [myReview]);
+
+  const { mutate: borrow, isPending: borrowing } = useMutation({
+    mutationFn: () => borrowBook(id),
+    onSuccess:  () => { toast.success('Borrow request sent! The library will notify you when approved.'); qc.invalidateQueries(['my-loans']); },
+    onError:    (e) => toast.error(e?.response?.data?.message ?? 'Could not send request.'),
+  });
+
+  const { mutate: postReview, isPending: submittingReview } = useMutation({
+    mutationFn: () => submitReview({ bookId: id, rating: reviewRating, text: reviewText }),
+    onSuccess:  () => { toast.success('Review saved!'); qc.invalidateQueries(['reviews', id]); qc.invalidateQueries(['my-review', id]); },
+    onError:    (e) => toast.error(e?.response?.data?.message ?? 'Could not save review.'),
+  });
+
+  const { mutate: helpful } = useMutation({
+    mutationFn: (reviewId) => voteHelpful({ bookId: id, reviewId }),
+    onSuccess: () => qc.invalidateQueries(['reviews', id]),
+  });
 
   const { data, isLoading } = useBook(id);
   const { data: simData }   = useSimilarBooks(id);
@@ -80,6 +199,7 @@ export default function BookPage() {
 
   return (
     <>
+      {showCitation && <CitationModal book={book} onClose={() => setShowCitation(false)} />}
       <style>{`
         .bdp-topbar {
           position: sticky; top: 0; width: 100%; z-index: 40;
@@ -280,6 +400,27 @@ export default function BookPage() {
             </button>
           </div>
 
+          {/* Borrow Physical Copy */}
+          <button
+            className="bdp-action-btn"
+            style={{ background: '#1E3A5F', color: '#fff', opacity: borrowing ? 0.7 : 1 }}
+            onClick={() => borrow()}
+            disabled={borrowing}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>local_library</span>
+            {borrowing ? 'Requesting…' : 'Borrow Physical Copy'}
+          </button>
+
+          {/* Cite this Book */}
+          <button
+            className="bdp-half-btn"
+            style={{ justifyContent: 'center' }}
+            onClick={() => setShowCitation(true)}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>format_quote</span>
+            Cite this Book
+          </button>
+
           {/* Stats */}
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <div className="bdp-stat-box">
@@ -441,6 +582,106 @@ export default function BookPage() {
               ))}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── Reviews Section ─────────────────────────────────────────────────── */}
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 2rem 3rem' }}>
+        <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '1.5rem', fontWeight: 700, color: '#1C0A0C', marginBottom: '1.5rem' }}>
+          Reviews & Ratings
+        </h2>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
+
+          {/* Rating breakdown */}
+          {reviewsData?.total > 0 && (
+            <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap', background: '#FDF4F2', borderRadius: 12, padding: '1.25rem' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontFamily: 'Playfair Display,serif', fontSize: '3rem', fontWeight: 700, color: '#8A1228', lineHeight: 1 }}>
+                  {book?.rating?.toFixed(1) ?? '—'}
+                </div>
+                <StarRating value={Math.round(book?.rating ?? 0)} readonly />
+                <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: 4 }}>{reviewsData.total} review{reviewsData.total !== 1 ? 's' : ''}</div>
+              </div>
+              <div style={{ flex: 1, minWidth: 160 }}>
+                {[5,4,3,2,1].map(star => {
+                  const count = ratingBreak[star] ?? 0;
+                  const pct   = reviewsData.total ? Math.round((count / reviewsData.total) * 100) : 0;
+                  return (
+                    <div key={star} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 4 }}>
+                      <span style={{ fontSize: '0.75rem', color: '#6B7280', width: 16 }}>{star}</span>
+                      <span style={{ color: '#F59E0B', fontSize: '0.75rem' }}>★</span>
+                      <div style={{ flex: 1, height: 6, background: '#E5E7EB', borderRadius: 999 }}>
+                        <div style={{ width: `${pct}%`, height: '100%', background: '#F59E0B', borderRadius: 999, transition: 'width 0.4s' }} />
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: '#9CA3AF', width: 28, textAlign: 'right' }}>{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Write a review */}
+          <div style={{ background: '#fff', border: '1px solid #F3F4F6', borderRadius: 12, padding: '1.25rem' }}>
+            <h3 style={{ margin: '0 0 1rem', fontSize: '1rem', fontWeight: 700, color: '#1A1A1A' }}>
+              {myReview ? 'Edit Your Review' : 'Write a Review'}
+            </h3>
+            <StarRating value={reviewRating} onChange={setReviewRating} size={28} />
+            <textarea
+              value={reviewText}
+              onChange={e => setReviewText(e.target.value)}
+              placeholder="Share your thoughts about this book..."
+              style={{ width: '100%', marginTop: '0.75rem', border: '1px solid #E5E7EB', borderRadius: 8, padding: '0.75rem', fontSize: '0.875rem', minHeight: 100, resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.75rem', gap: '0.5rem', alignItems: 'center' }}>
+              {myReview?.isVerified && (
+                <span style={{ fontSize: '0.75rem', color: '#065F46', background: '#D1FAE5', padding: '0.2rem 0.6rem', borderRadius: 999 }}>✓ Verified Reader</span>
+              )}
+              <button
+                disabled={!reviewRating || submittingReview}
+                onClick={() => postReview()}
+                style={{ padding: '0.5rem 1.25rem', borderRadius: 8, border: 'none', background: reviewRating ? '#8A1228' : '#E5E7EB', color: reviewRating ? '#fff' : '#9CA3AF', fontWeight: 700, cursor: reviewRating ? 'pointer' : 'not-allowed' }}
+              >
+                {submittingReview ? 'Saving…' : myReview ? 'Update Review' : 'Submit Review'}
+              </button>
+            </div>
+          </div>
+
+          {/* Review list */}
+          {reviews.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {reviews.map(r => (
+                <div key={r.id} style={{ background: '#fff', border: '1px solid #F3F4F6', borderRadius: 12, padding: '1rem 1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#FCE8E6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                        {r.user?.avatar
+                          ? <img src={r.user.avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          : <span style={{ fontWeight: 700, color: '#8A1228', fontSize: '0.875rem' }}>{r.user?.name?.[0] ?? '?'}</span>
+                        }
+                      </div>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#1A1A1A' }}>{r.user?.name ?? 'Anonymous'}</span>
+                          {r.isVerified && <span style={{ fontSize: '0.7rem', background: '#D1FAE5', color: '#065F46', padding: '0.1rem 0.4rem', borderRadius: 999 }}>✓ Verified</span>}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>{r.user?.faculty}</div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <StarRating value={r.rating} readonly size={14} />
+                      <div style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: 2 }}>{new Date(r.createdAt).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                  {r.text && <p style={{ margin: '0.5rem 0', fontSize: '0.875rem', color: '#374151', lineHeight: 1.6 }}>{r.text}</p>}
+                  <button onClick={() => helpful(r.id)} style={{ background: 'none', border: '1px solid #E5E7EB', borderRadius: 999, padding: '0.2rem 0.75rem', fontSize: '0.75rem', cursor: 'pointer', color: r.votedHelpful ? '#065F46' : '#6B7280' }}>
+                    👍 Helpful ({r.helpfulCount})
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </>

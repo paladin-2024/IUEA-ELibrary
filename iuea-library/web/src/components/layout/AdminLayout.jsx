@@ -3,10 +3,11 @@ import useAuthStore from '../../store/authStore';
 import { useLogout } from '../../hooks/useAuth';
 
 const NAV = [
-  { to: '/admin',           end: true,  icon: 'dashboard', label: 'Dashboard'  },
-  { to: '/admin/books',     end: false, icon: 'book',      label: 'Books'      },
-  { to: '/admin/users',     end: false, icon: 'group',     label: 'Users'      },
-  { to: '/admin/analytics', end: false, icon: 'analytics', label: 'Analytics'  },
+  { to: '/admin',           end: true,  icon: 'dashboard',      label: 'Dashboard'  },
+  { to: '/admin/books',     end: false, icon: 'book',           label: 'Books'      },
+  { to: '/admin/users',     end: false, icon: 'group',          label: 'Users'      },
+  { to: '/admin/loans',     end: false, icon: 'local_library',  label: 'Loans'      },
+  { to: '/admin/analytics', end: false, icon: 'analytics',      label: 'Analytics'  },
 ];
 
 export default function AdminLayout() {

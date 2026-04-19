@@ -147,9 +147,67 @@ const sendWeeklyDigest = async (user, stats = {}) => {
   });
 };
 
+// ── Borrow request received (to admin) ───────────────────────────────────────
+const sendBorrowRequestNotification = async (student, book) => {
+  if (!process.env.ADMIN_EMAIL) return;
+  return sendEmail({
+    to:      process.env.ADMIN_EMAIL,
+    subject: `New Borrow Request — ${book.title}`,
+    html: wrapHtml(`
+      <h2>New Borrow Request</h2>
+      <p><strong>${student.name}</strong> (${student.email}) has requested to borrow:</p>
+      <p style="font-size:1.1rem;font-weight:700;color:#7B0D1E;">${book.title}</p>
+      <p style="color:#6b7280;">by ${book.author}</p>
+      <a class="cta" href="${process.env.CLIENT_WEB_URL || 'http://localhost:5173'}/admin/loans">
+        Review Request
+      </a>
+    `),
+    text: `${student.name} requested to borrow "${book.title}".`,
+  });
+};
+
+// ── Borrow approved (to student) ─────────────────────────────────────────────
+const sendBorrowApproved = async (student, loan, dueDate, shelfLocation, notes) => {
+  const due = new Date(dueDate).toLocaleDateString('en-UG', { dateStyle: 'long' });
+  return sendEmail({
+    to:      student.email,
+    subject: `Borrow Request Approved — ${loan.bookTitle}`,
+    html: wrapHtml(`
+      <h2>Your Request Was Approved!</h2>
+      <p>Your request to borrow <strong>${loan.bookTitle}</strong> has been approved.</p>
+      ${shelfLocation ? `<p><strong>Pickup location:</strong> ${shelfLocation}</p>` : ''}
+      <p><strong>Due date:</strong> ${due}</p>
+      ${notes ? `<p><strong>Note from library:</strong> ${notes}</p>` : ''}
+      <p>Please pick up the book within 3 days or the reservation may be cancelled.</p>
+      <a class="cta" href="${process.env.CLIENT_WEB_URL || 'http://localhost:5173'}/home/library/loans">
+        View My Loans
+      </a>
+    `),
+    text: `Your borrow request for "${loan.bookTitle}" was approved. Due: ${due}.`,
+  });
+};
+
+// ── Borrow rejected (to student) ─────────────────────────────────────────────
+const sendBorrowRejected = async (student, loan, notes) => {
+  return sendEmail({
+    to:      student.email,
+    subject: `Borrow Request Update — ${loan.bookTitle}`,
+    html: wrapHtml(`
+      <h2>Request Not Approved</h2>
+      <p>Your request to borrow <strong>${loan.bookTitle}</strong> could not be approved at this time.</p>
+      ${notes ? `<p><strong>Reason:</strong> ${notes}</p>` : ''}
+      <p>Please visit the library or contact staff for more information.</p>
+    `),
+    text: `Your borrow request for "${loan.bookTitle}" was not approved. ${notes ?? ''}`,
+  });
+};
+
 module.exports = {
   sendEmail,
   sendWelcomeEmail,
   sendPasswordReset,
   sendWeeklyDigest,
+  sendBorrowRequestNotification,
+  sendBorrowApproved,
+  sendBorrowRejected,
 };

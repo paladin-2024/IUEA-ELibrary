@@ -25,6 +25,8 @@ module.exports = {
   Podcast:          prisma.podcast,
   AudioCache:       prisma.audioCache,
   Collection:       prisma.collection,
+  BorrowRequest:    prisma.borrowRequest,
+  Review:           prisma.review,
 
   // Also export the full prisma client as default
   ...prisma,

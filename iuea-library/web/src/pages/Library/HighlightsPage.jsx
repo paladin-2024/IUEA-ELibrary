@@ -1,8 +1,19 @@
 import { useEffect, useState }    from 'react';
 import { useNavigate }            from 'react-router-dom';
-import { FiTrash2, FiBookOpen }   from 'react-icons/fi';
+import { FiTrash2, FiBookOpen, FiDownload } from 'react-icons/fi';
 import useLibraryStore            from '../../store/libraryStore';
 import EmptyState                 from '../../components/ui/EmptyState';
+
+function exportHighlights(highlights) {
+  const lines = highlights.map((h, i) =>
+    `[${i + 1}] ${h.bookTitle ?? 'Unknown Book'}\n"${h.text}"\n${h.cfi ? `Location: ${h.cfi}` : ''}\n`
+  );
+  const blob = new Blob([`MY HIGHLIGHTS\nExported ${new Date().toLocaleDateString()}\n\n${lines.join('\n')}`], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'highlights.txt'; a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function HighlightsPage() {
   const navigate = useNavigate();
@@ -20,8 +31,20 @@ export default function HighlightsPage() {
   return (
     <div className="px-6 py-6">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">My Highlights</h1>
-        <p className="text-sm text-gray-500 mb-6">Passages you've marked while reading</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">My Highlights</h1>
+            <p className="text-sm text-gray-500">Passages you've marked while reading</p>
+          </div>
+          {highlights.length > 0 && (
+            <button
+              onClick={() => exportHighlights(highlights)}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', color: '#374151', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer' }}
+            >
+              <FiDownload size={14} /> Export
+            </button>
+          )}
+        </div>
 
         {isLoading ? (
           <div className="space-y-3">

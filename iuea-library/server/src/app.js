@@ -49,6 +49,9 @@ app.use('/api/progress',   require('./routes/progress.routes'));
 app.use('/api/audio',      require('./routes/audio.routes'));
 app.use('/api/translate',  require('./routes/translation.routes'));
 app.use('/api/podcasts',   require('./routes/podcast.routes'));
+app.use('/api/borrowing',  require('./routes/borrowing.routes'));
+app.use('/api/reviews',    require('./routes/reviews.routes'));
+app.use('/api/streaks',    require('./routes/streaks.routes'));
 app.use('/api/admin',      require('./routes/admin.routes'));
 
 // 404

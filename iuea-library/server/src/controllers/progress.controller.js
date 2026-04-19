@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
 const { randomUUID } = require('crypto');
+const { updateStreak } = require('./streaks.controller');
 
 // PUT /api/progress/:bookId
 const saveProgress = async (req, res, next) => {
@@ -29,6 +30,14 @@ const saveProgress = async (req, res, next) => {
       update: data,
       create: { userId: req.user.id, bookId, ...data },
     });
+
+    // Update streak & XP (fire-and-forget)
+    updateStreak(req.user.id, {
+      minutesRead:     minutesRead ?? 0,
+      isCompleted:     percentComplete >= 100,
+      readingLanguage: readingLanguage ?? 'English',
+      hour:            new Date().getHours(),
+    }).catch(() => {});
 
     res.json({ progress });
   } catch (err) { next(err); }

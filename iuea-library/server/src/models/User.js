@@ -90,6 +90,13 @@ const userSchema = new mongoose.Schema(
       type:    mongoose.Schema.Types.Mixed,
       default: {},
     },
+    // ── Streaks & gamification ──────────────────────────────────────────────
+    currentStreak:  { type: Number, default: 0 },
+    longestStreak:  { type: Number, default: 0 },
+    lastReadDate:   { type: Date },
+    totalXp:        { type: Number, default: 0 },
+    badges:         { type: [String], default: [] },
+    totalReadingMinutes: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

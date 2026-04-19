@@ -1,0 +1,19 @@
+{
+  "name": "IUEA Library",
+  "short_name": "IUEA Lib",
+  "description": "International University of East Africa Digital Library",
+  "start_url": "/home",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8A1228",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/iuea_logo.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/iuea_logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["education", "books"],
+  "shortcuts": [
+    { "name": "Search Books", "url": "/home/search",  "description": "Search the library catalogue" },
+    { "name": "My Library",   "url": "/home/library", "description": "View your books and loans"   }
+  ]
+}

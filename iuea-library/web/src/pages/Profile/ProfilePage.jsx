@@ -33,13 +33,14 @@ export default function ProfilePage() {
     : '?';
 
   const QUICK_LINKS = [
-    { icon: 'library_books',  label: 'My Library',  to: '/home/library',              bg: '#5C0F1F' },
-    { icon: 'download',       label: 'Downloads',   to: '/home/library/downloads',     bg: '#8A1228' },
-    { icon: 'bookmark',       label: 'Bookmarks',   to: '/home/library/highlights',    bg: '#B8964A' },
-    { icon: 'history',        label: 'History',     to: '/home/library',              bg: '#984447' },
+    { icon: 'library_books',  label: 'My Library',  to: '/home/library',               bg: '#5C0F1F' },
+    { icon: 'download',       label: 'Downloads',   to: '/home/library/downloads',      bg: '#8A1228' },
+    { icon: 'bookmark',       label: 'Bookmarks',   to: '/home/library/highlights',     bg: '#B8964A' },
+    { icon: 'local_library',  label: 'My Loans',    to: '/home/library/loans',          bg: '#1E3A5F' },
   ];
 
   const SETTINGS_ROWS = [
+    { icon: 'local_fire_department', label: 'Streaks & Badges',       sub: 'XP, achievements, daily streak',to: '/home/profile/streaks'           },
     { icon: 'tune',       label: 'Appearance & Reading',  sub: 'Font, theme, display',         to: '/home/settings'                           },
     { icon: 'translate',  label: 'Language',              sub: 'Translation & TTS',            to: '/home/settings?tab=language'              },
     { icon: 'notifications', label: 'Notifications',      sub: 'Alerts & reminders',           to: '/home/settings?tab=notifications'         },
