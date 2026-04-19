@@ -85,8 +85,8 @@ export default function PodcastHomePage() {
           <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-thin">
             {subscriptions.map((p) => (
               <button
-                key={p._id}
-                onClick={() => navigate(`/podcasts/${p._id}`)}
+                key={p._id ?? p.id}
+                onClick={() => navigate(`/podcasts/${p._id ?? p.id}`)}
                 className="flex-shrink-0 flex flex-col items-center gap-1.5 w-20"
               >
                 {p.coverUrl
@@ -135,7 +135,7 @@ export default function PodcastHomePage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {podcasts.map((p) => (
-              <PodcastCard key={p._id} podcast={p} onClick={() => navigate(`/podcasts/${p._id}`)} />
+              <PodcastCard key={p._id ?? p.id} podcast={p} onClick={() => navigate(`/podcasts/${p._id ?? p.id}`)} />
             ))}
           </div>
         )}

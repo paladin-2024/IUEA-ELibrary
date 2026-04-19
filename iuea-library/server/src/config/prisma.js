@@ -218,12 +218,18 @@ function wrap(ModelFn) {
 
     // ── upsert ─────────────────────────────────────────────────────────────
     async upsert({ where, update, create: createData } = {}) {
-      const filter = toFilter(where);
-      const doc = await M().findOneAndUpdate(
-        filter,
-        { $set: update, $setOnInsert: createData },
-        { upsert: true, new: true },
-      ).lean();
+      const filter  = toFilter(where);
+      const setData = {};
+      const incData = {};
+      for (const [k, v] of Object.entries(update || {})) {
+        if (v && typeof v === 'object' && 'increment' in v) incData[k] = v.increment;
+        else setData[k] = v;
+      }
+      const op = {};
+      if (Object.keys(setData).length) op.$set = setData;
+      if (Object.keys(incData).length) op.$inc = incData;
+      op.$setOnInsert = createData;
+      const doc = await M().findOneAndUpdate(filter, op, { upsert: true, new: true }).lean();
       doc.id = doc._id?.toString();
       return doc;
     },

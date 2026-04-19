@@ -80,7 +80,7 @@ const deleteHighlight = async (req, res, next) => {
     if (!progress) return res.status(404).json({ message: 'Progress not found.' });
 
     const highlights = (Array.isArray(progress.highlights) ? progress.highlights : [])
-      .filter((h) => h.id !== highlightId);
+      .filter((h) => h._id?.toString() !== highlightId);
 
     await prisma.userProgress.update({
       where: { userId_bookId: { userId: req.user.id, bookId } },

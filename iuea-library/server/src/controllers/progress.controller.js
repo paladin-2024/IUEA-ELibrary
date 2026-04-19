@@ -1,4 +1,4 @@
-const prisma         = require('../config/prisma');
+const prisma = require('../config/prisma');
 const { randomUUID } = require('crypto');
 
 // PUT /api/progress/:bookId
@@ -7,7 +7,7 @@ const saveProgress = async (req, res, next) => {
     const { bookId } = req.params;
     const {
       currentPage, currentCfi, percentComplete, currentChapter,
-      readingLanguage, highlights, bookmarks, device,
+      readingLanguage, highlights, bookmarks, device, minutesRead,
     } = req.body;
 
     const data = { lastReadAt: new Date() };
@@ -15,9 +15,10 @@ const saveProgress = async (req, res, next) => {
     if (currentCfi      !== undefined) data.currentCfi      = currentCfi;
     if (currentChapter  !== undefined) data.currentChapter  = currentChapter;
     if (readingLanguage !== undefined) data.readingLanguage = readingLanguage;
-    if (highlights      !== undefined) data.highlights      = highlights.map((h) => h.id ? h : { ...h, id: randomUUID() });
+    if (highlights      !== undefined) data.highlights      = highlights.map((h) => h._id || h.id ? h : { ...h, id: randomUUID() });
     if (bookmarks       !== undefined) data.bookmarks       = bookmarks;
     if (device          !== undefined) data.lastDevice      = device;
+    if (minutesRead     >  0)          data.totalReadingMinutes = { increment: Math.floor(minutesRead) };
     if (percentComplete !== undefined) {
       data.percentComplete = percentComplete;
       if (percentComplete >= 100) data.isCompleted = true;

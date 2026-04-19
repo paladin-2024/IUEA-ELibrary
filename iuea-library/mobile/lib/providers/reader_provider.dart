@@ -22,6 +22,7 @@ String _getLangCode(String name) => _langMap[name] ?? 'en-US';
 class ReaderProvider extends ChangeNotifier {
   // ── State ────────────────────────────────────────────────────────────────────
   BookModel? currentBook;
+  DateTime?  _sessionStart;
   int    currentPage        = 0;
   String? currentCfi;
   double percentComplete    = 0;
@@ -102,6 +103,7 @@ class ReaderProvider extends ChangeNotifier {
         readingLanguage   =  progress['readingLanguage']  as String? ?? 'English';
         notifyListeners();
       }
+      _sessionStart = DateTime.now();
     } catch (_) {
       // Non-fatal — first read has no progress record
     }
@@ -109,6 +111,11 @@ class ReaderProvider extends ChangeNotifier {
 
   // ── saveProgress ─────────────────────────────────────────────────────────────
   Future<void> saveProgress(String bookId) async {
+    final now          = DateTime.now();
+    final minutesRead  = _sessionStart != null
+        ? now.difference(_sessionStart!).inMinutes
+        : 0;
+    _sessionStart = now;
     try {
       await _api.put(
         ApiConstants.progress(bookId),
@@ -119,6 +126,7 @@ class ReaderProvider extends ChangeNotifier {
           'currentChapter':  currentChapter,
           'readingLanguage': readingLanguage,
           'device':          'mobile',
+          if (minutesRead > 0) 'minutesRead': minutesRead,
         },
       );
     } catch (_) {}

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_epub_viewer/flutter_epub_viewer.dart';
@@ -282,7 +283,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                           : (_localFilePath != null || (book.fileUrl != null && book.fileUrl!.isNotEmpty))
                               ? EpubViewer(
                                   epubSource: _localFilePath != null
-                                      ? EpubSource.fromFile(_localFilePath!)
+                                      ? EpubSource.fromFile(File(_localFilePath!))
                                       : EpubSource.fromUrl(book.fileUrl!),
                                   epubController: _epubController,
                                   onChaptersLoaded: (_) {},

@@ -43,6 +43,9 @@ const useReaderStore = create((set, get) => ({
   highlights: [],
   bookmarks:  [],
 
+  // ── Session timing (for totalReadingMinutes) ──────────────────────────────────
+  _sessionStart: null,
+
   // ── Setters ───────────────────────────────────────────────────────────────────
   setCurrentBook:      (book)  => set({ currentBook: book }),
   setCurrentPage:      (page)  => set({ currentPage: page }),
@@ -79,8 +82,16 @@ const useReaderStore = create((set, get) => ({
     const {
       currentPage, currentCfi, percentComplete,
       currentChapter, readingLanguage, highlights, bookmarks,
+      _sessionStart,
     } = get();
     if (!bookId) return;
+
+    const now         = Date.now();
+    const minutesRead = _sessionStart
+      ? Math.round((now - _sessionStart) / 60000)
+      : 0;
+    set({ _sessionStart: now });
+
     try {
       await api.put(`/progress/${bookId}`, {
         currentPage,
@@ -91,6 +102,7 @@ const useReaderStore = create((set, get) => ({
         highlights,
         bookmarks,
         device: 'web',
+        ...(minutesRead > 0 && { minutesRead }),
       });
     } catch (_) {
       // Silent — progress save failure is non-fatal
@@ -111,7 +123,10 @@ const useReaderStore = create((set, get) => ({
           readingLanguage: p.readingLanguage  ?? 'English',
           highlights:      p.highlights       ?? [],
           bookmarks:       p.bookmarks        ?? [],
+          _sessionStart:   Date.now(),
         });
+      } else {
+        set({ _sessionStart: Date.now() });
       }
     } catch (_) {}
   },

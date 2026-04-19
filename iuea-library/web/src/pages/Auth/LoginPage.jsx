@@ -296,17 +296,6 @@ export default function LoginPage() {
               <GoogleLogin onSuccess={onGoogle} onError={() => {}} />
             </div>
 
-            {/* Register link */}
-            <div style={{ textAlign: 'center', paddingTop: '1rem' }}>
-              <p style={{ fontSize: '0.875rem', color: '#6B5456' }}>
-                New student?{' '}
-                <Link to="/register" style={{ color: '#8A1228', fontWeight: 700, marginLeft: 4, textDecoration: 'none', textUnderlineOffset: 4 }}
-                  onMouseEnter={e => (e.target.style.textDecoration = 'underline')}
-                  onMouseLeave={e => (e.target.style.textDecoration = 'none')}>
-                  Register here
-                </Link>
-              </p>
-            </div>
           </div>
 
           {/* Footer */}

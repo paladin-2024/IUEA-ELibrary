@@ -9,7 +9,6 @@ import AdminLayout     from './components/layout/AdminLayout';
 // ── Auth pages (shown before login — load eagerly) ───────────────────────────
 import SplashPage         from './pages/SplashPage';
 import LoginPage          from './pages/Auth/LoginPage';
-import RegisterPage       from './pages/Auth/RegisterPage';
 import LanguageSetupPage  from './pages/Auth/LanguageSetupPage';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
 import ResetPasswordPage  from './pages/Auth/ResetPasswordPage';
@@ -94,7 +93,7 @@ export default function App() {
 
         {/* ── Auth ───────────────────────────────────────────────────────── */}
         <Route path="/login"           element={<LoginPage />}          />
-        <Route path="/register"        element={<RegisterPage />}       />
+        <Route path="/register"        element={<Navigate to="/login" replace />} />
         <Route path="/onboarding"      element={<LanguageSetupPage />}  />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password"  element={<ResetPasswordPage />}  />
