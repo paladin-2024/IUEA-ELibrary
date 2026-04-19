@@ -235,26 +235,12 @@ const syncKoha = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-// POST /api/admin/sync-patrons
+// POST /api/admin/sync-patrons  (repurposed: refresh all podcast RSS feeds)
 const syncPatrons = async (req, res, next) => {
   try {
-    const unlinked = await prisma.user.findMany({
-      where: { kohaPatronId: null, studentId: { not: null }, isActive: true },
-      select: { id: true, studentId: true, email: true, name: true },
-    });
-
-    let linked = 0;
-    for (const user of unlinked) {
-      try {
-        const results = await searchBooks({ q: user.studentId, limit: 1 });
-        if (results?.[0]?.patron_id) {
-          await prisma.user.update({ where: { id: user.id }, data: { kohaPatronId: String(results[0].patron_id) } });
-          linked++;
-        }
-      } catch {}
-    }
-
-    res.json({ message: `Linked ${linked} of ${unlinked.length} users to Koha.`, linked, total: unlinked.length });
+    const { syncAllFeeds } = require('../services/podcast.service');
+    await syncAllFeeds();
+    res.json({ message: 'Podcast RSS feeds refreshed successfully.' });
   } catch (err) { next(err); }
 };
 
@@ -482,8 +468,97 @@ const deletePodcast = async (req, res, next) => {
   }
 };
 
+// GET /api/admin/books/discover?q=...&source=gutenberg|archive|openlibrary
+const discoverBooks = async (req, res, next) => {
+  try {
+    const { q = 'academic', source = 'gutenberg' } = req.query;
+    const archiveService  = require('../services/archive.service');
+    const { searchOpenLibrary } = require('../services/openlibrary.service');
+
+    let results = [];
+    if (source === 'gutenberg') {
+      results = await archiveService.searchGutenberg(q);
+    } else if (source === 'archive') {
+      results = await archiveService.searchArchive(q);
+    } else if (source === 'openlibrary') {
+      results = await searchOpenLibrary(q, { limit: 20 });
+    }
+
+    // Mark which ones are already in DB
+    const existingGutenbergIds = results
+      .filter((b) => b.gutenbergId)
+      .map((b) => b.gutenbergId);
+
+    const inDb = await prisma.book.findMany({
+      where:  { gutenbergId: { in: existingGutenbergIds } },
+      select: { gutenbergId: true },
+    });
+    const inDbSet = new Set(inDb.map((b) => b.gutenbergId));
+
+    const annotated = results.map((b) => ({
+      ...b,
+      alreadyImported: inDbSet.has(b.gutenbergId),
+    }));
+
+    res.json({ books: annotated, total: annotated.length });
+  } catch (err) { next(err); }
+};
+
+// POST /api/admin/books/import  — import a single external book into DB
+const importBook = async (req, res, next) => {
+  try {
+    const { title, author, description, coverUrl, fileUrl, fileFormat,
+            category, faculty, languages, gutenbergId, archiveId,
+            publishedYear, pageCount, rating, ratingCount } = req.body;
+
+    if (!title || !author) return res.status(400).json({ message: 'title and author are required.' });
+
+    const parseArr = (v) => {
+      if (Array.isArray(v)) return v;
+      if (!v) return [];
+      return String(v).split(',').map((s) => s.trim()).filter(Boolean);
+    };
+
+    const data = {
+      title,
+      author,
+      description:  description  || '',
+      coverUrl:     coverUrl     || null,
+      fileUrl:      fileUrl      || null,
+      fileFormat:   fileFormat   || null,
+      category:     category     || 'General',
+      faculty:      parseArr(faculty),
+      languages:    parseArr(languages).length ? parseArr(languages) : ['English'],
+      publishedYear: publishedYear ? Number(publishedYear) : null,
+      pageCount:    pageCount    ? Number(pageCount)    : null,
+      rating:       rating       ? Number(rating)       : 0,
+      ratingCount:  ratingCount  ? Number(ratingCount)  : 0,
+      isActive:     true,
+    };
+
+    if (gutenbergId) data.gutenbergId = Number(gutenbergId);
+    if (archiveId)   data.archiveId   = archiveId;
+
+    const where = gutenbergId
+      ? { gutenbergId: Number(gutenbergId) }
+      : archiveId
+        ? { archiveId }
+        : null;
+
+    let book;
+    if (where) {
+      book = await prisma.book.upsert({ where, update: data, create: data });
+    } else {
+      book = await prisma.book.create({ data });
+    }
+
+    res.status(201).json({ book });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   getStats, getBooks, uploadBook, updateBook, deleteBook, toggleBookStatus,
+  discoverBooks, importBook,
   getUsers, suspendUser, getUserDetail, updateUserRole, deleteUser,
   syncKoha, syncPatrons, addPodcast, updatePodcast, deletePodcast, getAnalytics,
   getTopBooks, getUserGrowth, sendPushNotification,

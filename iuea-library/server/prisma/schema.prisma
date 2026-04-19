@@ -43,8 +43,8 @@ model Book {
   coverUrl           String?
   fileUrl            String?
   fileKey            String?
-  archiveId          String?
-  gutenbergId        Int?
+  archiveId          String?   @unique
+  gutenbergId        Int?      @unique
   fileFormat         String?
   category           String
   faculty            String[]  @default([])

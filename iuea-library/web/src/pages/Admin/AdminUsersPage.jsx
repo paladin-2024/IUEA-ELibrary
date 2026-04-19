@@ -1,7 +1,8 @@
 import { useState }                          from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api   from '../../services/api';
-import toast from 'react-hot-toast';
+import api          from '../../services/api';
+import toast        from 'react-hot-toast';
+import useAuthStore from '../../store/authStore';
 
 // ── API helpers ───────────────────────────────────────────────────────────────
 const fetchUsers      = (params) => api.get('/admin/users',            { params }).then(r => r.data);
@@ -11,14 +12,6 @@ const syncPatrons     = ()       => api.post('/admin/sync-patrons').then(r => r.
 
 const FACULTIES = ['', 'Law', 'Medicine', 'Engineering', 'Business', 'IT', 'Education', 'Arts', 'Science'];
 
-const AVATAR_IMG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuDO-eiCtfigqu5HWt3cITrRouplCXUD9LVn-Ilw69VTP6J_dt4U_x2raL_fgtvz5NasO_qCK0PDvV7Z7O8nPCdbLe6VptV2eOSF2mhwk2IFV_JRt4pzuT0wvEPXdpG8qRwTm-2NjKetXTlcq8iB_28HxwQ5i4_sIx_kcntq3lyelMtw7ct2TYct7bmqyLnSzhuzs4M7yZh0RF8n_708PIziN7Y_99iML1F_iocSMZK_uLAoZQRXdV6lZU9jx69ozX5giK6zH6Thjnk';
-
-const STATIC_USERS = [
-  { _id: 's1', name: 'Amina Mohamed',  email: 'amina.m@student.iuea.ac.ug',  studentId: 'IUEA/BIT/2023/104',  faculty: 'Science & Tech', createdAt: '2023-10-12', lastActive: '2 hours ago',   isActive: true,  avatar: null },
-  { _id: 's2', name: 'David Okello',   email: 'david.o@student.iuea.ac.ug',  studentId: 'IUEA/LLB/2022/452',  faculty: 'Law',            createdAt: '2022-02-05', lastActive: 'Yesterday',     isActive: true,  avatar: AVATAR_IMG },
-  { _id: 's3', name: 'Sarah Kibaki',   email: 'sarah.k@student.iuea.ac.ug',  studentId: 'IUEA/BBA/2021/892',  faculty: 'Business',       createdAt: '2021-08-19', lastActive: '3 months ago',  isActive: false, avatar: null },
-  { _id: 's4', name: 'Linda Nakato',   email: 'linda.n@student.iuea.ac.ug',  studentId: 'IUEA/BSC/2023/501',  faculty: 'Engineering',    createdAt: '2023-05-14', lastActive: '10 mins ago',   isActive: true,  avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuASSjE64LxTrPy63hN1uDtHl9ivWlRSSuz7Ot_1KXMgFT4DuFfJo0fMql4DOqIEN8Q9auZBvb0N9Yi5hR9NOn-rZbwyhkbaBEQlfmbEYZD8dGyjGUj5tuaJcSoJWCdzEQ7_icVOgEiV0XBudKjF8GlPz2bIKwAifMgPR4Sa1kaSxr2rQ7wXIcAkgZQA4fvJlqRyhTvTK15E1uWaBsWX3QVooi8lAppL9qYGE3sg2aTJs1k6JOB1itmSO8lsoJsCdfjUXBB9WIwXVps' },
-];
 
 const FACULTY_BADGE_COLOR = {
   'Science & Tech': { bg: '#ffdad9', color: '#8a1a27' },
@@ -112,6 +105,7 @@ export default function AdminUsersPage() {
   const [faculty,    setFaculty]    = useState('');
   const [page,       setPage]       = useState(1);
   const [detailUser, setDetailUser] = useState(null);
+  const { user: authUser } = useAuthStore();
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'users', { q, faculty, page }],
@@ -125,10 +119,10 @@ export default function AdminUsersPage() {
     onError: () => toast.error('Action failed.'),
   });
 
-  const { mutate: syncP, isPending: syncing } = useMutation({
+  const { mutate: syncP } = useMutation({
     mutationFn: syncPatrons,
-    onSuccess: res => toast.success(res.message),
-    onError: ()    => toast.error('Patron sync failed.'),
+    onSuccess: () => toast.success('Podcast feeds refreshed.'),
+    onError:   () => toast.error('Refresh failed.'),
   });
 
   const users = data?.users ?? [];
@@ -178,11 +172,14 @@ export default function AdminUsersPage() {
               <span style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, background: '#ba1a1a', borderRadius: '50%' }} />
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginLeft: '0.5rem' }}>
-              <img
-                src={AVATAR_IMG}
-                alt="Admin"
-                style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(107,15,26,0.2)' }}
-              />
+              {authUser?.avatar
+                ? <img src={authUser.avatar} alt={authUser.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(107,15,26,0.2)' }} />
+                : <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#8A1228', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(107,15,26,0.2)' }}>
+                    <span style={{ color: '#fff', fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.875rem' }}>
+                      {(authUser?.name ?? 'A').charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+              }
             </div>
           </div>
         </div>
@@ -196,38 +193,35 @@ export default function AdminUsersPage() {
             <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#6B5456', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Total Students</span>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '1rem' }}>
               <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#8A1228' }}>
-                {total > 0 ? total.toLocaleString() : '12,842'}
+                {isLoading ? '–' : total.toLocaleString()}
               </span>
-              <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#755b00', background: '#D9B96B', padding: '2px 8px', borderRadius: '0.25rem' }}>+12%</span>
             </div>
           </div>
           <div className="aup-stat-card" style={{ borderBottom: '4px solid #5C0F1F' }}>
-            <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#6B5456', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Active Now</span>
+            <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#6B5456', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Active Users</span>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#8A1228' }}>892</span>
-              <div style={{ display: 'flex' }}>
-                {[
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuBBi--i6fm8IWiHtd0iA1R4KxhCGP-1-hU2V0kPXFmhaSIUHNlVbDiRZFt5tHFgqgzhJSl0CYcIDoDvK0rf6qY8tw33jLPFxQalY0ifJPOxp8LC8PBc8otZS1a5dfSmE5IIRCQ6-qvcGtJyza8XhKLNIjunFmK-1nYh3yKK0N6xQLnNYwCYqSITCGPBIICFsFKVRyJxo1OHtvdK_WxYmWcqFcRgOqW3aUo5qTQRh2A9DJZ7-JYctehqhEJ8mGgOzwO_r6dleEtD0Ww',
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuBJ1bR_XzmiT60KSq7Y8ONPlgKU35unonMgeO_tHeFtxZV-wN5s3ZO0VrBmRWXrJ21e690_Xpwi-DSAnS4N3-M3ze8xklznIE3SIHMqDk3ln1CyGS8-9f6yQlgXcCw3oNK64ppn7vpyvhM5g84ioePJdNyYPcd6Q0tdmnnYiXny7fiI5Xy29fCPUYTks2cdXfBQec8j5kwymw6aTu10dPY72jyg70VAUFqNHWwJV8JkdN4N7FWGo_D5pK_mEKwdNdhjEdTGk2A4ccs',
-                ].map((src, i) => (
-                  <img key={i} src={src} alt="" style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid #fff', objectFit: 'cover', marginLeft: i === 0 ? 0 : -8 }} />
-                ))}
-                <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid #fff', background: '#5C0F1F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5rem', color: '#fff', marginLeft: -8 }}>+8</div>
-              </div>
+              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#8A1228' }}>
+                {isLoading ? '–' : users.filter(u => u.isActive).length}
+              </span>
+              <span className="material-symbols-outlined" style={{ color: '#5C0F1F', fontSize: '1.5rem' }}>people</span>
             </div>
           </div>
           <div className="aup-stat-card">
-            <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#6B5456', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Faculty of Law</span>
+            <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#6B5456', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Students</span>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#8A1228' }}>3,120</span>
-              <span className="material-symbols-outlined" style={{ color: '#B8964A', fontSize: '1.5rem' }}>gavel</span>
+              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#8A1228' }}>
+                {isLoading ? '–' : users.filter(u => u.role === 'student').length}
+              </span>
+              <span className="material-symbols-outlined" style={{ color: '#B8964A', fontSize: '1.5rem' }}>school</span>
             </div>
           </div>
           <div className="aup-stat-card">
-            <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#6B5456', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Faculty of Eng.</span>
+            <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#6B5456', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Staff / Admin</span>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#8A1228' }}>4,502</span>
-              <span className="material-symbols-outlined" style={{ color: '#B8964A', fontSize: '1.5rem' }}>precision_manufacturing</span>
+              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#8A1228' }}>
+                {isLoading ? '–' : users.filter(u => u.role !== 'student').length}
+              </span>
+              <span className="material-symbols-outlined" style={{ color: '#B8964A', fontSize: '1.5rem' }}>manage_accounts</span>
             </div>
           </div>
         </div>

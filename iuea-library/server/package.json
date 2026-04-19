@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "seed": "node scripts/seed.js",
+    "seed": "node prisma/seed.js",
     "seed:clear": "node scripts/seed.js --clear",
     "test": "jest --runInBand --forceExit",
     "test:watch": "jest --watch --runInBand",

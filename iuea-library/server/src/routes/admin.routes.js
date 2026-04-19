@@ -41,6 +41,8 @@ router.post('/notifications/push',     ctrl.sendPushNotification);
 
 // ── Books ─────────────────────────────────────────────────────────────────────
 router.get('/books',             ctrl.getBooks);
+router.get('/books/discover',    ctrl.discoverBooks);
+router.post('/books/import',     ctrl.importBook);
 router.post('/books',            bookUpload, ctrl.uploadBook);
 router.patch('/books/:id/toggle',ctrl.toggleBookStatus);
 router.patch('/books/:id',       ctrl.updateBook);

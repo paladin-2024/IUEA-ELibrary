@@ -22,30 +22,40 @@ const chat = async (req, res, next) => {
         });
     if (!book) return res.status(404).json({ message: 'Book not found.' });
 
-    let session = await prisma.chatSession.findUnique({
-      where: { userId_bookId: { userId, bookId } },
-    });
-    if (!session) {
-      session = await prisma.chatSession.create({ data: { userId, bookId, language } });
+    // General assistant has no book FK — skip DB session persistence
+    const isGeneral = bookId === GENERAL_BOOK_ID;
+    let history = [];
+
+    if (!isGeneral) {
+      let session = await prisma.chatSession.findUnique({
+        where: { userId_bookId: { userId, bookId } },
+      });
+      if (!session) {
+        session = await prisma.chatSession.create({ data: { userId, bookId, language } });
+      }
+      history = (session.messages || []).slice(-20).map((m) => ({ role: m.role, content: m.content }));
+
+      const messages = [...history, { role: 'user', content: message }];
+      const reply = await gemini.getChatResponse(messages, book, chapter, language);
+
+      let updatedMessages = [
+        ...(session.messages || []),
+        { role: 'user',      content: message, language, timestamp: new Date() },
+        { role: 'assistant', content: reply,   language, timestamp: new Date() },
+      ];
+      if (updatedMessages.length > 100) updatedMessages = updatedMessages.slice(-100);
+
+      await prisma.chatSession.update({
+        where: { id: session.id },
+        data:  { messages: updatedMessages },
+      });
+
+      return res.json({ reply });
     }
 
-    const history = (session.messages || []).slice(-20).map((m) => ({ role: m.role, content: m.content }));
-    const messages = [...history, { role: 'user', content: message }];
-
+    // General context — no history, no DB write
+    const messages = [{ role: 'user', content: message }];
     const reply = await gemini.getChatResponse(messages, book, chapter, language);
-
-    let updatedMessages = [
-      ...(session.messages || []),
-      { role: 'user',      content: message, language, timestamp: new Date() },
-      { role: 'assistant', content: reply,   language, timestamp: new Date() },
-    ];
-    if (updatedMessages.length > 100) updatedMessages = updatedMessages.slice(-100);
-
-    await prisma.chatSession.update({
-      where: { id: session.id },
-      data:  { messages: updatedMessages },
-    });
-
     res.json({ reply });
   } catch (err) { next(err); }
 };
@@ -77,36 +87,49 @@ const streamChat = async (req, res, next) => {
       res.end(); return;
     }
 
-    let session = await prisma.chatSession.findUnique({
-      where: { userId_bookId: { userId, bookId } },
-    });
-    if (!session) {
-      session = await prisma.chatSession.create({ data: { userId, bookId, language } });
+    const isGeneral = bookId === GENERAL_BOOK_ID;
+    let baseHistory = [];
+
+    if (!isGeneral) {
+      let session = await prisma.chatSession.findUnique({
+        where: { userId_bookId: { userId, bookId } },
+      });
+      if (!session) {
+        session = await prisma.chatSession.create({ data: { userId, bookId, language } });
+      }
+      baseHistory = (session.messages || []).slice(-20).map((m) => ({ role: m.role, content: m.content }));
+
+      const messages   = [...baseHistory, { role: 'user', content: message }];
+      const stream     = await gemini.getChatStream(messages, book, chapter, language);
+      let   fullReply  = '';
+
+      for await (const chunk of stream) {
+        const text = chunk.text();
+        fullReply += text;
+        res.write(`data: ${JSON.stringify({ chunk: text })}\n\n`);
+      }
+
+      let updatedMessages = [
+        ...(session.messages || []),
+        { role: 'user',      content: message,   language, timestamp: new Date() },
+        { role: 'assistant', content: fullReply, language, timestamp: new Date() },
+      ];
+      if (updatedMessages.length > 100) updatedMessages = updatedMessages.slice(-100);
+
+      await prisma.chatSession.update({
+        where: { id: session.id },
+        data:  { messages: updatedMessages },
+      });
+    } else {
+      // General context — no history, no DB write
+      const messages  = [{ role: 'user', content: message }];
+      const stream    = await gemini.getChatStream(messages, book, chapter, language);
+
+      for await (const chunk of stream) {
+        const text = chunk.text();
+        res.write(`data: ${JSON.stringify({ chunk: text })}\n\n`);
+      }
     }
-
-    const history  = (session.messages || []).slice(-20).map((m) => ({ role: m.role, content: m.content }));
-    const messages = [...history, { role: 'user', content: message }];
-
-    const stream    = await gemini.getChatStream(messages, book, chapter, language);
-    let   fullReply = '';
-
-    for await (const chunk of stream) {
-      const text = chunk.text();
-      fullReply += text;
-      res.write(`data: ${JSON.stringify({ chunk: text })}\n\n`);
-    }
-
-    let updatedMessages = [
-      ...(session.messages || []),
-      { role: 'user',      content: message,   language, timestamp: new Date() },
-      { role: 'assistant', content: fullReply, language, timestamp: new Date() },
-    ];
-    if (updatedMessages.length > 100) updatedMessages = updatedMessages.slice(-100);
-
-    await prisma.chatSession.update({
-      where: { id: session.id },
-      data:  { messages: updatedMessages },
-    });
 
     res.write('data: [DONE]\n\n');
     res.end();
