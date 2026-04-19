@@ -54,6 +54,7 @@ const useBookStore = create((set) => ({
   externalResults: [],       // Archive + Gutenberg hits
   currentBook:     null,
   isLoading:       false,
+  homeLoading:     true,     // covers fetchNewest + fetchPopular on home page
   searchLoading:   false,
   filters:         {},
   pagination:      { page: 1, total: 0, pages: 1 },
@@ -79,6 +80,7 @@ const useBookStore = create((set) => ({
 
   // ── fetchNewest ───────────────────────────────────────────────────────────────
   fetchNewest: async () => {
+    set({ homeLoading: true });
     try {
       const [serverRes, googleRes] = await Promise.allSettled([
         api.get('/books', { params: { sort: 'newest', limit: 12 } }),
@@ -86,12 +88,12 @@ const useBookStore = create((set) => ({
       ]);
       const serverBooks = serverRes.status === 'fulfilled' ? (serverRes.value.data.books ?? []) : [];
       const googleBooks = googleRes.status === 'fulfilled' ? googleRes.value : [];
-      // Prefer server books; fill with Google Books if server has fewer than 6
       const merged = serverBooks.length >= 6
         ? serverBooks
         : [...serverBooks, ...googleBooks.filter(g => !serverBooks.some(s => s.title === g.title))].slice(0, 12);
       set({ newestBooks: merged });
     } catch {}
+    set({ homeLoading: false });
   },
 
   // ── fetchPopular ──────────────────────────────────────────────────────────────

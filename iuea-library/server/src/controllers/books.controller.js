@@ -60,6 +60,17 @@ const getFeatured = async (req, res, next) => {
       });
       books = [...books, ...newest];
     }
+    // Fall back to Gutenberg when DB has fewer than 10 books
+    if (books.length < 10) {
+      try {
+        const external = await archiveService.searchGutenberg('academic university education');
+        const dbTitles = new Set(books.map((b) => b.title.toLowerCase()));
+        const fill = external
+          .filter((b) => b.coverUrl && !dbTitles.has((b.title ?? '').toLowerCase()))
+          .slice(0, 10 - books.length);
+        books = [...books, ...fill];
+      } catch {}
+    }
     res.json({ books });
   } catch (err) { next(err); }
 };

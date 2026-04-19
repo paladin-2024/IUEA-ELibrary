@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../providers/book_provider.dart';
 import '../../providers/reader_provider.dart';
 import '../../providers/chat_provider.dart';
+import '../../data/services/download_service.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../widgets/loading_widget.dart';
@@ -34,6 +35,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
   Timer? _autoSaveTimer;
   bool   _initialized   = false;
   String _mode          = 'read'; // 'read' | 'audio'
+  String? _localFilePath;         // set when offline copy exists
 
   @override
   void initState() {
@@ -48,6 +50,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
       reader.currentBook = book;
       await reader.loadProgress(widget.bookId);
+
+      // Prefer local offline copy over network URL
+      final localPath = await DownloadService().getLocalPath(widget.bookId);
+      if (mounted) _localFilePath = localPath;
+
       setState(() => _initialized = true);
 
       _autoSaveTimer = Timer.periodic(
@@ -272,9 +279,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
                     Positioned.fill(
                       child: _mode == 'audio'
                           ? _AudioWidget(reader: reader, book: book, fg: fg)
-                          : book.fileUrl != null && book.fileUrl!.isNotEmpty
+                          : (_localFilePath != null || (book.fileUrl != null && book.fileUrl!.isNotEmpty))
                               ? EpubViewer(
-                                  epubSource:     EpubSource.fromUrl(book.fileUrl!),
+                                  epubSource: _localFilePath != null
+                                      ? EpubSource.fromFile(_localFilePath!)
+                                      : EpubSource.fromUrl(book.fileUrl!),
                                   epubController: _epubController,
                                   onChaptersLoaded: (_) {},
                                   onEpubLoaded:     () {},

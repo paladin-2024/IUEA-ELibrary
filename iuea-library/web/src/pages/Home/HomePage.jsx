@@ -23,7 +23,7 @@ export default function HomePage() {
   const { user }   = useAuthStore();
   const navigate   = useNavigate();
   const {
-    continueReading, newestBooks, popularBooks, isLoading,
+    continueReading, newestBooks, popularBooks, homeLoading,
     fetchContinueReading, fetchNewest, fetchPopular,
   } = useBookStore();
 
@@ -236,7 +236,7 @@ export default function HomePage() {
             )}
           </div>
 
-          {isLoading ? (
+          {homeLoading ? (
             <div className="hp-arrivals-grid">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i}>
@@ -261,7 +261,7 @@ export default function HomePage() {
         <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
           <h3 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.875rem', fontWeight:700, color:'#1C0A0C' }}>Popular this week</h3>
 
-          {isLoading ? (
+          {homeLoading ? (
             <div className="hp-popular-grid">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="hp-skeleton" style={{ height:96, borderRadius:'1rem' }} />

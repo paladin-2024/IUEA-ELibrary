@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/book_provider.dart';
 import '../../data/models/book_model.dart';
+import '../../data/services/download_service.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
@@ -21,8 +22,12 @@ class BookDetailScreen extends StatefulWidget {
 class _BookDetailScreenState extends State<BookDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabs;
-  List<BookModel>    _similar  = [];
-  bool               _expanded = false;
+  List<BookModel>    _similar      = [];
+  bool               _expanded     = false;
+  bool               _downloaded   = false;
+  bool               _downloading  = false;
+  double             _dlProgress   = 0.0;
+  final _dlService = DownloadService();
 
   @override
   void initState() {
@@ -31,6 +36,8 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final bp = context.read<BookProvider>();
       await bp.getBook(widget.bookId);
+      final dl = await _dlService.isDownloaded(widget.bookId);
+      if (mounted) setState(() => _downloaded = dl);
       try {
         final sims = await bp.getSimilarBooks(widget.bookId);
         if (mounted) setState(() => _similar = sims);
@@ -249,6 +256,66 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                       ),
                     ),
                   ]),
+                  const SizedBox(height: 10),
+
+                  // Download / offline button
+                  if (hasFile)
+                    _downloading
+                      ? Column(children: [
+                          LinearProgressIndicator(
+                            value:           _dlProgress,
+                            backgroundColor: AppColors.grey300,
+                            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                            minHeight:    4,
+                            borderRadius: BorderRadius.circular(2)),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${(_dlProgress * 100).toInt()}% downloading…',
+                            style: AppTextStyles.label.copyWith(
+                              fontSize: 11, color: AppColors.textHint)),
+                        ])
+                      : SizedBox(
+                          width: double.infinity,
+                          height: 44,
+                          child: OutlinedButton.icon(
+                            onPressed: _downloaded
+                              ? () async {
+                                  await _dlService.deleteDownload(book.id);
+                                  if (mounted) setState(() => _downloaded = false);
+                                }
+                              : () async {
+                                  setState(() { _downloading = true; _dlProgress = 0; });
+                                  try {
+                                    await _dlService.downloadBook(
+                                      book,
+                                      onProgress: (p) {
+                                        if (mounted) setState(() => _dlProgress = p);
+                                      },
+                                    );
+                                    if (mounted) setState(() { _downloaded = true; _downloading = false; });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Saved for offline reading')));
+                                  } catch (e) {
+                                    if (mounted) setState(() => _downloading = false);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Download failed: $e')));
+                                  }
+                                },
+                            icon: Icon(
+                              _downloaded
+                                ? Icons.download_done_rounded
+                                : Icons.download_outlined,
+                              size: 18),
+                            label: Text(_downloaded ? 'Remove Offline Copy' : 'Download for Offline'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: _downloaded
+                                ? AppColors.success : AppColors.primary,
+                              side: BorderSide(
+                                color: _downloaded ? AppColors.success : AppColors.border),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                          ),
+                        ),
                   const SizedBox(height: 12),
                 ],
               ),
