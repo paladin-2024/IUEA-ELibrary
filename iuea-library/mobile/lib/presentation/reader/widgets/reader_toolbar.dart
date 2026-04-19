@@ -2,10 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../providers/reader_provider.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_spacing.dart';
-import '../../../core/constants/app_text_styles.dart';
 
-class ReaderToolbar extends StatelessWidget {
+class ReaderToolbar extends StatefulWidget {
   final ReaderProvider reader;
   final VoidCallback   onFontTap;
   final VoidCallback   onLanguageTap;
@@ -28,23 +26,32 @@ class ReaderToolbar extends StatelessWidget {
   });
 
   @override
+  State<ReaderToolbar> createState() => _ReaderToolbarState();
+}
+
+class _ReaderToolbarState extends State<ReaderToolbar> {
+  bool _bookmarked = false;
+
+  @override
   Widget build(BuildContext context) {
-    final isDark = reader.theme == 'dark';
-    final iconColor  = isDark ? AppColors.white  : AppColors.textPrimary;
-    final labelColor = isDark ? AppColors.white.withOpacity(0.6)
-                               : AppColors.textSecondary;
+    final isDark     = widget.reader.theme == 'dark';
+    final iconColor  = isDark ? AppColors.white : AppColors.textPrimary;
+    final labelColor = isDark
+        ? AppColors.white.withOpacity(0.5)
+        : AppColors.textSecondary;
+    final barBg = isDark ? const Color(0xFF0D0D1A) : widget.bgColor;
 
     return ClipRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           decoration: BoxDecoration(
-            color: bgColor.withOpacity(0.92),
+            color: barBg.withOpacity(isDark ? 0.97 : 0.95),
             border: Border(
               top: BorderSide(
                 color: isDark
-                    ? Colors.white.withOpacity(0.12)
-                    : Colors.black.withOpacity(0.08),
+                    ? Colors.white.withOpacity(0.09)
+                    : Colors.black.withOpacity(0.07),
                 width: 0.5,
               ),
             ),
@@ -52,87 +59,71 @@ class ReaderToolbar extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // ── 7 action buttons ────────────────────────────────────────
+              // ── Progress bar ───────────────────────────────────────────────
+              LinearProgressIndicator(
+                value:           (widget.reader.percentComplete / 100).clamp(0.0, 1.0),
+                color:           AppColors.primary,
+                backgroundColor: isDark
+                    ? Colors.white.withOpacity(0.08)
+                    : Colors.black.withOpacity(0.05),
+                minHeight: 2,
+              ),
+
+              // ── 5 action buttons ───────────────────────────────────────────
               SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _ToolItem(
-                        icon:     Icons.format_size,
-                        label:    'Font',
-                        color:    iconColor,
-                        lblColor: labelColor,
-                        onTap:    onFontTap,
+                      // INDEX
+                      _ToolBtn(
+                        icon:    Icons.format_list_bulleted_rounded,
+                        label:   'Index',
+                        color:   widget.reader.showTOC ? AppColors.primary : iconColor,
+                        lblClr:  widget.reader.showTOC ? AppColors.primary : labelColor,
+                        onTap:   widget.onTOCTap,
                       ),
-                      _ToolItem(
-                        icon:     Icons.brightness_6,
-                        label:    'Theme',
-                        color:    iconColor,
-                        lblColor: labelColor,
-                        onTap: () {
-                          const cycle = ['white', 'sepia', 'dark'];
-                          final idx   = cycle.indexOf(reader.theme);
-                          reader.setTheme(cycle[(idx + 1) % cycle.length]);
-                        },
+                      // STYLE
+                      _ToolBtn(
+                        icon:    Icons.text_fields_rounded,
+                        label:   'Style',
+                        color:   iconColor,
+                        lblClr:  labelColor,
+                        onTap:   widget.onFontTap,
                       ),
-                      _ToolItem(
-                        icon:     reader.isPlaying
-                            ? Icons.stop_circle_outlined
-                            : Icons.mic,
-                        label:    reader.isPlaying ? 'Stop' : 'Listen',
-                        color:    reader.isPlaying ? AppColors.primary : iconColor,
-                        lblColor: reader.isPlaying ? AppColors.primary : labelColor,
-                        onTap:    onTtsTap,
+                      // BOOKMARK
+                      _ToolBtn(
+                        icon:    _bookmarked
+                            ? Icons.bookmark_rounded
+                            : Icons.bookmark_border_rounded,
+                        label:   'Bookmark',
+                        color:   _bookmarked ? AppColors.primary : iconColor,
+                        lblClr:  _bookmarked ? AppColors.primary : labelColor,
+                        onTap:   () => setState(() => _bookmarked = !_bookmarked),
                       ),
-                      _ToolItem(
-                        icon:     Icons.translate,
-                        label:    'Translate',
-                        color:    reader.readingLanguage != 'English'
-                            ? AppColors.primary
-                            : iconColor,
-                        lblColor: reader.readingLanguage != 'English'
-                            ? AppColors.primary
-                            : labelColor,
-                        onTap:    onLanguageTap,
+                      // FIND
+                      _ToolBtn(
+                        icon:    Icons.search_rounded,
+                        label:   'Find',
+                        color:   iconColor,
+                        lblClr:  labelColor,
+                        onTap:   () {},
                       ),
-                      _ToolItem(
-                        icon:     Icons.menu_book_outlined,
-                        label:    'Contents',
-                        color:    reader.showTOC ? AppColors.primary : iconColor,
-                        lblColor: reader.showTOC ? AppColors.primary : labelColor,
-                        onTap:    onTOCTap,
-                      ),
-                      _ToolItem(
-                        icon:     Icons.highlight,
-                        label:    'Highlight',
-                        color:    iconColor,
-                        lblColor: labelColor,
-                        onTap:    () {}, // selection-based, always active
-                      ),
-                      _ToolItem(
-                        icon:     Icons.smart_toy_outlined,
-                        label:    'Ask AI',
-                        color:    reader.showChatbot ? AppColors.primary : iconColor,
-                        lblColor: reader.showChatbot ? AppColors.primary : labelColor,
-                        onTap:    onChatTap,
+                      // AUDIO
+                      _ToolBtn(
+                        icon:    widget.reader.isPlaying
+                            ? Icons.headphones_rounded
+                            : Icons.headphones_outlined,
+                        label:   'Audio',
+                        color:   widget.reader.isPlaying ? AppColors.primary : iconColor,
+                        lblClr:  widget.reader.isPlaying ? AppColors.primary : labelColor,
+                        onTap:   widget.onTtsTap,
                       ),
                     ],
                   ),
                 ),
-              ),
-
-              // ── Progress bar ─────────────────────────────────────────────
-              LinearProgressIndicator(
-                value:            (reader.percentComplete / 100).clamp(0.0, 1.0),
-                color:            AppColors.primary,
-                backgroundColor:  isDark
-                    ? Colors.white.withOpacity(0.1)
-                    : Colors.black.withOpacity(0.08),
-                minHeight:        3,
               ),
             ],
           ),
@@ -142,19 +133,19 @@ class ReaderToolbar extends StatelessWidget {
   }
 }
 
-// ── Individual toolbar icon + label ──────────────────────────────────────────
-class _ToolItem extends StatelessWidget {
+// ── Individual toolbar button ────────────────────────────────────────────────
+class _ToolBtn extends StatelessWidget {
   final IconData     icon;
   final String       label;
   final Color        color;
-  final Color        lblColor;
+  final Color        lblClr;
   final VoidCallback onTap;
 
-  const _ToolItem({
+  const _ToolBtn({
     required this.icon,
     required this.label,
     required this.color,
-    required this.lblColor,
+    required this.lblClr,
     required this.onTap,
   });
 
@@ -162,19 +153,23 @@ class _ToolItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap:        onTap,
-      borderRadius: BorderRadius.circular(AppSpacing.sm),
+      borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.xs, vertical: AppSpacing.xs + 2),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 22, color: color),
-            const SizedBox(height: 2),
+            const SizedBox(height: 3),
             Text(
               label,
-              style: AppTextStyles.label.copyWith(
-                fontSize: 9, color: lblColor),
+              style: TextStyle(
+                fontFamily:    'Inter',
+                fontSize:      9,
+                color:         lblClr,
+                letterSpacing: 0.3,
+                fontWeight:    FontWeight.w500,
+              ),
             ),
           ],
         ),

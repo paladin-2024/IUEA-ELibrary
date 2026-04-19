@@ -47,6 +47,33 @@ class BookCard extends StatelessWidget {
                         : _placeholder(),
                   ),
                 ),
+                // Availability badge — top-right overlay
+                if (book.availability != null)
+                  Positioned(
+                    top:   8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color:        _isAvailable
+                            ? Colors.green.withOpacity(0.90)
+                            : Colors.amber.withOpacity(0.90),
+                        borderRadius: BorderRadius.circular(AppSpacing.chipRadius),
+                      ),
+                      child: Text(
+                        _isAvailable
+                            ? '${book.availability!['available']} avail.'
+                            : 'Out',
+                        style: const TextStyle(
+                          color:      AppColors.white,
+                          fontSize:   10,
+                          fontWeight: FontWeight.w500,
+                          height:     1,
+                        ),
+                      ),
+                    ),
+                  ),
+
                 // Progress bar overlay
                 if (showProgress && progress > 0)
                   Positioned(
@@ -112,48 +139,23 @@ class BookCard extends StatelessWidget {
                   spacing: 4,
                   runSpacing: 2,
                   children: book.languages.take(2).map((lang) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color:        AppColors.primary,
-                      borderRadius: BorderRadius.circular(AppSpacing.chipRadius),
+                      color:        AppColors.primaryContainer.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(AppRadius.full),
                     ),
                     child: Text(
                       lang,
                       style: const TextStyle(
-                        color:    AppColors.white,
-                        fontSize: 9,
+                        color:    AppColors.primaryContainer,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   )).toList(),
                 ),
               ),
 
-            // ── Availability badge ────────────────────────────────────────────
-            if (book.availability != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Row(
-                  children: [
-                    Icon(
-                      _isAvailable
-                          ? Icons.check_circle_outline
-                          : Icons.warning_amber_outlined,
-                      size:  11,
-                      color: _isAvailable ? AppColors.success : AppColors.warning,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      _isAvailable
-                          ? '${book.availability!['available']} available'
-                          : 'Checked out',
-                      style: AppTextStyles.label.copyWith(
-                        fontSize: 9,
-                        color: _isAvailable ? AppColors.success : AppColors.warning,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
           ],
         ),
       ),

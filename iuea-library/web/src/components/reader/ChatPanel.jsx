@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User }             from 'lucide-react';
+import { FiSend, FiUser }              from 'react-icons/fi';
+import { MdSmartToy }                  from 'react-icons/md';
 import { sendMessage, getChatHistory } from '../../services/chat.service';
 import useAuthStore  from '../../store/authStore';
 import LoadingSpinner from '../ui/LoadingSpinner';
@@ -47,7 +48,7 @@ export default function ChatPanel({ bookId, bookTitle }) {
     <>
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-3 border-b bg-primary text-white">
-        <Bot size={16} className="text-accent" />
+        <MdSmartToy size={16} className="text-accent" />
         <div>
           <p className="text-sm font-semibold">AI Assistant</p>
           <p className="text-[10px] text-primary-light line-clamp-1">{bookTitle}</p>
@@ -60,7 +61,7 @@ export default function ChatPanel({ bookId, bookTitle }) {
           <LoadingSpinner className="py-8" />
         ) : messages.length === 0 ? (
           <div className="text-center text-gray-400 py-8 px-2">
-            <Bot size={32} className="mx-auto mb-2 opacity-30" />
+            <MdSmartToy size={32} className="mx-auto mb-2 opacity-30" />
             <p className="text-xs">Ask me anything about this book!</p>
           </div>
         ) : (
@@ -69,7 +70,7 @@ export default function ChatPanel({ bookId, bookTitle }) {
               <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
                 msg.role === 'user' ? 'bg-primary text-white' : 'bg-accent/20 text-primary'
               }`}>
-                {msg.role === 'user' ? <User size={12} /> : <Bot size={12} />}
+                {msg.role === 'user' ? <FiUser size={12} /> : <MdSmartToy size={12} />}
               </div>
               <div className={`rounded-card px-3 py-2 max-w-[85%] text-xs leading-relaxed ${
                 msg.role === 'user'
@@ -84,7 +85,7 @@ export default function ChatPanel({ bookId, bookTitle }) {
         {sending && (
           <div className="flex gap-2">
             <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-              <Bot size={12} className="text-primary" />
+              <MdSmartToy size={12} className="text-primary" />
             </div>
             <div className="bg-gray-100 rounded-card px-3 py-2 text-xs text-gray-500 italic">Thinking…</div>
           </div>
@@ -106,7 +107,7 @@ export default function ChatPanel({ bookId, bookTitle }) {
           disabled={!input.trim() || sending}
           className="bg-primary text-white p-2 rounded-btn disabled:opacity-40 hover:bg-primary-dark"
         >
-          <Send size={14} />
+          <FiSend size={14} />
         </button>
       </form>
     </>

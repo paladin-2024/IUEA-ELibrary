@@ -4,7 +4,7 @@ const express      = require('express');
 const cors         = require('cors');
 const helmet       = require('helmet');
 const morgan       = require('morgan');
-const errorHandler = require('./middleware/errorHandler');
+const { errorHandler } = require('./middleware/errorHandler');
 const { defaultLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
@@ -32,11 +32,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(defaultLimiter);
 
 // Health check
-app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }));
+app.get('/health', (req, res) => res.json({
+  status:    'ok',
+  app:       'IUEA Library API',
+  version:   '1.0.0',
+  timestamp: new Date(),
+}));
 
 // Routes
 app.use('/api/auth',       require('./routes/auth.routes'));
 app.use('/api/books',      require('./routes/books.routes'));
+app.use('/api/library',    require('./routes/library.routes'));
 app.use('/api/chat',       require('./routes/chat.routes'));
 app.use('/api/progress',   require('./routes/progress.routes'));
 app.use('/api/audio',      require('./routes/audio.routes'));

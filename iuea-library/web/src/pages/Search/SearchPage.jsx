@@ -1,238 +1,266 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams, Link }             from 'react-router-dom';
-import { MdSearchOff }   from 'react-icons/md';
-import { FiSearch, FiX } from 'react-icons/fi';
+import { useSearchParams }                  from 'react-router-dom';
 import useBookStore from '../../store/bookStore';
 import BookCard     from '../../components/ui/BookCard';
 
-const FACULTIES  = ['Law', 'Medicine', 'Engineering', 'Business', 'IT', 'Education', 'Arts', 'Science'];
-const LANGUAGES  = ['English', 'Swahili', 'French', 'Arabic', 'Luganda', 'Kinyarwanda', 'Somali', 'Amharic'];
-const FORMATS    = ['epub', 'pdf', 'html', 'external'];
-const CATEGORIES = ['Textbook', 'Research', 'Fiction', 'Reference', 'Periodical', 'Thesis', 'General'];
-
-// ── Skeleton grid ─────────────────────────────────────────────────────────────
-function SkeletonGrid() {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="animate-pulse">
-          <div className="aspect-[2/3] bg-gray-200 rounded-card" />
-          <div className="mt-2 h-3 bg-gray-200 rounded w-4/5" />
-          <div className="mt-1 h-2 bg-gray-200 rounded w-3/5" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ── Filter chip ───────────────────────────────────────────────────────────────
-function FilterChip({ label, active, onToggle }) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className={[
-        'text-xs px-3 py-1.5 rounded-full border transition-colors shrink-0',
-        active
-          ? 'bg-primary text-white border-primary'
-          : 'bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary',
-      ].join(' ')}
-    >
-      {label}
-    </button>
-  );
-}
-
 export default function SearchPage() {
-  const [params, setParams]   = useSearchParams();
-  const [input,  setInput]    = useState(params.get('q') || '');
-  const [faculty,  setFaculty]  = useState(params.get('faculty')   || '');
-  const [language, setLanguage] = useState(params.get('language')  || '');
-  const [format,   setFormat]   = useState(params.get('format')    || '');
-  const [category, setCategory] = useState(params.get('category')  || '');
-  const [debounceTimer, setDebounceTimer] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [query,        setQuery]        = useState(searchParams.get('q') ?? '');
+  const [activeFilter, setActiveFilter] = useState('');
 
-  const {
-    searchResults, externalResults, searchLoading, pagination,
-    searchBooks, fetchBooks, books, isLoading,
-  } = useBookStore();
+  const { searchBooks, searchResults, externalResults, searchLoading } = useBookStore();
+  const isLoading = searchLoading;
 
-  const activeQ = params.get('q') || '';
+  const doSearch = useCallback((q) => { if (q.trim()) searchBooks(q.trim()); }, [searchBooks]);
 
-  // Initial load or URL-param-driven search
   useEffect(() => {
-    const q        = params.get('q')        || '';
-    const fFaculty = params.get('faculty')  || '';
-    const fLang    = params.get('language') || '';
-    const fCat     = params.get('category') || '';
-    const sort     = params.get('sort')     || '';
+    const q = searchParams.get('q');
+    if (q) { setQuery(q); doSearch(q); }
+    else   { doSearch('education africa university academic'); }
+  }, []);
 
-    setInput(q);
-    setFaculty(fFaculty);
-    setLanguage(fLang);
-    setCategory(fCat);
-
-    if (q) {
-      searchBooks(q, { faculty: fFaculty, language: fLang, category: fCat });
-    } else {
-      fetchBooks({ sort, faculty: fFaculty, language: fLang, category: fCat, limit: 24 });
-    }
-  }, [params]);
-
-  // Debounced input → update URL after 400ms
-  const handleInputChange = useCallback((val) => {
-    setInput(val);
-    if (debounceTimer) clearTimeout(debounceTimer);
-    const t = setTimeout(() => {
-      const p = new URLSearchParams(params);
-      if (val.trim()) p.set('q', val.trim());
-      else             p.delete('q');
-      setParams(p, { replace: true });
-    }, 400);
-    setDebounceTimer(t);
-  }, [debounceTimer, params, setParams]);
-
-  const toggleFilter = (key, value, setter, current) => {
-    const next = current === value ? '' : value;
-    setter(next);
-    const p = new URLSearchParams(params);
-    if (next) p.set(key, next);
-    else      p.delete(key);
-    setParams(p, { replace: true });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSearchParams(query ? { q: query } : {});
+    doSearch(query);
   };
 
-  const clearSearch = () => {
-    setInput('');
-    const p = new URLSearchParams(params);
-    p.delete('q');
-    setParams(p, { replace: true });
-  };
-
-  const isSearchMode = !!activeQ;
-  const mainResults  = isSearchMode ? searchResults : books;
-  const loading      = isSearchMode ? searchLoading : isLoading;
+  const allBooks    = [...(searchResults ?? []), ...(externalResults ?? [])];
+  const displayBooks = allBooks;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
-      {/* ── Search bar ───────────────────────────────────────────────────── */}
-      <div className="relative mb-4">
-        <FiSearch size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => handleInputChange(e.target.value)}
-          placeholder="Search books, authors, topics…"
-          className="w-full pl-10 pr-10 py-3 text-sm border border-gray-300 rounded-card outline-none
-                     focus:border-primary focus:ring-1 focus:ring-primary/30 bg-white"
-        />
-        {input && (
-          <button onClick={clearSearch} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-            <FiX size={16} />
+    <>
+      <style>{`
+        /* Topbar */
+        .sp-topbar {
+          position: sticky; top: 0; width: 100%; z-index: 40;
+          height: 80px; background: #fff0f0;
+          display: flex; align-items: center;
+          padding: 0 2rem; gap: 2rem;
+        }
+        /* Search pill */
+        .sp-search-pill {
+          flex: 1; max-width: 48rem;
+          display: flex; align-items: center;
+          background: #ffffff; border-radius: 9999px;
+          padding: 0.75rem 1.5rem;
+          border: 1px solid rgba(223,191,190,0.2);
+          transition: box-shadow 0.2s;
+        }
+        .sp-search-pill:focus-within { box-shadow: 0 0 0 2px rgba(123,13,30,0.2); }
+        .sp-search-input {
+          flex: 1; background: transparent; border: none; outline: none;
+          color: #2d1418; font-family: Inter, sans-serif; font-size: 0.9375rem;
+          padding: 0 1rem;
+        }
+        .sp-search-input::placeholder { color: rgba(88,65,65,0.5); }
+        /* Filter pills */
+        .sp-filter-pill {
+          display: flex; align-items: center; gap: 0.5rem;
+          padding: 0.625rem 1.25rem; border-radius: 9999px;
+          border: 1px solid rgba(223,191,190,0.15);
+          background: #ffffff; color: #56000f;
+          font-family: Inter, sans-serif; font-size: 0.875rem; font-weight: 500;
+          cursor: pointer; transition: background 0.2s, color 0.2s;
+          white-space: nowrap;
+        }
+        .sp-filter-pill:hover { background: #7b0d1e; color: #ffffff; }
+        /* Book grid */
+        .sp-grid {
+          display: grid; gap: 2rem;
+          grid-template-columns: repeat(1, 1fr);
+        }
+        @media (min-width: 640px)  { .sp-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 768px)  { .sp-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1024px) { .sp-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (min-width: 1280px) { .sp-grid { grid-template-columns: repeat(5, 1fr); } }
+        /* Book card */
+        .sp-card {
+          display: flex; flex-direction: column; gap: 1rem; cursor: pointer;
+        }
+        .sp-card-cover {
+          aspect-ratio: 3/4; background: #ffffff;
+          border-radius: 0.75rem; overflow: hidden; position: relative;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+          transition: box-shadow 0.3s, transform 0.3s;
+        }
+        .sp-card:hover .sp-card-cover {
+          box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+          transform: translateY(-4px);
+        }
+        .sp-card-cover img { width: 100%; height: 100%; object-fit: cover; }
+        .sp-preview-overlay {
+          position: absolute; inset: 0;
+          background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
+          display: flex; align-items: center; justify-content: center;
+          opacity: 0; transition: opacity 0.2s;
+        }
+        .sp-card:hover .sp-preview-overlay { opacity: 1; }
+        /* Card metadata */
+        .sp-meta {
+          display: flex; flex-direction: column; gap: 0.25rem;
+        }
+      `}</style>
+
+      {/* ── Topbar ── */}
+      <header className="sp-topbar">
+        <form className="sp-search-pill" onSubmit={handleSubmit}>
+          <span className="material-symbols-outlined" style={{ color: '#584141' }}>search</span>
+          <input
+            className="sp-search-input"
+            type="text"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search by title, author, or ISBN..."
+          />
+          <button type="button" style={{ padding: 4, background: 'none', border: 'none', cursor: 'pointer', borderRadius: '50%', display: 'flex', alignItems: 'center' }}>
+            <span className="material-symbols-outlined" style={{ color: '#7b0d1e' }}>mic</span>
           </button>
-        )}
-      </div>
+        </form>
 
-      {/* ── Filter chips ─────────────────────────────────────────────────── */}
-      <div className="space-y-2 mb-6">
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          <span className="text-xs text-gray-500 self-center shrink-0">Faculty:</span>
-          {FACULTIES.map((f) => (
-            <FilterChip key={f} label={f} active={faculty === f}
-              onToggle={() => toggleFilter('faculty', f, setFaculty, faculty)} />
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginLeft: 'auto' }}>
+          <button style={{ width: 40, height: 40, borderRadius: '50%', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onMouseEnter={e => (e.currentTarget.style.background = '#ffe9ea')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
+            <span className="material-symbols-outlined" style={{ color: '#56000f' }}>notifications</span>
+          </button>
+          <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#7b0d1e', border: '2px solid rgba(123,13,30,0.2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <span className="material-symbols-outlined" style={{ color:'#fff', fontSize:'1.25rem' }}>person</span>
+          </div>
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          <span className="text-xs text-gray-500 self-center shrink-0">Language:</span>
-          {LANGUAGES.map((l) => (
-            <FilterChip key={l} label={l} active={language === l}
-              onToggle={() => toggleFilter('language', l, setLanguage, language)} />
-          ))}
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          <span className="text-xs text-gray-500 self-center shrink-0">Format:</span>
-          {FORMATS.map((f) => (
-            <FilterChip key={f} label={f.toUpperCase()} active={format === f}
-              onToggle={() => toggleFilter('format', f, setFormat, format)} />
-          ))}
-        </div>
-      </div>
+      </header>
 
-      {/* ── Results ───────────────────────────────────────────────────────── */}
-      {loading ? (
-        <SkeletonGrid />
-      ) : !mainResults.length && !externalResults.length ? (
-        <div className="text-center py-20">
-          <MdSearchOff size={56} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500 font-medium">
-            {activeQ ? `No results for "${activeQ}"` : 'No books found'}
+      {/* ── Content ── */}
+      <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+
+        {/* Title */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '3rem', fontWeight: 700, color: '#56000f', letterSpacing: '-0.02em', margin: 0 }}>
+            Library Archive
+          </h2>
+          <p style={{ fontFamily: 'Lora, serif', fontStyle: 'italic', color: '#584141', fontSize: '1.125rem', maxWidth: '42rem', margin: 0 }}>
+            "The only thing that you absolutely have to know, is the location of the library." — Albert Einstein
           </p>
-          <p className="text-sm text-gray-400 mt-1">Try different keywords or remove some filters</p>
         </div>
-      ) : (
-        <>
-          {mainResults.length > 0 && (
-            <>
-              {isSearchMode && (
-                <p className="text-sm text-gray-500 mb-4">
-                  {pagination.total} result{pagination.total !== 1 ? 's' : ''} from IUEA catalogue
-                </p>
-              )}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {mainResults.map((book) => (
-                  <BookCard key={book._id} book={book} />
-                ))}
-              </div>
 
-              {/* Pagination (browse mode) */}
-              {!isSearchMode && pagination.pages > 1 && (
-                <div className="flex justify-center gap-2 mt-8">
-                  <button
-                    onClick={() => {
-                      const p = new URLSearchParams(params);
-                      p.set('page', Math.max(1, (pagination.page ?? 1) - 1));
-                      setParams(p);
-                    }}
-                    disabled={pagination.page <= 1}
-                    className="px-4 py-2 rounded-btn border text-sm disabled:opacity-40 hover:bg-surface"
-                  >
-                    ← Prev
-                  </button>
-                  <span className="px-4 py-2 text-sm text-gray-600">
-                    Page {pagination.page} of {pagination.pages}
-                  </span>
-                  <button
-                    onClick={() => {
-                      const p = new URLSearchParams(params);
-                      p.set('page', Math.min(pagination.pages, (pagination.page ?? 1) + 1));
-                      setParams(p);
-                    }}
-                    disabled={pagination.page >= pagination.pages}
-                    className="px-4 py-2 rounded-btn border text-sm disabled:opacity-40 hover:bg-surface"
-                  >
-                    Next →
-                  </button>
-                </div>
-              )}
-            </>
+        {/* Filters */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
+          {[
+            { icon: 'category',    label: 'Categories', param: 'category', values: ['Law','Economics','IT','Science','Medicine','Business','Education','Social Sciences'] },
+            { icon: 'language',    label: 'Languages',  param: 'language', values: ['English','French','Swahili','Arabic'] },
+            { icon: 'description', label: 'Formats',    param: 'format',   values: ['epub','pdf','external'] },
+          ].map(({ icon, label, param, values }) => (
+            <div key={label} style={{ position: 'relative' }}>
+              <button className="sp-filter-pill"
+                onClick={() => {
+                  const val = values[0];
+                  setSearchParams(p => { const n = new URLSearchParams(p); n.set(param, val); return n; });
+                  setActiveFilter(val);
+                  doSearch(query || val);
+                }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>{icon}</span>
+                <span>{label}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>expand_more</span>
+              </button>
+            </div>
+          ))}
+
+          {/* Faculty Picks — gold tint */}
+          <button style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.625rem 1.25rem', borderRadius: 9999,
+            border: '1px solid rgba(201,168,76,0.3)',
+            background: 'rgba(201,168,76,0.1)', color: '#755b00',
+            fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontWeight: 700,
+            cursor: 'pointer', whiteSpace: 'nowrap',
+          }} onClick={() => { setSearchParams({ faculty: 'Law' }); setActiveFilter('Faculty Picks'); doSearch('Law'); }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>school</span>
+            <span>Faculty Picks</span>
+          </button>
+
+          {/* Divider */}
+          <div style={{ height: 24, width: 1, background: 'rgba(223,191,190,0.3)', margin: '0 0.5rem' }} />
+
+          {/* Active chip */}
+          {activeFilter && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#7b0d1e', color: '#fff', borderRadius: 9999, fontSize: '0.75rem', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>
+              <span>{activeFilter}</span>
+              <button onClick={() => setActiveFilter('')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0, color: '#fff' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>close</span>
+              </button>
+            </div>
           )}
 
-          {/* ── External results (Archive + Gutenberg) ─────────────────── */}
-          {isSearchMode && externalResults.length > 0 && (
-            <>
-              <div className="flex items-center gap-3 my-6">
-                <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-xs text-gray-400 shrink-0">Also found on Internet Archive & Project Gutenberg</span>
-                <div className="flex-1 h-px bg-gray-200" />
+          <button onClick={() => setActiveFilter('')} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#7b0d1e', fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+            Clear All Filters
+          </button>
+        </div>
+
+        {/* Book grid */}
+        {isLoading ? (
+          <div className="sp-grid">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} style={{ display:'flex', flexDirection:'column', gap:'0.75rem' }}>
+                <div style={{ aspectRatio:'3/4', borderRadius:'0.75rem', background:'linear-gradient(90deg,#ffe9ea 25%,#ffe1e3 50%,#ffe9ea 75%)', backgroundSize:'200% 100%', animation:'sp-shimmer 1.4s infinite' }} />
+                <style>{`@keyframes sp-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
+                <div style={{ height:14, borderRadius:4, background:'#ffe9ea' }} />
+                <div style={{ height:11, width:'60%', borderRadius:4, background:'#ffe9ea' }} />
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {externalResults.map((book, i) => (
-                  <BookCard key={`ext-${book.archiveId ?? book.gutenbergId ?? i}`} book={book} />
-                ))}
-              </div>
-            </>
-          )}
-        </>
-      )}
-    </div>
+            ))}
+          </div>
+        ) : displayBooks.length === 0 ? (
+          <div style={{ textAlign:'center', padding:'4rem', color:'#8b7170', fontFamily:'Inter, sans-serif' }}>
+            <span className="material-symbols-outlined" style={{ fontSize:56, color:'#dfbfbe', display:'block', marginBottom:12 }}>search</span>
+            No results found. Try a different search term.
+          </div>
+        ) : (
+          <div className="sp-grid">
+            {displayBooks.map((book, i) => (
+              <BookCard key={book._id ?? book.id ?? i} book={book} variant="portrait" />
+            ))}
+          </div>
+        )}
+
+        {/* Load More */}
+        {displayBooks.length > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem 0' }}>
+            <button style={{
+              padding: '0.75rem 2rem', background: '#7b0d1e', color: '#fff',
+              borderRadius: 9999, fontFamily: 'Inter, sans-serif', fontWeight: 700,
+              border: 'none', cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(123,13,30,0.3)',
+              display: 'flex', alignItems: 'center', gap: '0.75rem',
+              transition: 'transform 0.2s',
+            }}
+              onClick={() => {
+                const nextPage = (parseInt(searchParams.get('page') || '1')) + 1;
+                setSearchParams(p => { const n = new URLSearchParams(p); n.set('page', nextPage); return n; });
+                doSearch(query);
+              }}
+              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05)')}
+              onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}>
+              <span>Load More Results</span>
+              <span className="material-symbols-outlined">keyboard_double_arrow_down</span>
+            </button>
+          </div>
+        )}
+
+        {/* Footer */}
+        <footer style={{ paddingTop: '1.5rem', borderTop: '1px solid rgba(223,191,190,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            {['Privacy', 'Terms', 'Translate', 'Books API'].map(t => (
+              <a key={t} href="#" style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(86,0,15,0.4)', textDecoration: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#7b0d1e')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(86,0,15,0.4)')}>
+                {t}
+              </a>
+            ))}
+          </div>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(86,0,15,0.5)' }}>
+            Powered by Google
+          </span>
+        </footer>
+      </div>
+    </>
   );
 }

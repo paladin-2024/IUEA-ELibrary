@@ -7,6 +7,7 @@ import '../../presentation/auth/login_screen.dart';
 import '../../presentation/auth/register_screen.dart';
 import '../../presentation/auth/forgot_password_screen.dart';
 import '../../presentation/auth/language_setup_screen.dart';
+import '../../presentation/onboarding/onboarding_screen.dart';
 import '../../presentation/home/home_screen.dart';
 import '../../presentation/search/search_screen.dart';
 import '../../presentation/book/book_detail_screen.dart';
@@ -18,9 +19,10 @@ import '../../presentation/podcasts/podcasts_home_screen.dart';
 import '../../presentation/podcasts/podcast_detail_screen.dart';
 import '../../presentation/profile/profile_screen.dart';
 import '../../presentation/profile/preferences_screen.dart';
+import '../../presentation/notifications/notifications_screen.dart';
 
 // ── Auth routes (no shell) ────────────────────────────────────────────────────
-const _authRoutes = {'/login', '/register', '/forgot-password', '/onboarding', '/splash'};
+const _authRoutes = {'/login', '/register', '/forgot-password', '/onboarding', '/language-setup', '/splash'};
 
 bool _isAuthRoute(String loc) => _authRoutes.any(loc.startsWith);
 
@@ -56,7 +58,8 @@ class AppRouter {
       GoRoute(path: '/login',           builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/register',        builder: (_, __) => const RegisterScreen()),
       GoRoute(path: '/forgot-password', builder: (_, __) => const ForgotPasswordScreen()),
-      GoRoute(path: '/onboarding',      builder: (_, __) => const LanguageSetupScreen()),
+      GoRoute(path: '/onboarding',      builder: (_, __) => const OnboardingScreen()),
+      GoRoute(path: '/language-setup',  builder: (_, __) => const LanguageSetupScreen()),
 
       // ── Main shell (5-tab bottom nav) ────────────────────────────────────
       ShellRoute(
@@ -104,6 +107,10 @@ class AppRouter {
       GoRoute(
         path:    '/podcasts/:id',
         builder: (_, state) => PodcastDetailScreen(podcastId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path:    '/notifications',
+        builder: (_, __) => const NotificationsScreen(),
       ),
     ],
   );

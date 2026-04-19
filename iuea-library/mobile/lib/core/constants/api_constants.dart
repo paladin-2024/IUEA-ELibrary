@@ -11,7 +11,9 @@ class ApiConstants {
   static String get authRegister => '$baseUrl/auth/register';
   static String get authGoogle   => '$baseUrl/auth/google';
   static String get authMe       => '$baseUrl/auth/me';
-  static String get authFcmToken => '$baseUrl/auth/fcm-token';
+  static String get authFcmToken        => '$baseUrl/auth/fcm-token';
+  static String get authForgotPassword  => '$baseUrl/auth/forgot-password';
+  static String get authResetPassword   => '$baseUrl/auth/reset-password';
 
   // ── Books ──────────────────────────────────────────────────────────────────
   static String get books          => '$baseUrl/books';

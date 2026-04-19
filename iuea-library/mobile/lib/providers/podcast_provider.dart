@@ -10,6 +10,7 @@ class PodcastProvider extends ChangeNotifier {
 
   List<PodcastModel>  _podcasts       = [];
   List<PodcastModel>  _subscriptions  = [];
+  List<String>        _categories     = const ['All'];
   PodcastModel?       _current;
   EpisodeModel?       _currentEpisode;
   bool                _isLoading      = false;
@@ -21,6 +22,7 @@ class PodcastProvider extends ChangeNotifier {
 
   List<PodcastModel>  get podcasts       => _podcasts;
   List<PodcastModel>  get subscriptions  => _subscriptions;
+  List<String>        get categories     => _categories;
   PodcastModel?       get current        => _current;
   EpisodeModel?       get currentEpisode => _currentEpisode;
   bool                get isLoading      => _isLoading;
@@ -49,7 +51,9 @@ class PodcastProvider extends ChangeNotifier {
   Future<void> loadPodcasts({String? category, String? language}) async {
     _setLoading(true);
     try {
-      _podcasts = await _repo.listPodcasts(category: category, language: language);
+      final result = await _repo.listPodcasts(category: category, language: language);
+      _podcasts   = result['podcasts']   as List<PodcastModel>;
+      _categories = result['categories'] as List<String>;
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -65,6 +69,19 @@ class PodcastProvider extends ChangeNotifier {
   }
 
   Future<void> getPodcast(String id) async {
+    // Use cached podcast if available (avoids 404 for external/live episodes)
+    final cached = _podcasts.firstWhere(
+      (p) => p.id == id,
+      orElse: () => _subscriptions.firstWhere(
+        (p) => p.id == id,
+        orElse: () => const PodcastModel(id: '', title: ''),
+      ),
+    );
+    if (cached.id.isNotEmpty) {
+      _current = cached;
+      notifyListeners();
+      return;
+    }
     _setLoading(true);
     try {
       _current = await _repo.getPodcast(id);

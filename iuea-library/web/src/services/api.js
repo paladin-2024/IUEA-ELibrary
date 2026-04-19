@@ -31,8 +31,9 @@ api.interceptors.response.use(
       if (!window.location.pathname.startsWith('/login')) {
         window.location.href = '/login';
       }
+    } else if (err.response?.status === 429) {
+      toast.error('Too many requests. Please slow down.');
     } else if (!err.response) {
-      // Network / timeout error
       toast.error('Network error. Please check your connection.');
     }
     return Promise.reject(err);

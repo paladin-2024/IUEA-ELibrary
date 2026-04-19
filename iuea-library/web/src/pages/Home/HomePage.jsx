@@ -1,71 +1,36 @@
-import { useEffect } from 'react';
-import { Link }       from 'react-router-dom';
-import { FiArrowRight } from 'react-icons/fi';
-import useBookStore    from '../../store/bookStore';
-import useAuthStore    from '../../store/authStore';
-import BookCard        from '../../components/ui/BookCard';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate }   from 'react-router-dom';
+import useBookStore   from '../../store/bookStore';
+import useAuthStore   from '../../store/authStore';
+import BookCard       from '../../components/ui/BookCard';
 
-// ── Skeleton card ─────────────────────────────────────────────────────────────
-function SkeletonCard() {
-  return (
-    <div className="w-32 shrink-0 animate-pulse">
-      <div className="aspect-[2/3] bg-gray-200 rounded-card" />
-      <div className="mt-2 h-3 bg-gray-200 rounded w-4/5" />
-      <div className="mt-1 h-2 bg-gray-200 rounded w-3/5" />
-    </div>
-  );
-}
-
-// ── Section header ────────────────────────────────────────────────────────────
-function SectionHeader({ title, to }) {
-  return (
-    <div className="flex items-center justify-between mb-3 px-4">
-      <h2 className="font-serif text-lg font-semibold text-primary">{title}</h2>
-      <Link
-        to={to}
-        className="text-xs text-primary flex items-center gap-1 hover:underline"
-      >
-        See all <FiArrowRight size={12} />
-      </Link>
-    </div>
-  );
-}
-
-// ── Horizontal scroll row ─────────────────────────────────────────────────────
-function HScrollRow({ books, isLoading, showProgress = false }) {
-  if (isLoading) {
-    return (
-      <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
-        {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
-      </div>
-    );
-  }
-  if (!books.length) return null;
-  return (
-    <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
-      {books.map((book) => (
-        <div key={book._id} className="w-32 shrink-0">
-          <BookCard book={book} showProgress={showProgress} size="sm" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-const FACULTIES = [
-  'Law', 'Medicine', 'Engineering', 'Business',
-  'IT', 'Education', 'Arts', 'Science',
+const FACULTY_GRID = [
+  { icon: 'gavel',           label: 'Law'       },
+  { icon: 'biotech',         label: 'Science'   },
+  { icon: 'account_balance', label: 'Economics' },
+  { icon: 'laptop_mac',      label: 'IT'        },
 ];
 
+function CoverPlaceholder({ title, size = 112 }) {
+  return (
+    <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#ffe9ea,#ffd9dc)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span className="material-symbols-outlined" style={{ color: '#7b0d1e', opacity: 0.3, fontSize: size === 112 ? 32 : 40 }}>menu_book</span>
+    </div>
+  );
+}
+
 export default function HomePage() {
-  const { user }      = useAuthStore();
+  const { user }   = useAuthStore();
+  const navigate   = useNavigate();
   const {
     continueReading, newestBooks, popularBooks, isLoading,
-    fetchFeatured, fetchContinueReading, fetchNewest, fetchPopular,
+    fetchContinueReading, fetchNewest, fetchPopular,
   } = useBookStore();
 
+  const [arrivalIdx, setArrivalIdx] = useState(0);
+  const PER_PAGE = 6;
+
   useEffect(() => {
-    fetchFeatured();
     fetchContinueReading();
     fetchNewest();
     fetchPopular();
@@ -78,53 +43,285 @@ export default function HomePage() {
     return 'Good evening';
   })();
 
-  const firstName = user?.name?.split(' ')[0] ?? 'Scholar';
+  const displayName  = user?.name ?? 'Scholar';
+  const totalPages   = Math.max(1, Math.ceil(newestBooks.length / PER_PAGE));
+  const pageArrivals = newestBooks.slice(arrivalIdx * PER_PAGE, arrivalIdx * PER_PAGE + PER_PAGE);
 
   return (
-    <div className="min-h-screen bg-surface pb-10">
-      {/* ── Welcome banner ─────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-primary to-[#4A0810] text-white px-4 pt-8 pb-6">
-        <p className="font-serif text-2xl font-semibold leading-snug">
-          {greeting}, {firstName}
-        </p>
-        <p className="text-white/70 text-sm mt-1">What will you read today?</p>
+    <>
+      <style>{`
+        .hp-wrap {
+          padding: 2rem;
+          display: flex;
+          flex-direction: column;
+          gap: 2.5rem;
+          max-width: 1280px;
+          margin: 0 auto;
+          width: 100%;
+        }
+        .hp-banner {
+          background: linear-gradient(135deg, #56000f 0%, #7b0d1e 100%);
+          border-radius: 1rem;
+          padding: 3rem;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 8px 32px rgba(86,0,15,0.25);
+        }
+        .hp-bento {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+        @media (min-width: 1024px) {
+          .hp-bento { grid-template-columns: 8fr 4fr; }
+        }
+        .hp-read-card {
+          background: #ffffff;
+          border-radius: 0.75rem;
+          padding: 1.25rem;
+          display: flex;
+          gap: 1.25rem;
+          cursor: pointer;
+          transition: transform 0.3s;
+          text-decoration: none;
+        }
+        .hp-read-card:hover { transform: translateY(-4px); }
+        .hp-faculty-btn {
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          padding: 1rem; background: #ffe9ea;
+          border-radius: 0.75rem; border: none; cursor: pointer;
+          transition: background 0.2s; gap: 0.5rem;
+        }
+        .hp-faculty-btn:hover { background: #ffd9dc; }
+        .hp-faculty-btn:hover .hp-faculty-icon { transform: scale(1.1); }
+        .hp-faculty-icon { transition: transform 0.2s; }
+        .hp-arrival { cursor: pointer; }
+        .hp-arrival-img {
+          aspect-ratio: 3/4;
+          border-radius: 0.5rem;
+          overflow: hidden;
+          background: #ffe9ea;
+          margin-bottom: 0.75rem;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+          transition: box-shadow 0.2s;
+        }
+        .hp-arrival:hover .hp-arrival-img { box-shadow: 0 8px 24px rgba(0,0,0,0.16); }
+        .hp-arrival-img img { width: 100%; height: 100%; object-fit: cover; }
+        .hp-popular-row {
+          background: #ffe9ea;
+          border-radius: 1rem;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .hp-popular-row:hover { background: #ffe1e3; }
+        .hp-arrivals-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1.5rem;
+        }
+        @media (min-width: 768px)  { .hp-arrivals-grid { grid-template-columns: repeat(4,1fr); } }
+        @media (min-width: 1024px) { .hp-arrivals-grid { grid-template-columns: repeat(6,1fr); } }
+        .hp-popular-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+        @media (min-width: 1024px) { .hp-popular-grid { grid-template-columns: repeat(3,1fr); } }
+        .hp-skeleton {
+          background: linear-gradient(90deg, #ffe9ea 25%, #ffe1e3 50%, #ffe9ea 75%);
+          background-size: 200% 100%;
+          animation: hp-shimmer 1.4s infinite;
+          border-radius: 0.5rem;
+        }
+        @keyframes hp-shimmer {
+          0%   { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
 
-        {/* Faculty filter pills */}
-        <div className="flex gap-2 overflow-x-auto mt-4 pb-1 scrollbar-hide">
-          {FACULTIES.map((f) => (
-            <Link
-              key={f}
-              to={`/search?faculty=${f}`}
-              className="shrink-0 text-xs px-3 py-1.5 rounded-full border border-white/30
-                         text-white/80 hover:bg-white/10 transition-colors"
-            >
-              {f}
-            </Link>
-          ))}
+      <div className="hp-wrap">
+
+        {/* ── Welcome Banner ── */}
+        <div className="hp-banner">
+          <div style={{ position:'absolute', top:'-20%', right:'-10%', width:384, height:384, background:'#aa333c', opacity:0.2, borderRadius:'50%', filter:'blur(48px)', pointerEvents:'none' }} />
+          <div style={{ position:'absolute', bottom:'-10%', right:'10%', width:256, height:256, background:'#c9a84c', opacity:0.1, borderRadius:'50%', filter:'blur(32px)', pointerEvents:'none' }} />
+          <div style={{ position:'relative', zIndex:10, maxWidth:'32rem' }}>
+            <span style={{ fontFamily:'Inter, sans-serif', fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.2em', color:'#c9a84c', marginBottom:'1rem', display:'block' }}>
+              Personalized Curation
+            </span>
+            <h1 style={{ fontFamily:'Newsreader, serif', fontSize:'clamp(2.2rem,4vw,3rem)', fontWeight:800, color:'#fff', lineHeight:1.15, marginBottom:'1rem' }}>
+              {greeting}, {displayName}.
+            </h1>
+            <p style={{ color:'rgba(255,209,212,0.8)', fontSize:'1.125rem', fontFamily:'Inter, sans-serif', lineHeight:1.6, marginBottom:'2rem' }}>
+              Explore your curated collection of research papers, books, and podcasts — all in one place.
+            </p>
+            <div style={{ display:'flex', gap:'1rem' }}>
+              <Link to="/home/library" style={{ background:'#c9a84c', color:'#503d00', padding:'0.75rem 1.5rem', borderRadius:'0.5rem', fontFamily:'Inter, sans-serif', fontWeight:700, fontSize:'0.875rem', textDecoration:'none', transition:'transform 0.15s' }}
+                onMouseEnter={e=>(e.currentTarget.style.transform='scale(1.05)')}
+                onMouseLeave={e=>(e.currentTarget.style.transform='scale(1)')}>
+                View My Shelf
+              </Link>
+              <Link to="/home/search?sort=trending" style={{ background:'rgba(255,255,255,0.1)', backdropFilter:'blur(8px)', color:'#fff', border:'1px solid rgba(255,255,255,0.2)', padding:'0.75rem 1.5rem', borderRadius:'0.5rem', fontFamily:'Inter, sans-serif', fontWeight:700, fontSize:'0.875rem', textDecoration:'none', transition:'transform 0.15s' }}
+                onMouseEnter={e=>(e.currentTarget.style.transform='scale(1.05)')}
+                onMouseLeave={e=>(e.currentTarget.style.transform='scale(1)')}>
+                Explore Trends
+              </Link>
+            </div>
+          </div>
         </div>
+
+        {/* ── Continue Reading + Faculty Archives ── */}
+        <div className="hp-bento">
+
+          {/* Continue Reading */}
+          <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
+            <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between' }}>
+              <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.875rem', fontWeight:700, color:'#2d1418' }}>Continue Reading</h3>
+              <Link to="/home/library" style={{ color:'#7b0d1e', fontWeight:700, fontSize:'0.875rem', textDecoration:'none', fontFamily:'Inter, sans-serif' }}>
+                View All History
+              </Link>
+            </div>
+
+            {continueReading.length === 0 ? (
+              <div style={{ background:'#fff', borderRadius:'1rem', padding:'2rem', textAlign:'center', color:'#8b7170', fontFamily:'Inter, sans-serif', fontSize:'0.875rem', border:'1px solid rgba(223,191,190,0.3)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize:40, color:'#dfbfbe', display:'block', marginBottom:8 }}>auto_stories</span>
+                Start reading a book and it will appear here.
+              </div>
+            ) : (
+              <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
+                {continueReading.slice(0, 3).map((book) => (
+                  <BookCard key={book._id} book={book} variant="landscape" showProgress />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Faculty Archives */}
+          <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
+            <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.5rem', fontWeight:700, color:'#2d1418' }}>Faculty Archives</h3>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.75rem' }}>
+              {FACULTY_GRID.map(({ icon, label }) => (
+                <button key={label} className="hp-faculty-btn" onClick={() => navigate(`/home/search?faculty=${encodeURIComponent(label)}`)}>
+                  <span className="material-symbols-outlined hp-faculty-icon" style={{ color:'#7b0d1e', fontSize:'2rem' }}>{icon}</span>
+                  <span style={{ fontFamily:'Inter, sans-serif', fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:'#2d1418' }}>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── New Arrivals ── */}
+        <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
+          <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between' }}>
+            <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.875rem', fontWeight:700, color:'#2d1418' }}>New Arrivals</h3>
+            {newestBooks.length > PER_PAGE && (
+              <div style={{ display:'flex', gap:'0.5rem' }}>
+                <button onClick={()=>setArrivalIdx(p=>Math.max(0,p-1))} disabled={arrivalIdx===0}
+                  style={{ width:40, height:40, borderRadius:'50%', border:'1px solid #dfbfbe', background:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.2s', opacity:arrivalIdx===0?0.4:1 }}
+                  onMouseEnter={e=>{if(arrivalIdx>0){e.currentTarget.style.background='#7b0d1e';e.currentTarget.style.color='#fff';}}}
+                  onMouseLeave={e=>{e.currentTarget.style.background='none';e.currentTarget.style.color='inherit';}}>
+                  <span className="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button onClick={()=>setArrivalIdx(p=>Math.min(totalPages-1,p+1))} disabled={arrivalIdx>=totalPages-1}
+                  style={{ width:40, height:40, borderRadius:'50%', border:'1px solid #dfbfbe', background:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.2s', opacity:arrivalIdx>=totalPages-1?0.4:1 }}
+                  onMouseEnter={e=>{if(arrivalIdx<totalPages-1){e.currentTarget.style.background='#7b0d1e';e.currentTarget.style.color='#fff';}}}
+                  onMouseLeave={e=>{e.currentTarget.style.background='none';e.currentTarget.style.color='inherit';}}>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {isLoading ? (
+            <div className="hp-arrivals-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i}>
+                  <div className="hp-skeleton" style={{ aspectRatio:'3/4', marginBottom:'0.75rem' }} />
+                  <div className="hp-skeleton" style={{ height:14, marginBottom:6 }} />
+                  <div className="hp-skeleton" style={{ height:11, width:'60%' }} />
+                </div>
+              ))}
+            </div>
+          ) : pageArrivals.length === 0 ? (
+            <div style={{ textAlign:'center', color:'#8b7170', fontFamily:'Inter, sans-serif', padding:'2rem' }}>No books yet.</div>
+          ) : (
+            <div className="hp-arrivals-grid">
+              {pageArrivals.map((book, i) => (
+                <BookCard key={book._id ?? book.id ?? i} book={book} variant="portrait" />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Popular this week ── */}
+        <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
+          <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.875rem', fontWeight:700, color:'#2d1418' }}>Popular this week</h3>
+
+          {isLoading ? (
+            <div className="hp-popular-grid">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="hp-skeleton" style={{ height:96, borderRadius:'1rem' }} />
+              ))}
+            </div>
+          ) : popularBooks.length === 0 ? (
+            <div style={{ textAlign:'center', color:'#8b7170', fontFamily:'Inter, sans-serif', padding:'2rem' }}>No books yet.</div>
+          ) : (
+            <div className="hp-popular-grid">
+              {popularBooks.slice(0, 3).map((book, i) => (
+                <div key={book._id ?? book.id ?? i} className="hp-popular-row"
+                  onClick={() => book._id && !book.isExternal ? navigate(`/home/books/${book._id}`) : book.fileUrl && window.open(book.fileUrl, '_blank')}>
+                  {book.coverUrl ? (
+                    <div style={{ width:96, height:96, flexShrink:0, overflow:'hidden' }}>
+                      <img src={book.coverUrl} alt={book.title} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                    </div>
+                  ) : (
+                    <div style={{ width:96, height:96, flexShrink:0, padding:'1rem' }}>
+                      <div style={{ width:'100%', height:'100%', borderRadius:'50%', background:'linear-gradient(135deg,#56000f 0%,#7b0d1e 100%)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontFamily:'Newsreader, serif', fontSize:'1.5rem', fontWeight:700 }}>
+                        {i + 1}
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ padding:'1rem', overflow:'hidden' }}>
+                    <h4 style={{ fontFamily:'Newsreader, serif', fontSize:'1.125rem', fontWeight:700, color:'#2d1418', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                      {book.title}
+                    </h4>
+                    <p style={{ color:'#584141', fontSize:'0.75rem', marginTop:4, fontFamily:'Inter, sans-serif' }}>
+                      {book.author ?? book.category ?? ''}
+                      {book.ratingCount > 0 && ` · ${book.ratingCount.toLocaleString()} ratings`}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Footer ── */}
+        <footer style={{ padding:'2rem 0', background:'#fff0f0', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem' }}>
+          <div style={{ display:'flex', gap:'1.5rem', marginBottom:'0.25rem' }}>
+            {[
+              { label:'Privacy',   to:'/privacy'  },
+              { label:'Terms',     to:'/terms'    },
+              { label:'Translate', to:'/home/profile/language-preferences' },
+              { label:'Books API', to:'/home/search' },
+            ].map(({label,to})=>(
+              <Link key={label} to={to} style={{ fontFamily:'Inter, sans-serif', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.12em', color:'rgba(86,0,15,0.4)', textDecoration:'none' }}
+                onMouseEnter={e=>(e.currentTarget.style.color='#7b0d1e')}
+                onMouseLeave={e=>(e.currentTarget.style.color='rgba(86,0,15,0.4)')}>
+                {label}
+              </Link>
+            ))}
+          </div>
+          <p style={{ fontFamily:'Inter, sans-serif', fontSize:'10px', textTransform:'uppercase', letterSpacing:'0.12em', color:'rgba(86,0,15,0.5)' }}>
+            Powered by Google
+          </p>
+        </footer>
+
       </div>
-
-      <div className="mt-6 space-y-6">
-        {/* ── Continue Reading ─────────────────────────────────────────────── */}
-        {(continueReading.length > 0 || isLoading) && (
-          <section>
-            <SectionHeader title="Continue Reading" to="/library" />
-            <HScrollRow books={continueReading} isLoading={isLoading} showProgress />
-          </section>
-        )}
-
-        {/* ── New in the Library ───────────────────────────────────────────── */}
-        <section>
-          <SectionHeader title="New in the Library" to="/search?sort=newest" />
-          <HScrollRow books={newestBooks} isLoading={isLoading} />
-        </section>
-
-        {/* ── Popular this week ────────────────────────────────────────────── */}
-        <section>
-          <SectionHeader title="Popular This Week" to="/search?sort=popular" />
-          <HScrollRow books={popularBooks} isLoading={isLoading} />
-        </section>
-      </div>
-    </div>
+    </>
   );
 }

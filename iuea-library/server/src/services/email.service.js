@@ -72,20 +72,20 @@ const sendWelcomeEmail = async (user) => {
       <p>Your IUEA Library account has been created successfully.</p>
       <p>You now have access to thousands of books, academic journals, podcasts,
          and our AI reading assistant — all in one place.</p>
-      <a class="cta" href="${process.env.WEB_URL || 'http://localhost:5173'}">
+      <a class="cta" href="${process.env.CLIENT_WEB_URL || 'http://localhost:5173'}">
         Start Reading
       </a>
       <p style="color:#6b7280;font-size:13px;">
         Happy reading!<br/>The IUEA Library Team
       </p>
     `),
-    text: `Welcome to IUEA Library, ${user.name}! Your account is ready. Visit ${process.env.WEB_URL || 'http://localhost:5173'} to start reading.`,
+    text: `Welcome to IUEA Library, ${user.name}! Your account is ready. Visit ${process.env.CLIENT_WEB_URL || 'http://localhost:5173'} to start reading.`,
   });
 };
 
 // ── sendPasswordReset ─────────────────────────────────────────────────────────
 const sendPasswordReset = async (user, token) => {
-  const resetUrl = `${process.env.WEB_URL || 'http://localhost:5173'}/reset-password?token=${token}`;
+  const resetUrl = `${process.env.CLIENT_WEB_URL || 'http://localhost:5173'}/reset-password?token=${token}`;
 
   return sendEmail({
     to:      user.email,
@@ -139,7 +139,7 @@ const sendWeeklyDigest = async (user, stats = {}) => {
         </div>
       </div>
       ${stats.topBook ? `<p>You spent the most time reading <strong>${stats.topBook}</strong> — great choice!</p>` : ''}
-      <a class="cta" href="${process.env.WEB_URL || 'http://localhost:5173'}">
+      <a class="cta" href="${process.env.CLIENT_WEB_URL || 'http://localhost:5173'}">
         Keep Reading
       </a>
     `),

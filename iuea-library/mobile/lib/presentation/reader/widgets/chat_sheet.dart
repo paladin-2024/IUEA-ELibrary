@@ -26,8 +26,9 @@ class _ChatSheetState extends State<ChatSheet> {
   void _send() {
     final text = _ctrl.text.trim();
     if (text.isEmpty) return;
-    final lang = context.read<AuthProvider>().user?.language ?? 'en';
-    context.read<ChatProvider>().sendMessage(widget.bookId, text, language: lang);
+    final langs = context.read<AuthProvider>().user?.preferredLanguages ?? ['en'];
+    final lang  = langs.isNotEmpty ? langs.first : 'en';
+    context.read<ChatProvider>().sendMessage(widget.bookId, text, lang);
     _ctrl.clear();
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_scrollCtrl.hasClients) _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
@@ -81,7 +82,7 @@ class _ChatSheetState extends State<ChatSheet> {
                 : ListView.separated(
                     controller:   _scrollCtrl,
                     padding:      const EdgeInsets.all(12),
-                    itemCount:    msgs.length + (chat.isSending ? 1 : 0),
+                    itemCount:    msgs.length + (chat.isLoading ? 1 : 0),
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (_, i) {
                       if (i == msgs.length) {
@@ -134,7 +135,7 @@ class _ChatSheetState extends State<ChatSheet> {
                 ),
                 const SizedBox(width: 8),
                 FloatingActionButton.small(
-                  onPressed:       chat.isSending ? null : _send,
+                  onPressed:       chat.isLoading ? null : _send,
                   backgroundColor: AppColors.primary,
                   child:           const Icon(Icons.send, color: AppColors.white, size: 18),
                 ),

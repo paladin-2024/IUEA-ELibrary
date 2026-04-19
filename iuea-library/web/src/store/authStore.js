@@ -73,6 +73,12 @@ const useAuthStore = create(
         }
       },
 
+      // ── updateUser ─────────────────────────────────────────────────────────
+      // Merge partial updates into the stored user object (e.g. after PUT /auth/me)
+      updateUser: (patch) => {
+        set((s) => ({ user: s.user ? { ...s.user, ...patch } : s.user }));
+      },
+
       // ── logout ─────────────────────────────────────────────────────────────
       logout: () => {
         set({ token: null, user: null, error: null });

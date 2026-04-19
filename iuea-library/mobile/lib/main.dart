@@ -9,11 +9,16 @@ import 'providers/book_provider.dart';
 import 'providers/reader_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/podcast_provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'data/services/firebase_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
   await Firebase.initializeApp();
+
+  // Register background handler before runApp
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   final authProvider = AuthProvider();
   await authProvider.loadUser();

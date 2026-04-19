@@ -83,6 +83,5 @@ const bookSchema = new mongoose.Schema(
 bookSchema.index({ title: 'text', author: 'text' });
 bookSchema.index({ tags: 1 });
 bookSchema.index({ category: 1 });
-bookSchema.index({ kohaId: 1 }, { sparse: true });
 
 module.exports = mongoose.model('Book', bookSchema);

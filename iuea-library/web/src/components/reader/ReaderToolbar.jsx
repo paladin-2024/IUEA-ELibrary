@@ -1,31 +1,26 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MdFormatSize, MdBrightness6, MdTranslate, MdHighlight } from 'react-icons/md';
-import { BsMicFill }       from 'react-icons/bs';
-import { FiBookmark }      from 'react-icons/fi';
-import { AiOutlineRobot }  from 'react-icons/ai';
-import useReaderStore      from '../../store/readerStore';
+import { useState }                          from 'react';
+import { useNavigate, useSearchParams }      from 'react-router-dom';
+import useReaderStore                        from '../../store/readerStore';
 
-const THEMES_CYCLE = ['white', 'sepia', 'dark'];
-
-export default function ReaderToolbar({ bookId }) {
+/* ─────────────────────────────────────────────────────────────────────────────
+   ReaderToolbar — floating pill + slide-up settings drawer
+   ───────────────────────────────────────────────────────────────────────────── */
+export default function ReaderToolbar({ bookId, theme: t = {} }) {
   const navigate       = useNavigate();
   const [searchParams] = useSearchParams();
   const mode           = searchParams.get('mode') ?? 'read';
+  const [showSettings, setShowSettings] = useState(false);
 
   const {
-    percentComplete, theme, readingLanguage, translatedContent,
     currentCfi, bookmarks,
-    showFontPanel, showLanguageSwitcher, showChatbot,
-    setTheme, addBookmark, removeBookmark,
-    toggleFontPanel, toggleLanguageSwitcher, toggleChatbot,
+    readingLanguage, translatedContent,
+    showChatbot, showLanguageSwitcher,
+    addBookmark, removeBookmark,
+    toggleLanguageSwitcher, toggleChatbot,
     saveProgress,
   } = useReaderStore();
 
-  const cycleTheme = () => {
-    const idx  = THEMES_CYCLE.indexOf(theme);
-    const next = THEMES_CYCLE[(idx + 1) % THEMES_CYCLE.length];
-    setTheme(next);
-  };
+  const isBookmarked = bookmarks.includes(currentCfi);
 
   const toggleAudio = () => {
     saveProgress(bookId);
@@ -33,156 +28,296 @@ export default function ReaderToolbar({ bookId }) {
     navigate(`/reader/${bookId}?mode=${next}`, { replace: true });
   };
 
-  const isBookmarked = bookmarks.includes(currentCfi);
   const toggleBookmark = () => {
     isBookmarked ? removeBookmark(currentCfi) : addBookmark(currentCfi);
   };
 
-  const btn = (active = false) =>
-    `flex flex-col items-center gap-0.5 px-2 py-2 rounded-lg transition-colors
-     ${active
-       ? 'text-primary'
-       : 'text-gray-500 hover:text-primary hover:bg-primary/5'}`;
+  const bg        = t.bg === '#141010' ? 'rgba(30,22,24,0.95)' : 'rgba(255,255,255,0.95)';
+  const iconColor = t.text ?? '#1a0609';
 
-  const label = 'text-[9px] leading-none font-medium select-none';
+  const actions = [
+    {
+      id: 'listen',
+      icon: mode === 'audio' ? 'pause_circle' : 'headphones',
+      label: mode === 'audio' ? 'Pause' : 'Listen',
+      active: mode === 'audio',
+      onClick: toggleAudio,
+    },
+    {
+      id: 'translate',
+      icon: 'translate',
+      label: 'Translate',
+      active: showLanguageSwitcher || readingLanguage !== 'English',
+      onClick: toggleLanguageSwitcher,
+    },
+    {
+      id: 'bookmark',
+      icon: isBookmarked ? 'bookmark' : 'bookmark_border',
+      label: isBookmarked ? 'Saved' : 'Bookmark',
+      active: isBookmarked,
+      onClick: toggleBookmark,
+    },
+    {
+      id: 'ai',
+      icon: 'smart_toy',
+      label: 'Ask AI',
+      active: showChatbot,
+      onClick: toggleChatbot,
+    },
+    {
+      id: 'settings',
+      icon: 'tune',
+      label: 'Settings',
+      active: showSettings,
+      onClick: () => setShowSettings(s => !s),
+    },
+  ];
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40">
-      {/* ── 7 action buttons ─────────────────────────────────────────────── */}
-      <div className="bg-white/95 backdrop-blur border-t border-gray-200 shadow-lg">
-        <div className="flex items-center justify-around px-1 py-1 max-w-xl mx-auto">
+    <>
+      {/* ── Settings drawer (slide up) ──────────────────────────────────── */}
+      {showSettings && (
+        <>
+          <div
+            onClick={() => setShowSettings(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 48 }}
+          />
+          <SettingsDrawer
+            theme={t}
+            iconColor={iconColor}
+            onClose={() => setShowSettings(false)}
+          />
+        </>
+      )}
 
-          {/* Font size */}
-          <button onClick={toggleFontPanel} className={btn(showFontPanel)} title="Font size">
-            <MdFormatSize size={22} />
-            <span className={label}>Font</span>
-          </button>
-
-          {/* Theme */}
-          <button onClick={cycleTheme} className={btn()} title="Switch theme">
-            <MdBrightness6 size={22} />
-            <span className={label}>Theme</span>
-          </button>
-
-          {/* Audio / TTS */}
-          <button onClick={toggleAudio} className={btn(mode === 'audio')} title="Listen">
-            <BsMicFill size={20} />
-            <span className={label}>Listen</span>
-          </button>
-
-          {/* Translate */}
-          <button
-            onClick={toggleLanguageSwitcher}
-            className={btn(showLanguageSwitcher || readingLanguage !== 'English')}
-            title="Translate"
-          >
-            <MdTranslate size={22} />
-            <span className={label}>Translate</span>
-          </button>
-
-          {/* Bookmark */}
-          <button onClick={toggleBookmark} className={btn(isBookmarked)} title="Bookmark">
-            <FiBookmark size={20} className={isBookmarked ? 'fill-primary' : ''} />
-            <span className={label}>{isBookmarked ? 'Saved' : 'Save'}</span>
-          </button>
-
-          {/* Highlight (selection-based — activated automatically) */}
-          <button className={btn(!!translatedContent)} title="Highlights" disabled>
-            <MdHighlight size={22} />
-            <span className={label}>Highlights</span>
-          </button>
-
-          {/* AI Chatbot */}
-          <button onClick={toggleChatbot} className={btn(showChatbot)} title="AI Assistant">
-            <AiOutlineRobot size={22} />
-            <span className={label}>Ask AI</span>
-          </button>
-        </div>
+      {/* ── Floating pill toolbar ──────────────────────────────────────────── */}
+      <div style={{
+        position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 49,
+        background: bg,
+        backdropFilter: 'blur(20px)',
+        borderRadius: 99,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08)',
+        border: `1px solid ${t.border ?? 'rgba(223,191,190,0.4)'}`,
+        display: 'flex', alignItems: 'center', gap: 4,
+        padding: '6px 10px',
+      }}>
+        {actions.map((a) => (
+          <ToolBtn key={a.id} {...a} iconColor={iconColor} />
+        ))}
       </div>
-
-      {/* ── Maroon progress bar ────────────────────────────────────────────── */}
-      <div className="h-1 bg-gray-200">
-        <div
-          className="h-full bg-primary transition-all duration-500"
-          style={{ width: `${Math.min(100, percentComplete)}%` }}
-        />
-      </div>
-
-      {/* ── Font panel ────────────────────────────────────────────────────── */}
-      {showFontPanel && <FontPanel />}
-    </div>
+    </>
   );
 }
 
-function FontPanel() {
+/* ─────────────────────────────────────────────────────────────────────────────
+   ToolBtn — individual pill action button
+   ───────────────────────────────────────────────────────────────────────────── */
+function ToolBtn({ icon, label, active, onClick, iconColor }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      title={label}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        gap: 2, padding: '6px 10px', borderRadius: 90, border: 'none',
+        cursor: 'pointer',
+        background: active
+          ? '#7b0d1e'
+          : hov ? 'rgba(123,13,30,0.08)' : 'transparent',
+        transition: 'background 0.18s ease',
+        minWidth: 48,
+      }}
+    >
+      <span className="material-symbols-outlined" style={{
+        fontSize: 20,
+        color: active ? '#fff' : (hov ? '#7b0d1e' : iconColor),
+        fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0",
+        transition: 'color 0.18s ease',
+      }}>{icon}</span>
+      <span style={{
+        fontFamily: 'Inter, sans-serif',
+        fontSize: 9, fontWeight: 600, letterSpacing: '0.02em',
+        color: active ? '#fff' : (hov ? '#7b0d1e' : iconColor),
+        opacity: active ? 1 : 0.65,
+        transition: 'color 0.18s ease',
+        userSelect: 'none',
+      }}>{label}</span>
+    </button>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SettingsDrawer — slide-up panel with font/theme/spacing controls
+   ───────────────────────────────────────────────────────────────────────────── */
+function SettingsDrawer({ theme: t, iconColor, onClose }) {
   const {
     fontSize, lineHeight, fontFamily, theme,
     setFontSize, setLineHeight, setFontFamily, setTheme,
-    toggleFontPanel,
   } = useReaderStore();
 
-  const rowLabel = 'text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2';
+  const panelBg = t.panel ?? '#f9f4f4';
+  const border  = t.border ?? 'rgba(223,191,190,0.4)';
+
+  const FONTS = [
+    { key: 'serif', label: 'Serif', sample: 'Newsreader, Georgia, serif' },
+    { key: 'sans',  label: 'Sans',  sample: 'Inter, system-ui, sans-serif' },
+    { key: 'mono',  label: 'Mono',  sample: 'JetBrains Mono, monospace' },
+  ];
+
+  const THEMES = [
+    { key: 'white', label: 'Light',  swatch: '#ffffff', text: '#1a0609' },
+    { key: 'sepia', label: 'Sepia',  swatch: '#f8f0e0', text: '#3d2005' },
+    { key: 'dark',  label: 'Dark',   swatch: '#141010', text: '#e8d8d9' },
+  ];
+
+  const rowLabel = {
+    fontFamily: 'Inter, sans-serif',
+    fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+    color: '#7b0d1e', textTransform: 'uppercase',
+    marginBottom: 10, display: 'block',
+  };
+
+  const divider = { height: 1, background: border, margin: '16px 0' };
 
   return (
-    <div
-      className="bg-white border-t border-gray-200 px-4 pt-3 pb-4 shadow-xl"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* Font size */}
-      <p className={rowLabel}>Font size</p>
-      <div className="flex items-center gap-3 mb-4">
-        <button
-          onClick={() => setFontSize(fontSize - 2)}
-          className="w-8 h-8 rounded-full border border-gray-300 text-sm font-bold text-gray-600 flex items-center justify-center"
-        >A−</button>
-        <span className="flex-1 text-center text-sm text-gray-700">{fontSize}px</span>
-        <button
-          onClick={() => setFontSize(fontSize + 2)}
-          className="w-8 h-8 rounded-full border border-gray-300 text-sm font-bold text-gray-600 flex items-center justify-center"
-        >A+</button>
+    <div style={{
+      position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)',
+      zIndex: 50,
+      width: 'min(380px, calc(100vw - 32px))',
+      background: panelBg,
+      borderRadius: 20,
+      boxShadow: '0 -4px 40px rgba(0,0,0,0.18), 0 4px 20px rgba(0,0,0,0.08)',
+      border: `1px solid ${border}`,
+      padding: '20px 20px 16px',
+      backdropFilter: 'blur(20px)',
+      animation: 'settingsSlideUp 0.25s cubic-bezier(.22,1,.36,1)',
+    }}>
+      <style>{`@keyframes settingsSlideUp { from { opacity:0; transform:translateX(-50%) translateY(16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }`}</style>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <span style={{
+          fontFamily: 'Newsreader, Georgia, serif',
+          fontSize: 16, fontWeight: 700, color: iconColor,
+        }}>Reading Settings</span>
+        <button onClick={onClose} style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: iconColor, opacity: 0.5, padding: 4,
+          display: 'flex', alignItems: 'center',
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>close</span>
+        </button>
       </div>
 
-      {/* Font family */}
-      <p className={rowLabel}>Typeface</p>
-      <div className="flex gap-2 mb-4">
-        {[
-          { key: 'serif', label: 'Serif' },
-          { key: 'sans',  label: 'Sans' },
-          { key: 'mono',  label: 'Mono' },
-        ].map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setFontFamily(key)}
-            className={`flex-1 py-1.5 text-xs rounded-lg border transition-colors ${
-              fontFamily === key
-                ? 'border-primary text-primary bg-primary/5 font-semibold'
-                : 'border-gray-300 text-gray-600'
-            }`}
-          >
-            {label}
+      {/* Font size */}
+      <span style={rowLabel}>Font size</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 0 }}>
+        <button
+          onClick={() => setFontSize(Math.max(12, fontSize - 2))}
+          style={stepBtn(iconColor)}
+        >
+          <span style={{ fontFamily: 'serif', fontSize: 14, fontWeight: 700 }}>A</span>
+        </button>
+        <div style={{ flex: 1, position: 'relative', height: 4, background: border, borderRadius: 99 }}>
+          <div style={{
+            position: 'absolute', left: 0, top: 0, height: '100%',
+            width: `${((fontSize - 12) / (32 - 12)) * 100}%`,
+            background: 'linear-gradient(90deg,#7b0d1e,#c9a84c)',
+            borderRadius: 99,
+          }} />
+        </div>
+        <button
+          onClick={() => setFontSize(Math.min(32, fontSize + 2))}
+          style={stepBtn(iconColor)}
+        >
+          <span style={{ fontFamily: 'serif', fontSize: 20, fontWeight: 700 }}>A</span>
+        </button>
+        <span style={{
+          fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 700,
+          color: '#7b0d1e', minWidth: 28, textAlign: 'right',
+        }}>{fontSize}px</span>
+      </div>
+
+      <div style={divider} />
+
+      {/* Line height */}
+      <span style={rowLabel}>Line spacing</span>
+      <div style={{ display: 'flex', gap: 8 }}>
+        {[1.4, 1.6, 1.8, 2.0].map(v => (
+          <button key={v} onClick={() => setLineHeight(v)} style={{
+            flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
+            background: lineHeight === v ? '#7b0d1e' : 'rgba(123,13,30,0.07)',
+            color: lineHeight === v ? '#fff' : iconColor,
+            fontFamily: 'Inter, sans-serif', fontSize: 11, fontWeight: 600,
+            transition: 'background 0.18s ease, color 0.18s ease',
+          }}>
+            {v}×
           </button>
         ))}
       </div>
 
+      <div style={divider} />
+
+      {/* Typeface */}
+      <span style={rowLabel}>Typeface</span>
+      <div style={{ display: 'flex', gap: 8 }}>
+        {FONTS.map(({ key, label, sample }) => (
+          <button key={key} onClick={() => setFontFamily(key)} style={{
+            flex: 1, padding: '8px 4px', borderRadius: 8,
+            border: `1.5px solid ${fontFamily === key ? '#7b0d1e' : border}`,
+            background: fontFamily === key ? 'rgba(123,13,30,0.06)' : 'transparent',
+            cursor: 'pointer', textAlign: 'center',
+            transition: 'border-color 0.18s ease, background 0.18s ease',
+          }}>
+            <span style={{
+              display: 'block', fontFamily: sample,
+              fontSize: 16, color: fontFamily === key ? '#7b0d1e' : iconColor,
+              lineHeight: 1.1, marginBottom: 3,
+            }}>Aa</span>
+            <span style={{
+              fontFamily: 'Inter, sans-serif', fontSize: 9, fontWeight: 600,
+              color: fontFamily === key ? '#7b0d1e' : iconColor, opacity: 0.7,
+            }}>{label}</span>
+          </button>
+        ))}
+      </div>
+
+      <div style={divider} />
+
       {/* Theme */}
-      <p className={rowLabel}>Theme</p>
-      <div className="flex gap-2">
-        {[
-          { key: 'white', label: 'White', bg: 'bg-white',       border: 'border-gray-300' },
-          { key: 'sepia', label: 'Sepia', bg: 'bg-[#F5ECD7]',   border: 'border-[#C9A07A]' },
-          { key: 'dark',  label: 'Dark',  bg: 'bg-[#1A1A2E]',   border: 'border-[#444]' },
-        ].map(({ key, label, bg, border }) => (
-          <button
-            key={key}
-            onClick={() => setTheme(key)}
-            className={`flex-1 py-2 text-xs rounded-lg border-2 transition-all ${bg} ${border} ${
-              theme === key ? 'ring-2 ring-primary ring-offset-1' : ''
-            } ${key === 'dark' ? 'text-white' : 'text-gray-800'}`}
-          >
-            {label}
+      <span style={rowLabel}>Theme</span>
+      <div style={{ display: 'flex', gap: 8 }}>
+        {THEMES.map(({ key, label, swatch, text: swText }) => (
+          <button key={key} onClick={() => setTheme(key)} style={{
+            flex: 1, padding: '10px 4px', borderRadius: 10,
+            background: swatch,
+            border: `2px solid ${theme === key ? '#7b0d1e' : 'transparent'}`,
+            boxShadow: theme === key
+              ? '0 0 0 2px rgba(123,13,30,0.25)'
+              : '0 1px 4px rgba(0,0,0,0.12)',
+            cursor: 'pointer', textAlign: 'center',
+            transition: 'border-color 0.18s ease, box-shadow 0.18s ease',
+          }}>
+            <span style={{
+              display: 'block',
+              fontFamily: 'Newsreader, Georgia, serif',
+              fontSize: 12, fontWeight: 700, color: swText,
+            }}>{label}</span>
           </button>
         ))}
       </div>
     </div>
   );
 }
+
+/* helper */
+const stepBtn = (color) => ({
+  width: 34, height: 34, borderRadius: '50%', border: 'none',
+  background: 'rgba(123,13,30,0.08)', color,
+  cursor: 'pointer', display: 'flex', alignItems: 'center',
+  justifyContent: 'center', flexShrink: 0,
+});

@@ -45,7 +45,7 @@ class BookProvider extends ChangeNotifier {
     try {
       _continueReading = await _repo.getContinueReading();
       notifyListeners();
-    } catch {
+    } catch (_) {
       // Silently ignore — user may not be authenticated
     }
   }

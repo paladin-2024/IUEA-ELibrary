@@ -1,4 +1,4 @@
-import { BookOpen } from 'lucide-react';
+import { FiBookOpen } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
         <div>
           <div className="flex items-center gap-2 font-serif text-lg font-semibold mb-2">
-            <BookOpen size={18} className="text-accent" />
+            <FiBookOpen size={18} className="text-accent" />
             IUEA Library
           </div>
           <p className="text-primary-light text-xs leading-relaxed">

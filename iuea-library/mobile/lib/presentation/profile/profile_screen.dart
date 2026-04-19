@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/auth_provider.dart';
 import '../../data/repositories/progress_repository.dart';
 import '../../data/models/progress_model.dart';
 import '../../data/services/api_service.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_text_styles.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,9 +18,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final _progressRepo                  = ProgressRepository(ApiService());
-  List<ProgressModel> _progresses      = [];
-  bool                _statsLoading    = true;
+  final _progressRepo             = ProgressRepository(ApiService());
+  List<ProgressModel> _progresses = [];
+  bool  _statsLoading             = true;
 
   @override
   void initState() {
@@ -36,215 +39,414 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
-    final user = auth.user;
+    final auth     = context.watch<AuthProvider>();
+    final user     = auth.user;
+    final finished = _progresses.where((p) => p.isCompleted).length;
+    final hours    = _progresses.fold<int>(
+      0, (s, p) => s + p.totalReadingMinutes) ~/ 60;
+    final days     = _progresses
+        .where((p) => p.lastReadAt != null).length;
+    final goal     = user?.readingGoal ?? 20;
+    final goalPct  = (finished / goal).clamp(0.0, 1.0);
 
-    final finished  = _progresses.where((p) => p.isCompleted).length;
-    final hours     = _progresses.fold<int>(0, (s, p) => s + p.totalReadingMinutes) ~/ 60;
-    final goal      = user?.readingGoal ?? 20;
-    final goalPct   = (finished / goal).clamp(0.0, 1.0);
+    // Find currently reading book
+    final currentlyReading = _progresses
+        .where((p) => !p.isCompleted && p.percentComplete > 0)
+        .toList()
+      ..sort((a, b) => (b.lastReadAt ?? DateTime(0))
+          .compareTo(a.lastReadAt ?? DateTime(0)));
+    final current = currentlyReading.isNotEmpty ? currentlyReading.first : null;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation:       0,
-        title:           const Text('Profile',
-            style: TextStyle(fontFamily: 'Playfair Display', fontWeight: FontWeight.w700)),
-        actions: [
-          TextButton.icon(
-            onPressed: () {},
-            icon:  const Icon(Icons.edit_outlined, size: 16, color: AppColors.primary),
-            label: const Text('Edit', style: TextStyle(color: AppColors.primary, fontSize: 13)),
-          ),
-        ],
-      ),
-      body: user == null
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+      body: SafeArea(
+        child: user == null
+          ? const Center(child: CircularProgressIndicator(
+              color: AppColors.primary))
           : RefreshIndicator(
               color:     AppColors.primary,
               onRefresh: _loadStats,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // ── Avatar & identity ──────────────────────────────────
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius:          36,
-                        backgroundColor: AppColors.primary,
-                        backgroundImage: user.avatar != null
-                            ? NetworkImage(user.avatar!) : null,
-                        child: user.avatar == null
-                            ? Text(user.initials,
-                                style: const TextStyle(color: AppColors.white,
-                                    fontSize: 26, fontWeight: FontWeight.w700))
-                            : null,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(user.name,
-                              style: const TextStyle(fontFamily: 'Playfair Display',
-                                  fontSize: 18, fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 2),
-                          Text(user.email,
-                              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-                          const SizedBox(height: 6),
-                          Wrap(spacing: 6, children: [
-                            if (user.studentId != null)
-                              _Chip(label: user.studentId!, color: AppColors.grey300,
-                                  textColor: AppColors.textSecondary),
-                            if (user.faculty != null)
-                              _Chip(label: user.faculty!, color: AppColors.accent.withOpacity(0.2),
-                                  textColor: AppColors.accent, borderColor: AppColors.accent.withOpacity(0.4)),
-                            _Chip(label: user.role.toUpperCase(), color: AppColors.primary.withOpacity(0.1),
-                                textColor: AppColors.primary),
-                          ]),
-                        ],
-                      )),
-                    ],
+              child: CustomScrollView(
+                slivers: [
+                  // ── Top bar ─────────────────────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 16, 0),
+                      child: Row(children: [
+                        Text('IUEA Library',
+                          style: GoogleFonts.lora(
+                            color: AppColors.primaryContainer, fontSize: 16,
+                            fontWeight: FontWeight.w700)),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.notifications_none_rounded,
+                            color: AppColors.textPrimary, size: 22),
+                          onPressed: () => context.push('/notifications'),
+                        ),
+                        CircleAvatar(
+                          radius:          16,
+                          backgroundColor: AppColors.primaryContainer,
+                          backgroundImage: user.avatar != null
+                              ? NetworkImage(user.avatar!) : null,
+                          child: user.avatar == null
+                              ? Text(user.initials,
+                                  style: const TextStyle(
+                                    color: AppColors.white, fontSize: 11,
+                                    fontWeight: FontWeight.w700))
+                              : null,
+                        ),
+                        const SizedBox(width: 4),
+                      ]),
+                    ),
                   ),
-                  const SizedBox(height: 20),
 
-                  // ── Stats row ──────────────────────────────────────────
+                  // ── Avatar + identity ─────────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                      child: Column(
+                        children: [
+                          // Avatar
+                          CircleAvatar(
+                            radius:          44,
+                            backgroundColor: AppColors.primaryContainer,
+                            backgroundImage: user.avatar != null
+                                ? NetworkImage(user.avatar!) : null,
+                            child: user.avatar == null
+                                ? Text(user.initials,
+                                    style: GoogleFonts.lora(
+                                      color:      AppColors.white,
+                                      fontSize:   28,
+                                      fontWeight: FontWeight.w700))
+                                : null,
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Name
+                          Text(user.name,
+                            style: AppTextStyles.h2.copyWith(
+                              fontSize: 20, color: AppColors.textPrimary),
+                            textAlign: TextAlign.center),
+                          const SizedBox(height: 4),
+
+                          // Student ID
+                          if (user.studentId != null)
+                            Text('ID: ${user.studentId}',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondary)),
+                          const SizedBox(height: 8),
+
+                          // Faculty badge
+                          if (user.faculty != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: AppColors.primary.withOpacity(0.3)),
+                              ),
+                              child: Text(
+                                'FACULTY OF ${user.faculty!.toUpperCase()}',
+                                style: AppTextStyles.label.copyWith(
+                                  color:         AppColors.primary,
+                                  fontWeight:    FontWeight.w600,
+                                  letterSpacing: 0.8,
+                                  fontSize:      10,
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 14),
+
+                          // Edit profile button
+                          OutlinedButton.icon(
+                            onPressed: () {},
+                            icon:  const Icon(Icons.edit_outlined,
+                              size: 14, color: AppColors.primary),
+                            label: const Text('Edit profile'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              side: const BorderSide(color: AppColors.border),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                              textStyle: AppTextStyles.label.copyWith(
+                                fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // ── Stats row ─────────────────────────────────────────
                   if (!_statsLoading)
-                    Row(children: [
-                      _StatCard(label: 'Books Read',  value: '$finished'),
-                      const SizedBox(width: 10),
-                      _StatCard(label: 'Hours Read',  value: '$hours'),
-                      const SizedBox(width: 10),
-                      _StatCard(label: 'Languages',
-                          value: '${user.preferredLanguages.length}'),
-                    ]),
-                  const SizedBox(height: 16),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(children: [
+                          _StatCell(value: '$finished', label: 'Books'),
+                          _divider(),
+                          _StatCell(value: '$hours',    label: 'Hours'),
+                          _divider(),
+                          _StatCell(value: '$days',     label: 'Days'),
+                        ]),
+                      ),
+                    ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
                   // ── Reading goal ──────────────────────────────────────
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color:        AppColors.background,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8, offset: const Offset(0, 2))],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _Card(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Annual Reading Goal',
-                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                            Text('${(goalPct * 100).toInt()}%',
-                                style: const TextStyle(color: AppColors.primary,
-                                    fontWeight: FontWeight.w700, fontSize: 13)),
+                            Text('Reading Goal',
+                              style: AppTextStyles.label.copyWith(
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '$goal books a year',
+                                  style: AppTextStyles.body.copyWith(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500)),
+                                Text(
+                                  '${(goalPct * 100).toInt()}%',
+                                  style: AppTextStyles.body.copyWith(
+                                    color:      AppColors.primary,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize:   13)),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            LinearProgressIndicator(
+                              value:           goalPct,
+                              backgroundColor: AppColors.grey300,
+                              valueColor: const AlwaysStoppedAnimation(
+                                AppColors.primary),
+                              minHeight:    5,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        LinearProgressIndicator(
-                          value:           goalPct,
-                          backgroundColor: AppColors.grey300,
-                          valueColor:      const AlwaysStoppedAnimation(AppColors.primary),
-                          minHeight:       6,
-                          borderRadius:    BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+
+                  // ── Currently reading ────────────────────────────────
+                  if (current != null && current.book != null) ...[
+                    const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('CURRENTLY READING',
+                              style: AppTextStyles.label.copyWith(
+                                color:         AppColors.textHint,
+                                letterSpacing: 1.2,
+                                fontSize:      10)),
+                            const SizedBox(height: 8),
+                            _Card(
+                              child: Row(children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: SizedBox(
+                                    width: 44, height: 62,
+                                    child: (current.book!.coverUrl?.isNotEmpty ?? false)
+                                        ? CachedNetworkImage(
+                                            imageUrl: current.book!.coverUrl!,
+                                            fit: BoxFit.cover)
+                                        : Container(
+                                            color: AppColors.primary.withOpacity(0.1),
+                                            child: const Icon(Icons.book,
+                                              color: AppColors.primary, size: 22)),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(current.book!.title,
+                                      style: AppTextStyles.body.copyWith(
+                                        fontWeight: FontWeight.w600, fontSize: 13),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis),
+                                    const SizedBox(height: 2),
+                                    Text('Page ${current.currentPage}',
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        fontSize: 11, color: AppColors.textHint)),
+                                    const SizedBox(height: 6),
+                                    LinearProgressIndicator(
+                                      value: (current.percentComplete / 100)
+                                          .clamp(0.0, 1.0),
+                                      backgroundColor: AppColors.grey300,
+                                      valueColor: const AlwaysStoppedAnimation(
+                                        AppColors.primary),
+                                      minHeight:    3,
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ],
+                                )),
+                              ]),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 6),
-                        Text('$finished of $goal books · keep it up!',
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                      ],
+                      ),
+                    ),
+                  ],
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+                  // ── Settings tiles ───────────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(children: [
+                        _SettingsTile(
+                          icon:  Icons.settings_outlined,
+                          label: 'Account Settings',
+                          onTap: () {},
+                        ),
+                        _SettingsTile(
+                          icon:  Icons.history_rounded,
+                          label: 'Borrowing History',
+                          onTap: () {},
+                        ),
+                        _SettingsTile(
+                          icon:  Icons.support_agent_outlined,
+                          label: 'Library Support',
+                          onTap: () {},
+                        ),
+                        const SizedBox(height: 20),
+                        // Sign out
+                        GestureDetector(
+                          onTap: () async {
+                            await auth.logout();
+                            if (mounted) context.go('/login');
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color:        AppColors.error.withOpacity(0.06),
+                              borderRadius: BorderRadius.circular(12),
+                              border:       Border.all(
+                                color: AppColors.error.withOpacity(0.2)),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.logout_rounded,
+                                  size: 16, color: AppColors.error),
+                                const SizedBox(width: 8),
+                                Text('Sign Out',
+                                  style: AppTextStyles.body.copyWith(
+                                    color:      AppColors.error,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize:   14)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ]),
                     ),
                   ),
-                  const SizedBox(height: 20),
 
-                  // ── Settings tiles ─────────────────────────────────────
-                  _SettingsTile(
-                    icon:     Icons.text_fields_outlined,
-                    label:    'Reading Preferences',
-                    subtitle: 'Font, theme, line spacing',
-                    onTap:    () => context.push('/profile/preferences'),
-                  ),
-                  _SettingsTile(
-                    icon:     Icons.language_outlined,
-                    label:    'Language Preferences',
-                    subtitle: 'Translation & AI language',
-                    onTap:    () => context.push('/profile/language-prefs'),
-                  ),
-                  _SettingsTile(
-                    icon:     Icons.notifications_outlined,
-                    label:    'Notifications',
-                    subtitle: 'Alerts & reminders',
-                    onTap:    () {},
-                  ),
-                  const SizedBox(height: 24),
-
-                  // ── Sign out ───────────────────────────────────────────
-                  OutlinedButton.icon(
-                    onPressed: () => auth.logout(),
-                    icon:  const Icon(Icons.logout, color: AppColors.error, size: 18),
-                    label: const Text('Sign Out',
-                        style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w600)),
-                    style: OutlinedButton.styleFrom(
-                      side:    const BorderSide(color: AppColors.error),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape:   RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  // Footer
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Column(children: [
+                        Text('POWERED BY GOOGLE',
+                          style: GoogleFonts.inter(
+                            fontSize: 9, letterSpacing: 1.4,
+                            color: AppColors.textHint.withOpacity(0.6))),
+                        const SizedBox(height: 4),
+                        Row(mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _footerLink('Privacy'),
+                            _footerDot(),
+                            _footerLink('Terms'),
+                            _footerDot(),
+                            _footerLink('Koha ILS'),
+                          ],
+                        ),
+                      ]),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SliverToBoxAdapter(child: SizedBox(height: 8)),
                 ],
               ),
             ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  final String  label;
-  final Color   color;
-  final Color   textColor;
-  final Color?  borderColor;
-  const _Chip({required this.label, required this.color, required this.textColor, this.borderColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
-      decoration: BoxDecoration(
-        color:        color,
-        borderRadius: BorderRadius.circular(12),
-        border: borderColor != null ? Border.all(color: borderColor!) : null,
       ),
-      child: Text(label,
-          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: textColor)),
     );
   }
+
+  Widget _divider() => Container(
+    width: 1, height: 36,
+    color: AppColors.border,
+    margin: const EdgeInsets.symmetric(horizontal: 16));
+
+  Widget _footerLink(String t) => Text(t, style: GoogleFonts.inter(
+    fontSize: 10,
+    color: AppColors.textHint.withOpacity(0.6),
+    decoration: TextDecoration.underline,
+    decorationColor: AppColors.textHint.withOpacity(0.3)));
+
+  Widget _footerDot() => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 6),
+    child: Text('·', style: TextStyle(
+      fontSize: 10, color: AppColors.textHint.withOpacity(0.5))));
 }
 
-class _StatCard extends StatelessWidget {
-  final String label;
+// ── Sub-widgets ───────────────────────────────────────────────────────────────
+class _StatCell extends StatelessWidget {
   final String value;
-  const _StatCard({required this.label, required this.value});
+  final String label;
+  const _StatCell({required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color:        AppColors.background,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
-        ),
-        child: Column(children: [
-          Text(value,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700,
-                  color: AppColors.primary)),
-          const SizedBox(height: 2),
-          Text(label,
-              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-        ]),
+      child: Column(children: [
+        Text(value, style: AppTextStyles.h2.copyWith(
+          color: AppColors.textPrimary, fontSize: 22)),
+        const SizedBox(height: 2),
+        Text(label, style: AppTextStyles.label.copyWith(
+          color: AppColors.textSecondary)),
+      ]),
+    );
+  }
+}
+
+class _Card extends StatelessWidget {
+  final Widget child;
+  const _Card({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color:        AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(
+          color:      Colors.black.withOpacity(0.04),
+          blurRadius: 8,
+          offset:     const Offset(0, 2))],
       ),
+      child: child,
     );
   }
 }
@@ -252,33 +454,34 @@ class _StatCard extends StatelessWidget {
 class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String   label;
-  final String   subtitle;
   final VoidCallback onTap;
-  const _SettingsTile({required this.icon, required this.label, required this.subtitle, required this.onTap});
+  const _SettingsTile({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color:        AppColors.background,
+        color:        AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+        boxShadow: [BoxShadow(
+          color: Colors.black.withOpacity(0.04), blurRadius: 8,
+          offset: const Offset(0, 2))],
       ),
       child: ListTile(
-        onTap:        onTap,
+        onTap:       onTap,
         leading: Container(
           width: 36, height: 36,
           decoration: BoxDecoration(
-            color:        AppColors.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
+            color:        AppColors.primary.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(10)),
           child: Icon(icon, color: AppColors.primary, size: 18),
         ),
-        title:    Text(label,    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-        trailing: const Icon(Icons.chevron_right, color: AppColors.grey500, size: 20),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        title: Text(label, style: AppTextStyles.body.copyWith(
+          fontSize: 14, fontWeight: FontWeight.w500)),
+        trailing: const Icon(Icons.chevron_right_rounded,
+          color: AppColors.grey500, size: 20),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );

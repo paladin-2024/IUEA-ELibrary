@@ -1,40 +1,59 @@
-import { clsx } from 'clsx';
-import LoadingSpinner from './LoadingSpinner';
+import { FiLoader } from 'react-icons/fi';
+import { cn }       from '../../utils/cn';
+
+/*
+ * Button — pixel-perfect Stitch design system
+ *
+ * Variants:
+ *   primary   — bg-primary-container (#7b0d1e) white text   (main CTA)
+ *   secondary — white bg, primary border+text               (outline)
+ *   ghost     — transparent bg, primary text                (low-emphasis)
+ *   danger    — error bg (#ba1a1a), white text
+ *   accent    — tertiary-container (#c9a84c) gold bg
+ */
 
 const variants = {
-  primary:   'bg-primary text-white hover:bg-primary-dark active:bg-primary-dark',
-  secondary: 'bg-accent text-primary font-semibold hover:bg-accent-light',
-  ghost:     'bg-transparent text-primary border border-primary hover:bg-primary/5',
-  danger:    'bg-red-600 text-white hover:bg-red-700',
+  primary: 'bg-primary-container text-white hover:bg-primary shadow-btn active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+  secondary: 'border border-outline-variant bg-surface-container-lowest text-primary hover:bg-surface-container-low active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+  ghost: 'text-primary hover:bg-surface-container-low active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+  danger: 'bg-error text-white hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+  accent: 'bg-tertiary-container text-on-tertiary-container hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
 };
 
 const sizes = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-5 py-2.5 text-sm',
-  lg: 'px-7 py-3 text-base',
+  sm:   'text-xs px-3 py-2 rounded-lg',
+  md:   'text-sm px-5 py-3 rounded-xl',
+  lg:   'text-base px-6 py-4 rounded-xl',
+  full: 'text-sm px-5 py-4 rounded-xl w-full',
 };
 
 export default function Button({
   children,
-  variant  = 'primary',
-  size     = 'md',
+  variant   = 'primary',
+  size      = 'md',
   isLoading = false,
   disabled  = false,
+  icon,
   className = '',
   ...props
 }) {
   return (
     <button
-      className={clsx(
-        'rounded-btn font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed',
-        variants[variant],
-        sizes[size],
-        className
+      className={cn(
+        'font-label font-bold transition-all duration-150',
+        'inline-flex items-center justify-center gap-2',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container/40',
+        variants[variant] ?? variants.primary,
+        sizes[size]       ?? sizes.md,
+        className,
       )}
       disabled={disabled || isLoading}
       {...props}
     >
-      {isLoading && <LoadingSpinner size="sm" />}
+      {isLoading
+        ? <FiLoader className="animate-spin w-4 h-4 flex-shrink-0" />
+        : (icon ? <span className="flex-shrink-0">{icon}</span> : null)
+      }
       {children}
     </button>
   );

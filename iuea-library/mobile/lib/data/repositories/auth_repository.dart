@@ -8,10 +8,11 @@ class AuthRepository {
   AuthRepository(this._api);
 
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final data = await _api.post(
-      ApiConstants.login,
-      body: {'email': email, 'password': password},
+    final res  = await _api.post(
+      ApiConstants.authLogin,
+      data: {'email': email, 'password': password},
     );
+    final data = res.data as Map<String, dynamic>;
     await StorageUtil.saveToken(data['token'] as String);
     return data;
   }
@@ -22,33 +23,35 @@ class AuthRepository {
     required String password,
     String language = 'en',
   }) async {
-    final data = await _api.post(
-      ApiConstants.register,
-      body: {'name': name, 'email': email, 'password': password, 'language': language},
+    final res  = await _api.post(
+      ApiConstants.authRegister,
+      data: {'name': name, 'email': email, 'password': password, 'language': language},
     );
+    final data = res.data as Map<String, dynamic>;
     await StorageUtil.saveToken(data['token'] as String);
     return data;
   }
 
   Future<Map<String, dynamic>> googleAuth(String idToken) async {
-    final data = await _api.post(
-      ApiConstants.googleAuth,
-      body: {'idToken': idToken},
+    final res  = await _api.post(
+      ApiConstants.authGoogle,
+      data: {'idToken': idToken},
     );
+    final data = res.data as Map<String, dynamic>;
     await StorageUtil.saveToken(data['token'] as String);
     return data;
   }
 
   Future<UserModel> getMe() async {
-    final data = await _api.get(ApiConstants.me);
-    return UserModel.fromJson(data['user'] as Map<String, dynamic>);
+    final res = await _api.get(ApiConstants.authMe);
+    return UserModel.fromJson(res.data as Map<String, dynamic>);
   }
 
   Future<void> updateFcmToken(String token) async {
-    await _api.post(ApiConstants.fcmToken, body: {'fcmToken': token});
+    await _api.post(ApiConstants.authFcmToken, data: {'token': token, 'platform': 'mobile'});
   }
 
   Future<void> logout() async {
-    await StorageUtil.deleteToken();
+    await StorageUtil.clearToken();
   }
 }

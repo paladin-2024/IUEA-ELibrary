@@ -1,106 +1,209 @@
-import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Search, BookOpen, Mic2, User, Menu, X, LogOut } from 'lucide-react';
-import useAuthStore from '../../store/authStore';
+import { useState }                            from 'react';
+import { Link, NavLink, useNavigate }          from 'react-router-dom';
+import {
+  FiSearch, FiBell, FiUser, FiMenu, FiX,
+  FiLogOut, FiSettings,
+} from 'react-icons/fi';
+import useAuthStore  from '../../store/authStore';
 import { useLogout } from '../../hooks/useAuth';
 
+/**
+ * Navbar — pixel-perfect Stitch design.
+ *
+ * Mobile: IUEA logo + "IUEA Library" headline, right = search + bell + avatar
+ * Desktop: same + horizontal nav links (Library / Search / Podcasts)
+ * Background: surface-container-low (#fff0f0) with backdrop blur
+ */
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchQ,  setSearchQ]  = useState('');
   const { user }  = useAuthStore();
   const logout    = useLogout();
   const navigate  = useNavigate();
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQ.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQ.trim())}`);
-      setSearchQ('');
-    }
-  };
+  const navLinks = [
+    { to: '/home',      label: 'Home'      },
+    { to: '/search',    label: 'Search'    },
+    { to: '/library',   label: 'Library'   },
+    { to: '/podcasts',  label: 'Podcasts'  },
+    { to: '/downloads', label: 'Downloads' },
+  ];
 
   return (
-    <header className="bg-primary text-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-serif text-xl font-semibold">
-          <BookOpen size={22} className="text-accent" />
+    <header
+      className="sticky top-0 w-full z-40 h-16 flex justify-between items-center
+                 px-4 md:px-8 bg-surface-container-low/80 backdrop-blur-xl
+                 border-b border-outline-variant/10"
+    >
+      {/* ── Left: Logo + Brand ─────────────────────────────────────────── */}
+      <Link to="/home" className="flex items-center gap-2 flex-shrink-0">
+        <img
+          src="/iuea_logo.png"
+          alt="IUEA Logo"
+          className="h-8 w-auto object-contain"
+          onError={e => { e.currentTarget.style.display = 'none'; }}
+        />
+        <span className="font-headline text-lg font-bold text-primary ml-1">
           IUEA Library
-        </Link>
+        </span>
+      </Link>
 
-        {/* Search */}
-        <form onSubmit={handleSearch} className="hidden md:flex items-center bg-primary-dark rounded-input px-3 py-1.5 gap-2 w-80">
-          <Search size={15} className="text-primary-light shrink-0" />
-          <input
-            value={searchQ}
-            onChange={(e) => setSearchQ(e.target.value)}
-            placeholder="Search books, authors…"
-            className="bg-transparent text-sm text-white placeholder-primary-light outline-none flex-1"
-          />
-        </form>
-
-        {/* Nav links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm">
-          <NavLink to="/search"   className={({ isActive }) => isActive ? 'text-accent' : 'hover:text-accent transition-colors'}>Search</NavLink>
-          <NavLink to="/podcasts" className={({ isActive }) => isActive ? 'text-accent' : 'hover:text-accent transition-colors'}>
-            <span className="flex items-center gap-1"><Mic2 size={14} /> Podcasts</span>
+      {/* ── Center: Desktop Nav Links ──────────────────────────────────── */}
+      <nav className="hidden md:flex items-center gap-6">
+        {navLinks.map(({ to, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              `font-label text-sm font-medium transition-colors ${
+                isActive
+                  ? 'text-primary-container font-semibold'
+                  : 'text-on-surface-variant hover:text-primary'
+              }`
+            }
+          >
+            {label}
           </NavLink>
-          {user ? (
-            <>
-              <NavLink to="/library" className={({ isActive }) => isActive ? 'text-accent' : 'hover:text-accent transition-colors'}>My Library</NavLink>
-              <div className="relative group">
-                <button className="flex items-center gap-1 hover:text-accent transition-colors">
-                  <User size={16} /> {user.name.split(' ')[0]}
-                </button>
-                <div className="absolute right-0 mt-2 w-44 bg-white text-gray-700 rounded-card shadow-card opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all text-sm">
-                  <Link to="/profile" className="block px-4 py-2 hover:bg-surface">Profile</Link>
-                  {user.role === 'admin' && <Link to="/admin" className="block px-4 py-2 hover:bg-surface">Admin Panel</Link>}
-                  <button onClick={logout} className="w-full text-left px-4 py-2 hover:bg-surface flex items-center gap-2 text-red-600">
-                    <LogOut size={13} /> Logout
-                  </button>
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <Link to="/login"    className="hover:text-accent transition-colors">Login</Link>
-              <Link to="/register" className="bg-accent text-primary font-semibold px-4 py-1.5 rounded-btn hover:bg-accent-light transition-colors text-sm">Sign Up</Link>
-            </>
-          )}
-        </nav>
+        ))}
+        {user?.role === 'admin' && (
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              `font-label text-sm font-medium transition-colors ${
+                isActive ? 'text-tertiary font-semibold' : 'text-tertiary/70 hover:text-tertiary'
+              }`
+            }
+          >
+            Admin
+          </NavLink>
+        )}
+      </nav>
 
-        {/* Mobile toggle */}
-        <button className="md:hidden" onClick={() => setMenuOpen((v) => !v)}>
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+      {/* ── Right: Actions ─────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2">
+        {/* Search (visible on all sizes) */}
+        <button
+          onClick={() => navigate('/search')}
+          className="p-2 text-primary hover:bg-surface-container rounded-full transition-colors"
+          aria-label="Search"
+        >
+          <FiSearch size={20} />
+        </button>
+
+        {/* Notifications */}
+        {user && (
+          <button
+            onClick={() => navigate('/notifications')}
+            className="p-2 text-primary hover:bg-surface-container rounded-full transition-colors relative"
+            aria-label="Notifications"
+          >
+            <FiBell size={20} />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" />
+          </button>
+        )}
+
+        {/* Avatar / Profile dropdown */}
+        {user ? (
+          <div className="relative group">
+            <button
+              className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30 hover:ring-2 hover:ring-primary-container/20 transition-all"
+              aria-label="Profile"
+            >
+              {user.avatar
+                ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                : <div className="w-full h-full bg-primary-container flex items-center justify-center">
+                    <FiUser size={14} className="text-white" />
+                  </div>
+              }
+            </button>
+
+            {/* Dropdown */}
+            <div className="absolute right-0 top-10 w-48 bg-surface-container-lowest rounded-xl shadow-modal
+                            border border-outline-variant/10 opacity-0 invisible
+                            group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
+              <div className="px-4 py-3 border-b border-outline-variant/10">
+                <p className="text-sm font-semibold text-on-surface truncate">{user.name}</p>
+                <p className="text-xs text-on-surface-variant truncate">{user.email}</p>
+              </div>
+              <div className="py-1">
+                <Link to="/profile" className="flex items-center gap-2 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-low transition-colors">
+                  <FiUser size={14} /> Profile
+                </Link>
+                {user.role === 'admin' && (
+                  <Link to="/admin" className="flex items-center gap-2 px-4 py-2.5 text-sm text-tertiary hover:bg-surface-container-low transition-colors">
+                    <FiSettings size={14} /> Admin Panel
+                  </Link>
+                )}
+                <button
+                  onClick={logout}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-error hover:bg-surface-container-low transition-colors"
+                >
+                  <FiLogOut size={14} /> Sign out
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className="font-label text-sm font-semibold px-4 py-2
+                       bg-primary-container text-on-primary rounded-xl
+                       hover:bg-primary transition-colors"
+          >
+            Sign In
+          </Link>
+        )}
+
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden p-2 text-primary-container hover:bg-surface-container rounded-full"
+          onClick={() => setMenuOpen(v => !v)}
+          aria-label="Menu"
+        >
+          {menuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* ── Mobile dropdown menu ────────────────────────────────────────── */}
       {menuOpen && (
-        <div className="md:hidden bg-primary-dark px-4 pb-4 space-y-3 text-sm">
-          <form onSubmit={handleSearch} className="flex items-center bg-primary rounded-input px-3 py-2 gap-2 mt-2">
-            <Search size={14} />
-            <input
-              value={searchQ}
-              onChange={(e) => setSearchQ(e.target.value)}
-              placeholder="Search…"
-              className="bg-transparent text-white placeholder-primary-light outline-none flex-1 text-sm"
-            />
-          </form>
-          <Link to="/search"   onClick={() => setMenuOpen(false)} className="block py-1">Search</Link>
-          <Link to="/podcasts" onClick={() => setMenuOpen(false)} className="block py-1">Podcasts</Link>
-          {user ? (
-            <>
-              <Link to="/library" onClick={() => setMenuOpen(false)} className="block py-1">My Library</Link>
-              <Link to="/profile" onClick={() => setMenuOpen(false)} className="block py-1">Profile</Link>
-              <button onClick={logout} className="block py-1 text-red-400">Logout</button>
-            </>
-          ) : (
-            <>
-              <Link to="/login"    onClick={() => setMenuOpen(false)} className="block py-1">Login</Link>
-              <Link to="/register" onClick={() => setMenuOpen(false)} className="block py-1">Sign Up</Link>
-            </>
-          )}
+        <div
+          className="md:hidden absolute top-16 left-0 right-0
+                     bg-surface-container-low/95 backdrop-blur-xl
+                     border-b border-outline-variant/10 z-40"
+        >
+          <div className="flex flex-col py-2">
+            {navLinks.map(({ to, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                onClick={() => setMenuOpen(false)}
+                className={({ isActive }) =>
+                  `px-6 py-3 font-label text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'text-primary-container bg-surface-container'
+                      : 'text-on-surface-variant hover:bg-surface-container'
+                  }`
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
+            {user ? (
+              <button
+                onClick={() => { logout(); setMenuOpen(false); }}
+                className="px-6 py-3 font-label text-sm text-error text-left hover:bg-surface-container transition-colors"
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setMenuOpen(false)}
+                className="px-6 py-3 font-label text-sm font-semibold text-primary-container"
+              >
+                Sign In
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </header>

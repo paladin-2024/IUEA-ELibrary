@@ -1,158 +1,318 @@
-import { useState, useEffect } from 'react';
-import { useNavigate }         from 'react-router-dom';
-import {
-  FiUser, FiEdit2, FiBell, FiBookOpen, FiLogOut, FiChevronRight,
-} from 'react-icons/fi';
-import { MdTranslate }         from 'react-icons/md';
-import { useLogout }           from '../../hooks/useAuth';
-import useAuthStore            from '../../store/authStore';
-import api                     from '../../services/api';
+import { useState, useEffect }    from 'react';
+import { useNavigate }            from 'react-router-dom';
+import { useLogout }              from '../../hooks/useAuth';
+import useAuthStore               from '../../store/authStore';
+import api                        from '../../services/api';
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   ProfilePage — premium redesign
+   ───────────────────────────────────────────────────────────────────────────── */
 export default function ProfilePage() {
-  const { user }                    = useAuthStore();
-  const logout                      = useLogout();
-  const navigate                    = useNavigate();
-  const [stats, setStats]           = useState({ booksRead: 0, hoursRead: 0, streak: 0, goalPct: 0 });
+  const { user }   = useAuthStore();
+  const logout     = useLogout();
+  const navigate   = useNavigate();
+  const [stats, setStats] = useState({ booksRead: 0, hoursRead: 0, streak: 0, goalPct: 0 });
 
   useEffect(() => {
     api.get('/progress').then(({ data }) => {
-      const list      = data.progress ?? [];
-      const finished  = list.filter((p) => p.isCompleted).length;
-      const hours     = list.reduce((s, p) => s + (p.minutesRead ?? 0), 0) / 60;
-      const goalBooks = user?.readingGoal ?? 12;
+      const list     = data.progress ?? [];
+      const finished = list.filter(p => p.isCompleted).length;
+      const hours    = list.reduce((s, p) => s + (p.totalReadingMinutes ?? 0), 0) / 60;
+      const goal     = user?.readingGoal ?? 12;
       setStats({
         booksRead: finished,
         hoursRead: Math.round(hours * 10) / 10,
         streak:    user?.streak ?? 0,
-        goalPct:   Math.min(Math.round((finished / goalBooks) * 100), 100),
+        goalPct:   Math.min(Math.round((finished / goal) * 100), 100),
       });
     }).catch(() => {});
   }, []);
 
-  const tiles = [
-    {
-      icon: FiBookOpen,
-      label: 'Reading Preferences',
-      sub:   'Font, theme, line spacing',
-      to:    '/profile/reading-preferences',
-    },
-    {
-      icon: MdTranslate,
-      label: 'Language Preferences',
-      sub:   'Translation & AI language',
-      to:    '/profile/language-preferences',
-    },
-    {
-      icon: FiBell,
-      label: 'Notifications',
-      sub:   'Alerts & reminders',
-      to:    null,
-    },
+  const initials = user?.name
+    ? user.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
+    : '?';
+
+  const QUICK_LINKS = [
+    { icon: 'library_books',  label: 'My Library',  to: '/home/library',              bg: '#7b0d1e' },
+    { icon: 'download',       label: 'Downloads',   to: '/home/library/downloads',     bg: '#56000f' },
+    { icon: 'bookmark',       label: 'Bookmarks',   to: '/home/library/highlights',    bg: '#c9a84c' },
+    { icon: 'history',        label: 'History',     to: '/home/library',              bg: '#984447' },
+  ];
+
+  const SETTINGS_ROWS = [
+    { icon: 'tune',       label: 'Appearance & Reading',  sub: 'Font, theme, display',         to: '/home/settings'                           },
+    { icon: 'translate',  label: 'Language',              sub: 'Translation & TTS',            to: '/home/settings?tab=language'              },
+    { icon: 'notifications', label: 'Notifications',      sub: 'Alerts & reminders',           to: '/home/settings?tab=notifications'         },
+    { icon: 'info',       label: 'About',                 sub: 'Version 1.0 · IUEA Library',   to: '/home/settings?tab=about'                 },
   ];
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      {/* ── Avatar & identity ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center flex-shrink-0 shadow-card">
-          {user?.avatarUrl
-            ? <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover rounded-full" />
-            : <FiUser size={34} className="text-white" />
-          }
-        </div>
+    <div style={{ maxWidth: 680, margin: '0 auto', padding: '2rem 1.5rem 4rem' }}>
 
-        <div className="flex-1 min-w-0">
-          <h1 className="font-serif text-xl font-bold text-gray-900 leading-tight truncate">
-            {user?.name ?? '—'}
-          </h1>
-          <p className="text-sm text-gray-500 truncate">{user?.email}</p>
-          <div className="flex flex-wrap gap-1.5 mt-1.5">
-            {user?.studentId && (
-              <span className="text-[10px] bg-surface border border-gray-200 text-gray-500 px-2 py-0.5 rounded-full font-medium">
-                {user.studentId}
-              </span>
-            )}
-            {user?.faculty && (
-              <span className="text-[10px] bg-accent/15 text-accent-dark border border-accent/30 px-2 py-0.5 rounded-full font-semibold">
-                {user.faculty}
-              </span>
-            )}
-            <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium capitalize">
-              {user?.role ?? 'student'}
-            </span>
+      {/* ── Hero ───────────────────────────────────────────────────────────── */}
+      <div style={{
+        borderRadius: 24,
+        background: 'linear-gradient(135deg, #56000f 0%, #7b0d1e 50%, #3d0009 100%)',
+        padding: '2rem',
+        marginBottom: '1.5rem',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Background decoration */}
+        <div style={{
+          position: 'absolute', top: -40, right: -40,
+          width: 200, height: 200, borderRadius: '50%',
+          background: 'rgba(201,168,76,0.12)',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: -60, left: -20,
+          width: 180, height: 180, borderRadius: '50%',
+          background: 'rgba(255,255,255,0.04)',
+          pointerEvents: 'none',
+        }} />
+
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          {/* Avatar */}
+          <div style={{
+            width: 80, height: 80, borderRadius: '50%', flexShrink: 0,
+            background: 'linear-gradient(135deg, #c9a84c, #e6c96a)',
+            border: '3px solid rgba(255,255,255,0.2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+            overflow: 'hidden',
+          }}>
+            {user?.avatar
+              ? <img src={user.avatar} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{
+                  fontFamily: 'Newsreader, Georgia, serif',
+                  fontSize: 28, fontWeight: 800, color: '#3d2900',
+                }}>{initials}</span>
+            }
           </div>
-        </div>
 
-        <button
-          onClick={() => {}}
-          className="flex-shrink-0 flex items-center gap-1 text-xs text-primary font-medium hover:underline"
-        >
-          <FiEdit2 size={13} />
-          Edit
-        </button>
+          {/* Identity */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1 style={{
+              fontFamily: 'Newsreader, Georgia, serif',
+              fontSize: 22, fontWeight: 800, color: '#fff',
+              margin: '0 0 4px', lineHeight: 1.2,
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>{user?.name ?? '—'}</h1>
+            <p style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 12, color: 'rgba(255,209,212,0.8)',
+              margin: '0 0 10px',
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>{user?.email}</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {user?.studentId && (
+                <Pill label={user.studentId} light />
+              )}
+              {user?.faculty && (
+                <Pill label={user.faculty} gold />
+              )}
+              <Pill label={user?.role ?? 'Student'} light />
+            </div>
+          </div>
+
+          {/* Edit button */}
+          <button
+            onClick={() => navigate('/home/settings')}
+            style={{
+              position: 'absolute', top: 0, right: 0,
+              background: 'rgba(255,255,255,0.12)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: 10, color: '#fff', cursor: 'pointer',
+              padding: '6px 14px',
+              fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: 6,
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>edit</span>
+            Edit
+          </button>
+        </div>
       </div>
 
       {/* ── Stats row ──────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.75rem',
+        marginBottom: '1.5rem',
+      }}>
         {[
-          { label: 'Books Read',  value: stats.booksRead },
-          { label: 'Hours Read',  value: stats.hoursRead },
-          { label: 'Day Streak',  value: stats.streak },
-        ].map(({ label, value }) => (
-          <div key={label} className="bg-white rounded-card shadow-card px-3 py-3 text-center">
-            <p className="text-xl font-bold text-primary">{value}</p>
-            <p className="text-[11px] text-gray-400 mt-0.5">{label}</p>
+          { label: 'Books Read',  value: stats.booksRead, icon: 'menu_book'  },
+          { label: 'Hours Read',  value: stats.hoursRead, icon: 'schedule'   },
+          { label: 'Day Streak',  value: stats.streak,    icon: 'local_fire_department' },
+        ].map(({ label, value, icon }) => (
+          <div key={label} style={{
+            background: '#fff', borderRadius: 16,
+            padding: '1rem', textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(86,0,15,0.07)',
+            border: '1px solid rgba(223,191,190,0.3)',
+          }}>
+            <span className="material-symbols-outlined" style={{
+              fontSize: 20, color: '#c9a84c',
+              fontVariationSettings: "'FILL' 1", display: 'block', marginBottom: 4,
+            }}>{icon}</span>
+            <p style={{
+              fontFamily: 'Newsreader, Georgia, serif',
+              fontSize: 24, fontWeight: 800, color: '#7b0d1e', margin: 0, lineHeight: 1,
+            }}>{value}</p>
+            <p style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 10, color: '#8b7170', marginTop: 4, fontWeight: 500,
+            }}>{label}</p>
           </div>
         ))}
       </div>
 
-      {/* ── Reading goal ───────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-card shadow-card px-4 py-3 mb-5">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-sm font-medium text-gray-700">Annual Reading Goal</span>
-          <span className="text-xs font-semibold text-primary">{stats.goalPct}%</span>
+      {/* ── Annual reading goal ────────────────────────────────────────────── */}
+      <div style={{
+        background: '#fff', borderRadius: 16, padding: '1.25rem 1.5rem',
+        boxShadow: '0 2px 8px rgba(86,0,15,0.07)',
+        border: '1px solid rgba(223,191,190,0.3)',
+        marginBottom: '1.5rem',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700, color: '#1a0609', margin: 0 }}>
+              Annual Reading Goal
+            </p>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#8b7170', margin: '2px 0 0' }}>
+              {stats.booksRead} of {user?.readingGoal ?? 12} books completed
+            </p>
+          </div>
+          <span style={{
+            fontFamily: 'Newsreader, Georgia, serif',
+            fontSize: 22, fontWeight: 800, color: '#7b0d1e',
+          }}>{stats.goalPct}%</span>
         </div>
-        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary rounded-full transition-all"
-            style={{ width: `${stats.goalPct}%` }}
-          />
+        <div style={{ height: 8, background: '#ffd9dc', borderRadius: 99, overflow: 'hidden' }}>
+          <div style={{
+            height: '100%',
+            width: `${stats.goalPct}%`,
+            background: 'linear-gradient(90deg, #7b0d1e, #c9a84c)',
+            borderRadius: 99,
+            transition: 'width 0.6s ease',
+          }} />
         </div>
-        <p className="text-xs text-gray-400 mt-1">
-          {stats.booksRead} of {user?.readingGoal ?? 12} books · keep it up!
-        </p>
       </div>
 
-      {/* ── Settings tiles ─────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-card shadow-card divide-y divide-gray-100 mb-5">
-        {tiles.map(({ icon: Icon, label, sub, to }) => (
-          <button
-            key={label}
-            onClick={() => to && navigate(to)}
-            className={`w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors ${
-              to ? 'hover:bg-surface' : 'opacity-60 cursor-default'
-            }`}
+      {/* ── Quick access ───────────────────────────────────────────────────── */}
+      <p style={sectionLabel}>Quick Access</p>
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.75rem',
+        marginBottom: '1.5rem',
+      }}>
+        {QUICK_LINKS.map(({ icon, label, to, bg }) => (
+          <button key={label} onClick={() => navigate(to)} style={{
+            background: '#fff',
+            border: '1px solid rgba(223,191,190,0.3)',
+            borderRadius: 14, padding: '1rem 0.5rem',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', gap: 8,
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(86,0,15,0.06)',
+            transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(86,0,15,0.12)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(86,0,15,0.06)'; }}
           >
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Icon size={16} className="text-primary" />
+            <div style={{
+              width: 40, height: 40, borderRadius: 12,
+              background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span className="material-symbols-outlined" style={{
+                fontSize: 20, color: '#fff', fontVariationSettings: "'FILL' 1",
+              }}>{icon}</span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900">{label}</p>
-              <p className="text-xs text-gray-400">{sub}</p>
+            <span style={{
+              fontFamily: 'Inter, sans-serif', fontSize: 10, fontWeight: 600,
+              color: '#1a0609', textAlign: 'center', lineHeight: 1.3,
+            }}>{label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* ── Settings list ──────────────────────────────────────────────────── */}
+      <p style={sectionLabel}>Settings</p>
+      <div style={{
+        background: '#fff', borderRadius: 16,
+        boxShadow: '0 2px 8px rgba(86,0,15,0.07)',
+        border: '1px solid rgba(223,191,190,0.3)',
+        overflow: 'hidden',
+        marginBottom: '1.5rem',
+      }}>
+        {SETTINGS_ROWS.map(({ icon, label, sub, to }, i) => (
+          <button key={label} onClick={() => navigate(to)} style={{
+            width: '100%', display: 'flex', alignItems: 'center', gap: '1rem',
+            padding: '1rem 1.25rem', background: 'none', border: 'none',
+            borderTop: i > 0 ? '1px solid rgba(223,191,190,0.2)' : 'none',
+            cursor: 'pointer', textAlign: 'left',
+            transition: 'background 0.15s ease',
+          }}
+            onMouseEnter={e => (e.currentTarget.style.background = '#fff8f7')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+          >
+            <div style={{
+              width: 38, height: 38, borderRadius: 10,
+              background: 'rgba(123,13,30,0.08)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#7b0d1e' }}>{icon}</span>
             </div>
-            {to && <FiChevronRight size={16} className="text-gray-400 flex-shrink-0" />}
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600, color: '#1a0609', margin: 0 }}>{label}</p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#8b7170', margin: '2px 0 0' }}>{sub}</p>
+            </div>
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#dfbfbe' }}>chevron_right</span>
           </button>
         ))}
       </div>
 
       {/* ── Sign out ───────────────────────────────────────────────────────── */}
-      <button
-        onClick={logout}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-btn border border-red-200 text-red-500 text-sm font-medium hover:bg-red-50 transition-colors"
+      <button onClick={logout} style={{
+        width: '100%', padding: '0.875rem', borderRadius: 14,
+        border: '1.5px solid rgba(220,38,38,0.3)',
+        background: 'rgba(220,38,38,0.04)',
+        color: '#dc2626',
+        fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700,
+        cursor: 'pointer', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', gap: 8,
+        transition: 'background 0.15s ease',
+      }}
+        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(220,38,38,0.09)')}
+        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(220,38,38,0.04)')}
       >
-        <FiLogOut size={16} />
+        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>logout</span>
         Sign Out
       </button>
     </div>
   );
 }
+
+/* ── Helpers ─────────────────────────────────────────────────────────────── */
+function Pill({ label, light, gold }) {
+  return (
+    <span style={{
+      fontFamily: 'Inter, sans-serif',
+      fontSize: 9, fontWeight: 700, letterSpacing: '0.05em',
+      textTransform: 'uppercase',
+      padding: '3px 9px', borderRadius: 99,
+      background: gold
+        ? 'rgba(201,168,76,0.85)'
+        : 'rgba(255,255,255,0.15)',
+      color: gold ? '#3d2900' : 'rgba(255,255,255,0.9)',
+      border: gold ? 'none' : '1px solid rgba(255,255,255,0.2)',
+    }}>{label}</span>
+  );
+}
+
+const sectionLabel = {
+  fontFamily: 'Inter, sans-serif',
+  fontSize: 10, fontWeight: 700, letterSpacing: '0.12em',
+  textTransform: 'uppercase', color: '#8b7170',
+  marginBottom: '0.75rem', display: 'block',
+};

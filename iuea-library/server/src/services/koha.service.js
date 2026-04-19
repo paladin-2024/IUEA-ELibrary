@@ -1,5 +1,5 @@
 const axios  = require('axios');
-const { Book } = require('../models');
+const prisma = require('../config/prisma');
 
 const KOHA_BASE_URL     = process.env.KOHA_BASE_URL;
 const KOHA_CLIENT_ID    = process.env.KOHA_CLIENT_ID;
@@ -206,11 +206,11 @@ const syncCatalogueToMongoDB = async () => {
         const normalized = await normalizeBiblio(record);
         if (!normalized.kohaId) continue;
 
-        await Book.findOneAndUpdate(
-          { kohaId: normalized.kohaId },
-          { $set: normalized },
-          { upsert: true, new: true }
-        );
+        await prisma.book.upsert({
+          where:  { kohaId: normalized.kohaId },
+          update: normalized,
+          create: { ...normalized, category: normalized.category || 'General' },
+        });
         count++;
       } catch (err) {
         console.error(`[koha.service] Failed to upsert biblio:`, err.message);

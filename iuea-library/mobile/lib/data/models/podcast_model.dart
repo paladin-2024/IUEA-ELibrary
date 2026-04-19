@@ -17,8 +17,8 @@ class EpisodeModel {
 
   factory EpisodeModel.fromJson(Map<String, dynamic> json) {
     return EpisodeModel(
-      id:          json['_id']         as String? ?? '',
-      title:       json['title']       as String,
+      id:          (json['_id'] ?? json['id'] ?? '') as String,
+      title:       json['title']       as String? ?? '',
       description: json['description'] as String? ?? '',
       audioUrl:    json['audioUrl']    as String,
       duration:    (json['duration']   as num?)?.toInt() ?? 0,
@@ -59,18 +59,43 @@ class PodcastModel {
   });
 
   factory PodcastModel.fromJson(Map<String, dynamic> json) {
+    // DB records use '_id'; live external episodes use 'id'
+    final id = (json['_id'] ?? json['id'] ?? '') as String;
+
+    // Build episode list — external items are episodes themselves
+    List<EpisodeModel> episodes;
+    if (json['isExternal'] == true && json['audioUrl'] != null) {
+      // Wrap the external episode as a single episode of itself
+      episodes = [
+        EpisodeModel(
+          id:          id,
+          title:       json['title']       as String? ?? '',
+          description: json['description'] as String? ?? '',
+          audioUrl:    json['audioUrl']    as String,
+          duration:    (json['duration']   as num?)?.toInt() ?? 0,
+          publishedAt: json['publishedAt'] != null
+              ? DateTime.tryParse(json['publishedAt'] as String)
+              : null,
+        ),
+      ];
+    } else {
+      episodes = (json['episodes'] as List<dynamic>?)
+              ?.map((e) => EpisodeModel.fromJson(e as Map<String, dynamic>))
+              .toList() ?? [];
+    }
+
     return PodcastModel(
-      id:          json['_id']         as String,
-      title:       json['title']       as String,
+      id:          id,
+      title:       json['title']       as String? ?? '',
       description: json['description'] as String? ?? '',
-      author:      json['author']      as String? ?? '',
+      author:      (json['author'] ?? json['hostName'] ?? '') as String,
       coverUrl:    json['coverUrl']    as String? ?? '',
       language:    json['language']    as String? ?? 'en',
       category:    json['category']    as String?,
-      episodes:   (json['episodes']    as List<dynamic>?)
-              ?.map((e) => EpisodeModel.fromJson(e as Map<String, dynamic>))
-              .toList() ?? [],
-      subscriberCount: (json['subscribers'] as List<dynamic>?)?.length ?? 0,
+      episodes:    episodes,
+      subscriberCount: (json['subscriberCount'] as num?)?.toInt()
+                    ?? (json['subscribers'] as List<dynamic>?)?.length
+                    ?? 0,
     );
   }
 }

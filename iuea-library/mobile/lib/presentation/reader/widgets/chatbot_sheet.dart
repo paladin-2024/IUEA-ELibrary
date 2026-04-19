@@ -8,9 +8,9 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_text_styles.dart';
 
 const _kSuggestions = [
-  'Summarize this chapter',
-  'Explain the main concept',
-  'Quiz me (3 questions)',
+  'Summarize chapter',
+  'Explain concept',
+  'Quiz me',
   'Define key terms',
 ];
 
@@ -106,10 +106,17 @@ class _ChatbotSheetState extends State<ChatbotSheet> {
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.pagePadding),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.smart_toy_outlined,
-                          color: AppColors.primary, size: 22),
-                        const SizedBox(width: AppSpacing.sm),
+                        Container(
+                          width: 40, height: 40,
+                          decoration: BoxDecoration(
+                            color:        AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12)),
+                          child: const Icon(Icons.smart_toy_rounded,
+                            color: AppColors.primary, size: 20),
+                        ),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,43 +124,30 @@ class _ChatbotSheetState extends State<ChatbotSheet> {
                               Text('IUEA AI Assistant',
                                 style: AppTextStyles.h3.copyWith(
                                   fontSize: 15)),
-                              if (reader.currentBook != null)
-                                Text(
-                                  reader.currentBook!.title,
-                                  style: AppTextStyles.label.copyWith(
-                                    color: AppColors.textHint),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              Text(
+                                'DIGITAL CURATOR ACTIVE',
+                                style: TextStyle(
+                                  fontFamily:    'Inter',
+                                  fontSize:      9,
+                                  letterSpacing: 1.0,
+                                  color:         AppColors.primary,
+                                  fontWeight:    FontWeight.w500)),
                             ],
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete_outline,
-                            color: AppColors.grey500, size: 20),
+                          icon: const Icon(Icons.delete_outline_rounded,
+                            color: AppColors.grey500, size: 18),
                           tooltip:   'Clear chat',
                           onPressed: () => chat.clearHistory(widget.bookId),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close,
-                            color: AppColors.grey500, size: 20),
+                          icon: const Icon(Icons.close_rounded,
+                            color: AppColors.grey500, size: 18),
                           tooltip:   'Close',
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                       ],
-                    ),
-                  ),
-
-                  // ── Powered-by caption ───────────────────────────────────
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: AppSpacing.xs),
-                    child: Text(
-                      'Powered by Gemini 1.5 Flash — free',
-                      style: AppTextStyles.label.copyWith(
-                        color:    AppColors.textHint,
-                        fontSize: 10,
-                      ),
                     ),
                   ),
 
@@ -214,6 +208,19 @@ class _ChatbotSheetState extends State<ChatbotSheet> {
 
                   const Divider(height: 1),
 
+                  // ── AI disclaimer ────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, bottom: 2),
+                    child: Text(
+                      'AI MAY CONTAIN ERRORS · POWERED BY GOOGLE',
+                      style: TextStyle(
+                        fontFamily:    'Inter',
+                        fontSize:      8,
+                        letterSpacing: 1.0,
+                        color:         AppColors.textHint.withOpacity(0.7)),
+                    ),
+                  ),
+
                   // ── Input row ────────────────────────────────────────────
                   SafeArea(
                     top: false,
@@ -221,7 +228,7 @@ class _ChatbotSheetState extends State<ChatbotSheet> {
                       padding: EdgeInsets.only(
                         left:   AppSpacing.pagePadding,
                         right:  AppSpacing.sm,
-                        top:    AppSpacing.sm,
+                        top:    AppSpacing.xs,
                         bottom: AppSpacing.sm
                             + MediaQuery.of(context).viewInsets.bottom,
                       ),
@@ -239,7 +246,7 @@ class _ChatbotSheetState extends State<ChatbotSheet> {
                               style: AppTextStyles.body.copyWith(
                                 fontSize: 14, height: 1.4),
                               decoration: InputDecoration(
-                                hintText: 'Ask about this book…',
+                                hintText: 'Type your academic query…',
                                 hintStyle: AppTextStyles.label.copyWith(
                                   color: AppColors.textHint),
                                 isDense:      true,

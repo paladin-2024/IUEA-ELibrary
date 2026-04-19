@@ -1,7 +1,7 @@
 import { useState }         from 'react';
 import { useParams }        from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Play, Pause, Bell, BellOff, Mic2 }      from 'lucide-react';
+import { FiPlay, FiPause, FiBell, FiBellOff, FiMic }      from 'react-icons/fi';
 import { getPodcast, toggleSubscribe } from '../../services/podcast.service';
 import LoadingSpinner   from '../../components/ui/LoadingSpinner';
 import useAuthStore     from '../../store/authStore';
@@ -53,7 +53,7 @@ export default function PodcastPage() {
           {podcast.coverUrl ? (
             <img src={podcast.coverUrl} alt={podcast.title} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center"><Mic2 size={32} className="text-primary/30" /></div>
+            <div className="w-full h-full flex items-center justify-center"><FiMic size={32} className="text-primary/30" /></div>
           )}
         </div>
         <div className="flex-1">
@@ -68,7 +68,7 @@ export default function PodcastPage() {
                 disabled={subscribing}
                 className="flex items-center gap-1.5 text-xs border border-primary text-primary px-3 py-1.5 rounded-btn hover:bg-primary/5 transition-colors"
               >
-                {isSubscribed ? <><BellOff size={12} /> Unsubscribe</> : <><Bell size={12} /> Subscribe</>}
+                {isSubscribed ? <><FiBellOff size={12} /> Unsubscribe</> : <><FiBell size={12} /> Subscribe</>}
               </button>
             )}
           </div>
@@ -84,7 +84,7 @@ export default function PodcastPage() {
               onClick={() => playEpisode(ep)}
               className="shrink-0 w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary-dark transition-colors"
             >
-              {playing === ep._id ? <Pause size={14} /> : <Play size={14} fill="white" />}
+              {playing === ep._id ? <FiPause size={14} /> : <FiPlay size={14} fill="white" />}
             </button>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800 line-clamp-1">{ep.title}</p>

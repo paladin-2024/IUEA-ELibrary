@@ -20,6 +20,7 @@ export default function BookDetailPage() {
   const [tab,     setTab]     = useState('about');
   const [similar, setSimilar] = useState([]);
   const [expanded, setExpanded] = useState(false);
+  const [saved,   setSaved]   = useState(false);
 
   useEffect(() => {
     fetchBookById(id);
@@ -156,8 +157,16 @@ export default function BookDetailPage() {
               <BsPlayCircleFill size={15} /> Listen
             </button>
 
-            <button className="p-2.5 border border-gray-300 rounded-btn text-gray-500 hover:text-primary hover:border-primary transition-colors" title="Save">
-              <FiBookmark size={16} />
+            <button
+              onClick={() => {
+                api.put(`/progress/${book.id ?? book._id}`, { isSaved: !saved }).catch(() => {});
+                setSaved(v => !v);
+              }}
+              className="p-2.5 border border-gray-300 rounded-btn transition-colors"
+              style={{ color: saved ? '#7b0d1e' : undefined, borderColor: saved ? '#7b0d1e' : undefined }}
+              title={saved ? 'Remove from saved' : 'Save book'}
+            >
+              <FiBookmark size={16} fill={saved ? '#7b0d1e' : 'none'} />
             </button>
           </div>
         </div>

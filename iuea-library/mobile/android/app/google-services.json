@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "93421878622",
+    "project_id": "iuea-library-1d0cf",
+    "storage_bucket": "iuea-library-1d0cf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:93421878622:android:212420806500357127a3cf",
+        "android_client_info": {
+          "package_name": "com.iuea.library"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDR_yt8yeRLUCN0qqtD_S-_MjvTXq6QvQ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -19,6 +19,7 @@ class BookModel {
   final int          ratingCount;
   final bool         isActive;
   final Map<String, dynamic>? availability; // { total, available, checkedOut }
+  final Map<String, dynamic>? progress;     // { percentComplete, currentCfi, lastDevice } — set by /books/continue
 
   const BookModel({
     required this.id,
@@ -41,6 +42,7 @@ class BookModel {
     this.ratingCount  = 0,
     this.isActive     = true,
     this.availability,
+    this.progress,
   });
 
   factory BookModel.fromJson(Map<String, dynamic> json) {
@@ -71,6 +73,7 @@ class BookModel {
       ratingCount:  (json['ratingCount']    as num?)?.toInt()    ?? 0,
       isActive:      json['isActive']       as bool? ?? true,
       availability:  json['availability']   as Map<String, dynamic>?,
+      progress:      json['progress']       as Map<String, dynamic>?,
     );
   }
 

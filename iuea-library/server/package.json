@@ -4,32 +4,55 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "dev":   "nodemon src/server.js",
-    "start": "node src/server.js"
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "seed": "node scripts/seed.js",
+    "seed:clear": "node scripts/seed.js --clear",
+    "test": "jest --runInBand --forceExit",
+    "test:watch": "jest --watch --runInBand",
+    "test:coverage": "jest --coverage --runInBand --forceExit"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/src/__tests__/**/*.test.js"
+    ],
+    "setupFiles": [
+      "./src/__tests__/setup.js"
+    ],
+    "testTimeout": 10000
   },
   "dependencies": {
-    "express":            "^4.19.2",
-    "mongoose":           "^8.5.0",
-    "cors":               "^2.8.5",
-    "helmet":             "^7.1.0",
-    "dotenv":             "^16.4.5",
-    "bcryptjs":           "^2.4.3",
-    "jsonwebtoken":       "^9.0.2",
-    "express-rate-limit": "^7.3.1",
-    "axios":              "^1.7.2",
-    "multer":             "^1.4.5-lts.1",
-    "@google/generative-ai": "^0.15.0",
     "@aws-sdk/client-s3": "^3.614.0",
     "@aws-sdk/s3-request-presigner": "^3.614.0",
-    "firebase-admin":     "^12.2.0",
+    "@google/generative-ai": "^0.15.0",
+    "@neondatabase/serverless": "^1.0.2",
+    "@prisma/adapter-neon": "^7.6.0",
+    "@prisma/client": "^5.22.0",
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "firebase-admin": "^12.2.0",
     "google-auth-library": "^9.13.0",
-    "nodemailer":         "^6.9.14",
-    "node-cron":          "^3.0.3",
-    "winston":            "^3.13.0",
-    "joi":                "^17.13.1",
-    "morgan":             "^1.10.0"
+    "helmet": "^7.1.0",
+    "joi": "^17.13.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.4.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.14",
+    "prisma": "^5.22.0",
+    "rss-parser": "^3.13.0",
+    "winston": "^3.13.0",
+    "ws": "^8.20.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "jest": "^30.3.0",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.2.2"
   }
 }

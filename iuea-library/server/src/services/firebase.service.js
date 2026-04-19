@@ -1,5 +1,5 @@
 const { getMessaging } = require('../config/firebase');
-const { User }         = require('../models');
+const prisma           = require('../config/prisma');
 
 // ── Stringify all data values (FCM requires string values) ────────────────────
 const stringifyData = (data = {}) =>
@@ -45,13 +45,16 @@ const sendMulticast = async ({ tokens, title, body, data = {} }) => {
 // Sends a notification to all active FCM tokens for a given userId.
 // Automatically removes any stale tokens that Firebase rejects.
 const sendToUser = async (userId, notification, data = {}) => {
-  const user = await User.findById(userId).select('fcmTokenMobile fcmTokenWeb fcmToken');
+  const user = await prisma.user.findUnique({
+    where:  { id: userId },
+    select: { id: true, fcmToken: true, fcmTokenMobile: true, fcmTokenWeb: true },
+  });
   if (!user) return;
 
-  // Collect every non-null token (web, mobile, legacy)
+  // Collect every non-null token — deduplicated
   const tokens = [user.fcmTokenMobile, user.fcmTokenWeb, user.fcmToken]
     .filter(Boolean)
-    .filter((v, i, arr) => arr.indexOf(v) === i); // deduplicate
+    .filter((v, i, arr) => arr.indexOf(v) === i);
 
   if (!tokens.length) return;
 
@@ -82,13 +85,13 @@ const sendToUser = async (userId, notification, data = {}) => {
     })
   );
 
-  // Clear stale tokens from the user document
+  // Clear stale tokens from the user record
   if (invalidTokens.length) {
-    const unset = {};
-    if (invalidTokens.includes(user.fcmTokenMobile)) unset.fcmTokenMobile = '';
-    if (invalidTokens.includes(user.fcmTokenWeb))    unset.fcmTokenWeb    = '';
-    if (invalidTokens.includes(user.fcmToken))       unset.fcmToken       = '';
-    await User.findByIdAndUpdate(userId, { $unset: unset });
+    const clearData = {};
+    if (invalidTokens.includes(user.fcmTokenMobile)) clearData.fcmTokenMobile = null;
+    if (invalidTokens.includes(user.fcmTokenWeb))    clearData.fcmTokenWeb    = null;
+    if (invalidTokens.includes(user.fcmToken))       clearData.fcmToken       = null;
+    await prisma.user.update({ where: { id: userId }, data: clearData });
   }
 };
 
@@ -98,17 +101,21 @@ const sendNewBookNotification = async (book) => {
   const faculty = book.faculty?.[0];
   if (!faculty) return;
 
-  const users = await User.find({ faculty, isActive: true }).select('_id').lean();
+  // faculty on User is a scalar String (e.g. "Engineering"), not an array
+  const users = await prisma.user.findMany({
+    where:  { faculty, isActive: true },
+    select: { id: true },
+  });
 
   await Promise.allSettled(
     users.map((u) =>
       sendToUser(
-        u._id,
+        u.id,
         {
           title: '📚 New book available!',
           body:  `"${book.title}" has been added to the ${faculty} collection.`,
         },
-        { type: 'new_book', bookId: String(book._id) }
+        { type: 'new_book', bookId: String(book.id) }
       )
     )
   );
@@ -141,10 +148,10 @@ const sendWeeklyDigest = async (userId, stats = {}) => {
       body:  `You read ${time} this week across ${stats.sessions ?? 0} sessions.`,
     },
     {
-      type:       'weekly_digest',
-      booksRead:  String(stats.booksRead  ?? 0),
+      type:        'weekly_digest',
+      booksRead:   String(stats.booksRead   ?? 0),
       minutesRead: String(mins),
-      sessions:   String(stats.sessions   ?? 0),
+      sessions:    String(stats.sessions    ?? 0),
     }
   );
 };

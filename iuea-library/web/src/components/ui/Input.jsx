@@ -1,27 +1,71 @@
-import { clsx } from 'clsx';
+import { cn } from '../../utils/cn';
 
+/**
+ * Input — pixel-perfect Stitch design.
+ *
+ * Props:
+ *   label     — label shown above input (uppercase tracking style)
+ *   icon      — React node rendered on the left
+ *   error     — red error text below field
+ *   hint      — gray hint text below field
+ *   className — extra classes on the <input>
+ */
 export default function Input({
   label,
+  id,
+  icon,
   error,
+  hint,
   className = '',
   ...props
 }) {
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <label
+          htmlFor={id}
+          className="block text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider ml-1 mb-2"
+        >
+          {label}
+        </label>
       )}
-      <input
-        className={clsx(
-          'w-full rounded-input border px-3 py-2.5 text-sm outline-none transition-colors',
-          'border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary/30',
-          'placeholder-gray-400 disabled:bg-gray-50 disabled:text-gray-400',
-          error && 'border-red-500 focus:border-red-500',
-          className
+
+      <div className="relative group">
+        {/* Left icon — transitions to primary on focus */}
+        {icon && (
+          <span className={cn(
+            'absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none',
+            'text-outline transition-colors duration-150',
+            'group-focus-within:text-primary-container',
+          )}>
+            {icon}
+          </span>
         )}
-        {...props}
-      />
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+
+        <input
+          id={id}
+          className={cn(
+            'w-full bg-surface-container-lowest border-none',
+            'ring-1 ring-outline-variant/30',
+            'focus:ring-2 focus:ring-primary-container',
+            'rounded-xl py-4 pr-4 text-on-surface',
+            'placeholder:text-outline-variant',
+            'transition-all duration-150 outline-none',
+            'font-body text-sm',
+            error && 'ring-error focus:ring-error',
+            icon ? 'pl-12' : 'pl-4',
+            className,
+          )}
+          {...props}
+        />
+      </div>
+
+      {error && (
+        <p className="text-error text-[12px] mt-1 ml-1 leading-tight">{error}</p>
+      )}
+      {!error && hint && (
+        <p className="text-on-surface-variant/60 text-[12px] mt-1 ml-1 leading-tight">{hint}</p>
+      )}
     </div>
   );
 }

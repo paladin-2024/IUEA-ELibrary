@@ -1,6 +1,6 @@
 const RSSParser = require('rss-parser');
 const cron      = require('node-cron');
-const { Podcast } = require('../models');
+const prisma    = require('../config/prisma');
 
 const parser = new RSSParser({
   customFields: {
@@ -71,24 +71,33 @@ async function parseFeed(rssUrl) {
 async function syncPodcast({ rssUrl, category, language }) {
   try {
     const feedData = await parseFeed(rssUrl);
-    await Podcast.findOneAndUpdate(
-      { rssUrl },
-      {
-        $set: {
-          title:       feedData.title,
-          description: feedData.description,
-          hostName:    feedData.hostName,
-          coverUrl:    feedData.coverUrl,
-          category:    category ?? 'Education',
-          language:    language ?? 'English',
-          episodes:    feedData.episodes,
-          lastFetched: new Date(),
-          isActive:    true,
-        },
-        $setOnInsert: { subscribers: [], subscriberCount: 0 },
+    await prisma.podcast.upsert({
+      where:  { rssUrl },
+      update: {
+        title:       feedData.title,
+        description: feedData.description,
+        hostName:    feedData.hostName,
+        coverUrl:    feedData.coverUrl,
+        category:    category ?? 'Education',
+        language:    language ?? 'English',
+        episodes:    feedData.episodes,
+        lastFetched: new Date(),
+        isActive:    true,
       },
-      { upsert: true, new: true }
-    );
+      create: {
+        rssUrl,
+        title:           feedData.title,
+        description:     feedData.description,
+        hostName:        feedData.hostName,
+        coverUrl:        feedData.coverUrl,
+        category:        category ?? 'Education',
+        language:        language ?? 'English',
+        episodes:        feedData.episodes,
+        lastFetched:     new Date(),
+        isActive:        true,
+        subscriberCount: 0,
+      },
+    });
     console.log(`[podcast.service] Synced: ${feedData.title}`);
   } catch (err) {
     console.error(`[podcast.service] Failed to sync ${rssUrl}:`, err.message);
@@ -97,8 +106,10 @@ async function syncPodcast({ rssUrl, category, language }) {
 
 // ── syncAllFeeds — refresh every active podcast in DB ─────────────────────────
 async function syncAllFeeds() {
-  const podcasts = await Podcast.find({ isActive: true })
-    .select('rssUrl category language');
+  const podcasts = await prisma.podcast.findMany({
+    where:  { isActive: true },
+    select: { rssUrl: true, category: true, language: true },
+  });
   console.log(`[podcast.service] Syncing ${podcasts.length} feeds…`);
   await Promise.allSettled(
     podcasts.map((p) => syncPodcast({
@@ -112,7 +123,7 @@ async function syncAllFeeds() {
 
 // ── seedPodcasts — run once on first startup ──────────────────────────────────
 async function seedPodcasts() {
-  const count = await Podcast.countDocuments();
+  const count = await prisma.podcast.count();
   if (count > 0) return;
 
   console.log('[podcast.service] Seeding initial podcasts…');

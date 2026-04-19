@@ -6,16 +6,19 @@ class PodcastRepository {
   final ApiService _api;
   PodcastRepository(this._api);
 
-  Future<List<PodcastModel>> listPodcasts({String? category, String? language, int page = 1}) async {
+  Future<Map<String, dynamic>> listPodcasts({String? category, String? language, int page = 1}) async {
     final res = await _api.get(ApiConstants.podcasts, params: {
       'page':  page,
-      'limit': 20,
+      'limit': 30,
       if (category != null) 'category': category,
       if (language != null) 'language': language,
     });
-    return (res.data['podcasts'] as List<dynamic>)
+    final podcasts = (res.data['podcasts'] as List<dynamic>)
         .map((p) => PodcastModel.fromJson(p as Map<String, dynamic>))
         .toList();
+    final categories = (res.data['categories'] as List<dynamic>?)
+        ?.cast<String>() ?? const ['All'];
+    return {'podcasts': podcasts, 'categories': categories};
   }
 
   Future<PodcastModel> getPodcast(String id) async {

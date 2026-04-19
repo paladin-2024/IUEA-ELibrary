@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FiX, FiList }        from 'react-icons/fi';
 import { MdCircle }           from 'react-icons/md';
-import { ReactReader }        from 'react-reader';
 import useReaderStore         from '../../store/readerStore';
 
 // We derive TOC from the epub book object; pass it as a prop from BookReader.

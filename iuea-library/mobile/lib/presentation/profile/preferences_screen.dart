@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/reader_provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_text_styles.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-const _fonts = [
-  {'id': 'serif',    'label': 'Serif',    'sample': 'Aa'},
-  {'id': 'sans',     'label': 'Sans',     'sample': 'Aa'},
-  {'id': 'dyslexic', 'label': 'Dyslexic', 'sample': 'Aa'},
+const _kFonts = [
+  {'id': 'serif',    'label': 'SERIF',    'family': 'Lora',  'sample': 'Aa'},
+  {'id': 'sans',     'label': 'SANS',     'family': 'Inter', 'sample': 'Aa'},
+  {'id': 'dyslexic', 'label': 'DYSLEXIC','family': 'Inter', 'sample': 'Aa'},
 ];
 
-const _themes = [
-  {'id': 'light', 'label': 'White', 'bg': 0xFFFFFFFF, 'text': 0xFF1A0508},
-  {'id': 'sepia', 'label': 'Sepia', 'bg': 0xFFF4E4C1, 'text': 0xFF3B2F1A},
+const _kThemes = [
+  {'id': 'white', 'label': 'White', 'bg': 0xFFFFFFFF, 'text': 0xFF1A0508},
+  {'id': 'sepia', 'label': 'Sepia', 'bg': 0xFFF5ECD7, 'text': 0xFF3B2F1A},
   {'id': 'dark',  'label': 'Dark',  'bg': 0xFF1A1A2E, 'text': 0xFFE5E5E5},
 ];
 
@@ -24,201 +26,387 @@ class PreferencesScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation:       0,
-        title:           const Text('Reading Preferences',
-            style: TextStyle(fontFamily: 'Playfair Display', fontWeight: FontWeight.w700)),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // ── Font family ────────────────────────────────────────────────
-          _SectionCard(
-            title: 'Font Family',
-            child: Row(
-              children: _fonts.map((f) {
-                final selected = reader.fontFamily == f['id'];
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => reader.setFontFamily(f['id'] as String),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color:        selected ? AppColors.primary.withOpacity(0.07) : Colors.transparent,
-                        border:       Border.all(
-                            color: selected ? AppColors.primary : AppColors.border, width: 1.5),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(children: [
-                        Text(f['sample'] as String,
-                            style: TextStyle(
-                              fontSize:   22,
-                              fontFamily: f['id'] == 'serif' ? 'Playfair Display' : null,
-                              fontWeight: FontWeight.w500,
-                              color:      AppColors.textPrimary,
-                            )),
-                        const SizedBox(height: 4),
-                        Text(f['label'] as String,
-                            style: TextStyle(fontSize: 12,
-                                color:      selected ? AppColors.primary : AppColors.textSecondary,
-                                fontWeight: selected ? FontWeight.w600 : FontWeight.normal)),
-                      ]),
-                    ),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            // ── App bar ────────────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
+                child: Row(children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                      size: 18, color: AppColors.textPrimary),
+                    onPressed: () => Navigator.pop(context),
                   ),
-                );
-              }).toList(),
+                  Text('Reading Preferences',
+                    style: AppTextStyles.h3.copyWith(
+                      fontSize: 16, color: AppColors.textPrimary)),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.settings_outlined,
+                      color: AppColors.textPrimary, size: 22),
+                    onPressed: () {},
+                  ),
+                ]),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
 
-          // ── Font size ──────────────────────────────────────────────────
-          _SectionCard(
-            title: 'Font Size',
-            trailing: Text('${reader.fontSize.toInt()}px',
-                style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.primary, fontSize: 13)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor:   AppColors.primary,
-                    inactiveTrackColor: AppColors.grey300,
-                    thumbColor:         AppColors.primary,
-                    overlayColor:       AppColors.primary.withOpacity(0.12),
-                    trackHeight:        4,
-                  ),
-                  child: Slider(
-                    value:     reader.fontSize.clamp(14.0, 24.0),
-                    min:       14,
-                    max:       24,
-                    divisions: 10,
-                    onChanged: (v) => reader.setFontSize(v),
+            // ── Subtitle ───────────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                child: Text(
+                  'Customize your reading experience to match your comfort. Your preferences are saved across all devices.',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary, height: 1.5)),
+              ),
+            ),
+
+            // ── Typography section ─────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _SectionCard(
+                  icon:  Icons.text_fields_rounded,
+                  title: 'Typography',
+                  child: Column(
+                    children: [
+                      // Font family row
+                      Row(
+                        children: _kFonts.map((f) {
+                          final sel = reader.fontFamily == f['id'];
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap: () =>
+                                reader.setFontFamily(f['id'] as String),
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 3),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: sel
+                                      ? AppColors.primary.withOpacity(0.06)
+                                      : Colors.transparent,
+                                  border: Border.all(
+                                    color: sel ? AppColors.primary : AppColors.border,
+                                    width: sel ? 1.5 : 1),
+                                  borderRadius: BorderRadius.circular(10)),
+                                child: Column(children: [
+                                  Text(f['sample'] as String,
+                                    style: TextStyle(
+                                      fontFamily: f['family'] as String,
+                                      fontSize:   22,
+                                      fontWeight: FontWeight.w500,
+                                      color:      AppColors.textPrimary)),
+                                  const SizedBox(height: 4),
+                                  Text(f['label'] as String,
+                                    style: TextStyle(
+                                      fontSize:      10,
+                                      letterSpacing: 0.6,
+                                      color:         sel
+                                          ? AppColors.primary
+                                          : AppColors.textSecondary,
+                                      fontWeight:    sel
+                                          ? FontWeight.w600 : FontWeight.w500)),
+                                ]),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Font size slider
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Font Size',
+                            style: AppTextStyles.label.copyWith(
+                              fontSize: 13, color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500)),
+                          Text('${reader.fontSize.toInt()}px',
+                            style: AppTextStyles.body.copyWith(
+                              color:      AppColors.primary,
+                              fontWeight: FontWeight.w700,
+                              fontSize:   14)),
+                        ],
+                      ),
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor:   AppColors.primary,
+                          inactiveTrackColor: AppColors.grey300,
+                          thumbColor:         AppColors.primary,
+                          overlayColor:       AppColors.primary.withOpacity(0.1),
+                          trackHeight:        4,
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 7),
+                        ),
+                        child: Slider(
+                          value:     reader.fontSize.clamp(14.0, 24.0),
+                          min:       14, max: 24, divisions: 10,
+                          onChanged: reader.setFontSize,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Line spacing slider
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Line Spacing',
+                            style: AppTextStyles.label.copyWith(
+                              fontSize: 13, color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500)),
+                          Text(reader.lineHeight.toStringAsFixed(1),
+                            style: AppTextStyles.body.copyWith(
+                              color:      AppColors.primary,
+                              fontWeight: FontWeight.w700,
+                              fontSize:   14)),
+                        ],
+                      ),
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor:   AppColors.primary,
+                          inactiveTrackColor: AppColors.grey300,
+                          thumbColor:         AppColors.primary,
+                          overlayColor:       AppColors.primary.withOpacity(0.1),
+                          trackHeight:        4,
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 7),
+                        ),
+                        child: Slider(
+                          value:     reader.lineHeight.clamp(1.2, 2.0),
+                          min:       1.2, max: 2.0, divisions: 8,
+                          onChanged: reader.setLineHeight,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text('14px', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                    Text('24px', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                  ],
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+            // ── Environment (theme) section ────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _SectionCard(
+                  icon:  Icons.palette_outlined,
+                  title: 'Environment',
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: _kThemes.map((t) {
+                      final sel = reader.theme == t['id'];
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 20),
+                        child: GestureDetector(
+                          onTap: () => reader.setTheme(t['id'] as String),
+                          child: Column(children: [
+                            Container(
+                              width:  56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color:  Color(t['bg'] as int),
+                                shape:  BoxShape.circle,
+                                border: Border.all(
+                                  color: sel ? AppColors.primary : AppColors.border,
+                                  width: sel ? 2.5 : 1.5),
+                                boxShadow: [BoxShadow(
+                                  color: Colors.black.withOpacity(0.06),
+                                  blurRadius: 6, offset: const Offset(0, 2))],
+                              ),
+                              child: sel
+                                  ? Icon(Icons.check_rounded,
+                                      color: Color(t['text'] as int), size: 22)
+                                  : null,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(t['label'] as String,
+                              style: AppTextStyles.label.copyWith(
+                                fontSize:   11,
+                                color:      sel
+                                    ? AppColors.primary : AppColors.textSecondary,
+                                fontWeight: sel ? FontWeight.w600 : null)),
+                          ]),
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(12),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+            // ── Toggles section ────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
                   decoration: BoxDecoration(
-                    color:        AppColors.surface,
-                    borderRadius: BorderRadius.circular(8),
+                    color:        AppColors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [BoxShadow(
+                      color: Colors.black.withOpacity(0.04), blurRadius: 8,
+                      offset: const Offset(0, 2))],
                   ),
-                  child: Text(
-                    'The quick brown fox jumps over the lazy dog.',
-                    style: TextStyle(fontSize: reader.fontSize, color: AppColors.textPrimary,
-                        height: 1.6),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // ── Theme swatches ─────────────────────────────────────────────
-          _SectionCard(
-            title: 'Theme',
-            child: Row(
-              children: _themes.map((t) {
-                final selected = reader.theme == t['id'];
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => reader.setTheme(t['id'] as String),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color:        Color(t['bg'] as int),
-                        border:       Border.all(
-                            color: selected ? AppColors.primary : AppColors.border,
-                            width: selected ? 2 : 1),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(children: [
-                        if (selected)
-                          const Icon(Icons.check_circle, color: AppColors.primary, size: 18),
-                        if (!selected) const SizedBox(height: 18),
-                        const SizedBox(height: 4),
-                        Text(t['label'] as String,
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
-                                color: Color(t['text'] as int))),
-                      ]),
+                  child: Column(children: [
+                    _ToggleRow(
+                      icon:     Icons.bookmark_added_outlined,
+                      title:    'Auto-save progress',
+                      subtitle: 'Resume where you left off',
+                      value:    reader.autoSave,
+                      onChanged: reader.setAutoSave,
+                      isFirst:  true,
                     ),
-                  ),
-                );
-              }).toList(),
+                    const Divider(height: 1, indent: 16, endIndent: 16,
+                      color: AppColors.border),
+                    _ToggleRow(
+                      icon:     Icons.cloud_download_outlined,
+                      title:    'Offline reading',
+                      subtitle: 'Download for later use',
+                      value:    reader.offlineReading,
+                      onChanged: reader.setOfflineReading,
+                      isFirst:  false,
+                    ),
+                  ]),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
 
-          // ── Toggles ────────────────────────────────────────────────────
-          _SectionCard(
-            title: 'Options',
-            child: Column(children: [
-              SwitchListTile(
-                value:       reader.autoSave,
-                onChanged:   (v) => reader.setAutoSave(v),
-                activeColor: AppColors.primary,
-                title:       const Text('Auto-save position', style: TextStyle(fontSize: 14)),
-                subtitle:    const Text('Resume where you left off', style: TextStyle(fontSize: 12)),
-                contentPadding: EdgeInsets.zero,
+            // ── Footer ────────────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 28),
+                child: Column(children: [
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    _Lnk('Privacy'), _Sep(),
+                    _Lnk('Terms'),   _Sep(),
+                    _Lnk('Koha API'),
+                  ]),
+                  const SizedBox(height: 6),
+                  Text('POWERED BY GOOGLE',
+                    style: TextStyle(
+                      fontSize:      9,
+                      letterSpacing: 1.4,
+                      color:         AppColors.textHint.withOpacity(0.6))),
+                ]),
               ),
-              const Divider(height: 1),
-              SwitchListTile(
-                value:       reader.offlineReading,
-                onChanged:   (v) => reader.setOfflineReading(v),
-                activeColor: AppColors.primary,
-                title:       const Text('Offline reading', style: TextStyle(fontSize: 14)),
-                subtitle:    const Text('Cache books for offline access', style: TextStyle(fontSize: 12)),
-                contentPadding: EdgeInsets.zero,
-              ),
-            ]),
-          ),
-          const SizedBox(height: 24),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Section card ──────────────────────────────────────────────────────────────
+class _SectionCard extends StatelessWidget {
+  final IconData icon;
+  final String   title;
+  final Widget   child;
+  const _SectionCard({
+    required this.icon, required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color:        AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(
+          color: Colors.black.withOpacity(0.04), blurRadius: 8,
+          offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Container(
+              width: 32, height: 32,
+              decoration: BoxDecoration(
+                color:        AppColors.primary.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(8)),
+              child: Icon(icon, color: AppColors.primary, size: 16),
+            ),
+            const SizedBox(width: 10),
+            Text(title,
+              style: AppTextStyles.body.copyWith(
+                fontWeight: FontWeight.w600, fontSize: 15)),
+          ]),
+          const SizedBox(height: 16),
+          child,
         ],
       ),
     );
   }
 }
 
-class _SectionCard extends StatelessWidget {
-  final String  title;
-  final Widget? trailing;
-  final Widget  child;
-  const _SectionCard({required this.title, this.trailing, required this.child});
+// ── Toggle row ────────────────────────────────────────────────────────────────
+class _ToggleRow extends StatelessWidget {
+  final IconData icon;
+  final String   title;
+  final String   subtitle;
+  final bool     value;
+  final void Function(bool) onChanged;
+  final bool     isFirst;
+  const _ToggleRow({
+    required this.icon, required this.title, required this.subtitle,
+    required this.value, required this.onChanged, required this.isFirst});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color:        AppColors.background,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8,
-            offset: const Offset(0, 2))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14,
-                  color: AppColors.textPrimary)),
-              if (trailing != null) trailing!,
-            ],
-          ),
-          const SizedBox(height: 12),
-          child,
-        ],
-      ),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, isFirst ? 14 : 10, 16, 14),
+      child: Row(children: [
+        Container(
+          width: 32, height: 32,
+          decoration: BoxDecoration(
+            color:        AppColors.primary.withOpacity(0.07),
+            borderRadius: BorderRadius.circular(8)),
+          child: Icon(icon, color: AppColors.primary, size: 16),
+        ),
+        const SizedBox(width: 12),
+        Expanded(child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+              style: AppTextStyles.body.copyWith(
+                fontWeight: FontWeight.w600, fontSize: 14)),
+            Text(subtitle,
+              style: AppTextStyles.label.copyWith(
+                color: AppColors.textHint, fontSize: 12)),
+          ],
+        )),
+        Switch(
+          value:       value,
+          activeColor: AppColors.primary,
+          onChanged:   onChanged,
+        ),
+      ]),
     );
   }
+}
+
+// ── Footer helpers ────────────────────────────────────────────────────────────
+class _Lnk extends StatelessWidget {
+  final String t;
+  const _Lnk(this.t);
+  @override
+  Widget build(BuildContext context) => Text(t,
+    style: TextStyle(fontFamily: GoogleFonts.inter().fontFamily, fontSize: 10,
+      color: AppColors.textHint.withOpacity(0.7),
+      decoration: TextDecoration.underline,
+      decorationColor: AppColors.textHint.withOpacity(0.4)));
+}
+
+class _Sep extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 5),
+    child: Text('·',
+      style: TextStyle(fontSize: 10,
+        color: AppColors.textHint.withOpacity(0.5))));
 }

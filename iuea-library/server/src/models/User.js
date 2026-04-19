@@ -25,7 +25,21 @@ const userSchema = new mongoose.Schema(
     },
     faculty: {
       type: String,
-      enum: ['Law', 'Medicine', 'Engineering', 'Business', 'IT', 'Education', 'Arts', 'Science'],
+      enum: [
+        'Faculty of Law',
+        'Faculty of Medicine & Health Sciences',
+        'Faculty of Engineering & Technology',
+        'Faculty of Business & Management',
+        'Faculty of Information Technology',
+        'Faculty of Education',
+        'Faculty of Arts & Social Sciences',
+        'Faculty of Science',
+        // web variants
+        'Faculty of Science & Technology',
+        'Faculty of Engineering',
+        // short aliases kept for backwards compat / admin panel
+        'Law', 'Medicine', 'Engineering', 'Business', 'IT', 'Education', 'Arts', 'Science',
+      ],
     },
     role: {
       type:    String,
@@ -67,17 +81,14 @@ const userSchema = new mongoose.Schema(
 );
 
 // ── Indexes ──────────────────────────────────────────────────────────────────
-userSchema.index({ email: 1 });
-userSchema.index({ studentId: 1 }, { sparse: true });
 userSchema.index({ kohaPatronId: 1 }, { sparse: true });
 
 // ── Pre-save: hash password ───────────────────────────────────────────────────
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('passwordHash')) return next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('passwordHash')) return;
   if (this.passwordHash && !this.passwordHash.startsWith('$2')) {
     this.passwordHash = await bcrypt.hash(this.passwordHash, 12);
   }
-  next();
 });
 
 // ── Instance method: compare password ────────────────────────────────────────

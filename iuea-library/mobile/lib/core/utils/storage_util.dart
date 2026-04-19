@@ -11,7 +11,7 @@ class StorageUtil {
   static Future<String?> getToken() =>
       _storage.read(key: 'jwt_token');
 
-  static Future<void> deleteToken() =>
+  static Future<void> clearToken() =>
       _storage.delete(key: 'jwt_token');
 
   // Shared preferences (non-sensitive)

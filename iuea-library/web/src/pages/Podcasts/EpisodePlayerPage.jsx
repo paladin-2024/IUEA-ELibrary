@@ -5,7 +5,7 @@ import {
   MdPlayArrow, MdPause, MdSkipPrevious, MdSkipNext,
   MdReplay10, MdForward10,
 } from 'react-icons/md';
-import { FiShare2, FiDownload, FiArrowBack } from 'react-icons/fi';
+import { FiShare2, FiDownload, FiArrowLeft } from 'react-icons/fi';
 
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5, 2];
 const BAR_COUNT     = 20;
@@ -100,7 +100,7 @@ export default function EpisodePlayerPage() {
           onClick={() => { audioRef.current?.pause(); navigate(-1); }}
           className="p-2 rounded-full hover:bg-white/10 transition-colors"
         >
-          <FiArrowBack size={22} />
+          <FiArrowLeft size={22} />
         </button>
         <div className="flex-1 min-w-0">
           <p className="text-xs text-white/50 uppercase tracking-wide">Now Playing</p>

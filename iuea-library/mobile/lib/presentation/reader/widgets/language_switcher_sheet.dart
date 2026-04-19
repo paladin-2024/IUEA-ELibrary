@@ -2,28 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/reader_provider.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_text_styles.dart';
 
-// Mirrors shared/languages.json — keeping in sync manually avoids a JSON load
-// dependency inside a widget build.
 class _LangEntry {
   final String name;
-  final String native;
+  final String subtitle;
   final String code;
-  final String flag;
-  const _LangEntry(this.name, this.native, this.code, this.flag);
+  const _LangEntry(this.name, this.subtitle, this.code);
 }
 
 const _kLanguages = [
-  _LangEntry('English',     'English',     'en', '🇬🇧'),
-  _LangEntry('Swahili',     'Kiswahili',   'sw', '🇹🇿'),
-  _LangEntry('French',      'Français',    'fr', '🇫🇷'),
-  _LangEntry('Arabic',      'العربية',     'ar', '🇸🇦'),
-  _LangEntry('Luganda',     'Luganda',     'lg', '🇺🇬'),
-  _LangEntry('Kinyarwanda', 'Kinyarwanda', 'rw', '🇷🇼'),
-  _LangEntry('Somali',      'Soomaali',    'so', '🇸🇴'),
-  _LangEntry('Amharic',     'አማርኛ',      'am', '🇪🇹'),
+  _LangEntry('English',     'Original language',        'en'),
+  _LangEntry('Swahili',     'Kiswahili • Translated',   'sw'),
+  _LangEntry('French',      'Français • Translated',    'fr'),
+  _LangEntry('Luganda',     'Olu-Ganda • Translated',   'lg'),
+  _LangEntry('Arabic',      'العربية • Translated',     'ar'),
+  _LangEntry('Kinyarwanda', 'Kinyarwanda • Translated', 'rw'),
+  _LangEntry('Somali',      'Soomaali • Translated',    'so'),
+  _LangEntry('Amharic',     'አማርኛ • Translated',       'am'),
 ];
 
 class LanguageSwitcherSheet extends StatelessWidget {
@@ -34,86 +30,91 @@ class LanguageSwitcherSheet extends StatelessWidget {
     final reader = context.watch<ReaderProvider>();
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      minChildSize:     0.4,
-      maxChildSize:     0.9,
+      initialChildSize: 0.72,
+      minChildSize:     0.5,
+      maxChildSize:     0.95,
       expand:           false,
       builder: (ctx, scrollController) {
         return Container(
           decoration: const BoxDecoration(
-            color:        AppColors.background,
+            color:        AppColors.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
-              // Handle
+              // ── Drag handle ────────────────────────────────────────────────
+              const SizedBox(height: 12),
+              Center(
+                child: Container(
+                  width: 36, height: 4,
+                  decoration: BoxDecoration(
+                    color:        AppColors.grey300,
+                    borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // ── Header row ────────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(children: [
+                  Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                      color:        AppColors.primary.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.translate_rounded,
+                      color: AppColors.primary, size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  Text('Switch language',
+                    style: AppTextStyles.h3.copyWith(fontSize: 18)),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      width: 32, height: 32,
+                      decoration: BoxDecoration(
+                        color:        AppColors.grey100,
+                        borderRadius: BorderRadius.circular(16)),
+                      child: const Icon(Icons.close_rounded,
+                        size: 16, color: AppColors.textSecondary),
+                    ),
+                  ),
+                ]),
+              ),
               const SizedBox(height: 10),
-              Container(
-                width:  40, height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.grey300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
 
-              // ── Header ────────────────────────────────────────────────
+              // ── "Translation by Google Translate" badge ───────────────────
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.pagePadding),
-                child: Row(
-                  children: [
-                    const Icon(Icons.translate,
-                      color: AppColors.primary, size: 20),
-                    const SizedBox(width: AppSpacing.sm),
-                    Text('Switch Language', style: AppTextStyles.h3),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.pagePadding),
-                child: Text(
-                  'Free translation by MyMemory · mymemory.translated.net',
-                  style: AppTextStyles.label.copyWith(
-                    color: AppColors.textHint, fontSize: 10),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-
-              // ── Warning chip ──────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.pagePadding),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm, vertical: AppSpacing.xs + 2),
+                    horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color:        const Color(0xFFFEF3C7),
-                    borderRadius: BorderRadius.circular(AppSpacing.btnRadius),
-                    border: Border.all(color: const Color(0xFFFDE68A)),
+                    color:        AppColors.grey100,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.warning_amber_outlined,
-                        color: Color(0xFFF59E0B), size: 14),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          'Machine translation — quality may vary. '
-                          'Not suitable for academic citation.',
-                          style: AppTextStyles.label.copyWith(
-                            color: const Color(0xFF92400E), fontSize: 10),
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: Row(children: [
+                    const Icon(Icons.g_translate_rounded,
+                      size: 14, color: AppColors.textSecondary),
+                    const SizedBox(width: 8),
+                    Text('TRANSLATION BY GOOGLE TRANSLATE',
+                      style: TextStyle(
+                        fontFamily:    'Inter',
+                        fontSize:      10,
+                        color:         AppColors.textSecondary,
+                        letterSpacing: 0.8,
+                        fontWeight:    FontWeight.w500)),
+                    const Spacer(),
+                    const Icon(Icons.tune_rounded,
+                      size: 14, color: AppColors.textHint),
+                  ]),
                 ),
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: 12),
 
-              // ── Language list ──────────────────────────────────────────
+              // ── Language list ─────────────────────────────────────────────
               Expanded(
                 child: reader.isTranslating
                     ? Center(
@@ -122,79 +123,114 @@ class LanguageSwitcherSheet extends StatelessWidget {
                           children: [
                             const CircularProgressIndicator(
                               color: AppColors.primary),
-                            const SizedBox(height: AppSpacing.sm),
-                            Text(
-                              'Translating…',
-                              style: AppTextStyles.bodySmall,
-                            ),
+                            const SizedBox(height: 12),
+                            Text('Translating…',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondary)),
                           ],
                         ),
                       )
                     : ListView.separated(
-                        controller:  scrollController,
-                        itemCount:   _kLanguages.length,
-                        separatorBuilder: (_, __) => const Divider(
-                          height: 1, indent: 56),
+                        controller:   scrollController,
+                        padding:      const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 4),
+                        itemCount:    _kLanguages.length,
+                        separatorBuilder: (_, __) =>
+                          const SizedBox(height: 8),
                         itemBuilder: (_, i) {
                           final lang     = _kLanguages[i];
                           final selected = reader.readingLanguage == lang.name;
 
-                          return InkWell(
+                          return GestureDetector(
                             onTap: () async {
                               Navigator.of(context).pop();
                               if (lang.name == reader.readingLanguage) return;
                               if (lang.code == 'en') {
                                 reader.setCurrentChapterText(
-                                  reader.currentChapterText); // clears translation
+                                  reader.currentChapterText);
                                 return;
                               }
                               await reader.translateCurrentChapter(lang.name);
                             },
                             child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
                               decoration: BoxDecoration(
-                                border: selected
-                                    ? const Border(
-                                        left: BorderSide(
-                                          color: AppColors.primary, width: 3))
-                                    : null,
+                                color:        selected
+                                    ? AppColors.primary.withOpacity(0.04)
+                                    : AppColors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: selected
+                                      ? AppColors.primary
+                                      : AppColors.border,
+                                  width: selected ? 1.5 : 1,
+                                ),
                               ),
-                              child: ListTile(
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: selected
-                                      ? AppSpacing.pagePadding - 3
-                                      : AppSpacing.pagePadding,
-                                  vertical: 2,
-                                ),
-                                leading: Text(
-                                  lang.flag,
-                                  style: const TextStyle(fontSize: 26),
-                                ),
-                                title: Text(
-                                  lang.name,
-                                  style: AppTextStyles.body.copyWith(
-                                    fontWeight: selected
-                                        ? FontWeight.w600 : null,
-                                    color: selected
-                                        ? AppColors.primary : null,
+                              child: Row(children: [
+                                Expanded(child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(lang.name,
+                                      style: AppTextStyles.body.copyWith(
+                                        fontWeight: selected
+                                            ? FontWeight.w600 : FontWeight.w500,
+                                        color: selected
+                                            ? AppColors.primary
+                                            : AppColors.textPrimary,
+                                        fontSize: 15)),
+                                    const SizedBox(height: 2),
+                                    Text(lang.subtitle,
+                                      style: AppTextStyles.label.copyWith(
+                                        color: AppColors.textHint,
+                                        fontSize: 12)),
+                                  ],
+                                )),
+                                if (selected)
+                                  Container(
+                                    width: 22, height: 22,
+                                    decoration: const BoxDecoration(
+                                      color:  AppColors.primary,
+                                      shape:  BoxShape.circle),
+                                    child: const Icon(Icons.check_rounded,
+                                      color: AppColors.white, size: 14),
+                                  )
+                                else
+                                  Container(
+                                    width: 22, height: 22,
+                                    decoration: BoxDecoration(
+                                      shape:  BoxShape.circle,
+                                      border: Border.all(
+                                        color: AppColors.border, width: 1.5)),
                                   ),
-                                ),
-                                subtitle: Text(
-                                  lang.native,
-                                  style: AppTextStyles.label.copyWith(
-                                    color: AppColors.textHint),
-                                ),
-                                trailing: selected
-                                    ? const Icon(Icons.check_circle,
-                                        color: AppColors.primary, size: 18)
-                                    : null,
-                              ),
+                              ]),
                             ),
                           );
                         },
                       ),
               ),
 
-              const SizedBox(height: AppSpacing.sm),
+              // ── Warning note ──────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.info_outline_rounded,
+                      size: 14, color: AppColors.primary),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Machine translation — verify critical content. Academic terminology may vary during automated conversion.',
+                        style: AppTextStyles.label.copyWith(
+                          fontSize: 11,
+                          color:    AppColors.textSecondary,
+                          height:   1.4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         );

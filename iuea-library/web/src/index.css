@@ -1,34 +1,165 @@
 @import "tailwindcss";
 
-* {
+/* ── IUEA Library — Official Design Tokens (v1.0)
+   Derived from /IUEA Library Design System/colors_and_type.css
+   ─────────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* ── Brand colors ────────────────────────────────────────────────────── */
+  --color-maroon-950:  #2A050C;
+  --color-maroon-900:  #3D0810;
+  --color-maroon-800:  #5C0F1F;
+  --color-maroon-700:  #8A1228;   /* primary brand */
+  --color-maroon-600:  #A6182F;
+  --color-maroon-500:  #BD2640;
+  --color-maroon-400:  #D05468;
+  --color-maroon-300:  #E590A0;
+
+  --color-blush-50:    #FDF4F2;
+  --color-blush-100:   #FCE8E6;   /* primary app background */
+  --color-blush-200:   #F8D7D3;
+  --color-blush-300:   #F2BEB8;
+  --color-blush-400:   #E89F98;
+
+  --color-gold-300:    #D9B96B;
+  --color-gold-500:    #B8964A;   /* secondary accent */
+  --color-gold-700:    #8B6F2E;
+
+  --color-ink-900:     #1C0A0C;   /* body text */
+  --color-ink-700:     #3E2B2E;
+  --color-ink-500:     #6B5456;   /* muted */
+  --color-ink-300:     #A89597;   /* disabled */
+  --color-line:        #EBD2CF;   /* dividers */
+  --color-surface:     #FFFFFF;   /* card surface */
+
+  /* ── Semantic aliases (used by Tailwind utilities) ───────────────────── */
+  --color-primary:          #8A1228;
+  --color-primary-dark:     #5C0F1F;
+  --color-primary-darker:   #3D0810;
+  --color-primary-light:    #A6182F;
+  --color-primary-soft:     #F8D7D3;
+
+  --color-accent:           #B8964A;
+  --color-accent-light:     #D9B96B;
+  --color-accent-dark:      #8B6F2E;
+  --color-accent-soft:      #F5E8C9;
+
+  --color-bg-app:           #FCE8E6;
+  --color-bg-soft:          #FDF4F2;
+  --color-bg-sidebar:       #5C0F1F;
+  --color-bg-card:          #FFFFFF;
+
+  --color-text:             #1C0A0C;
+  --color-text-secondary:   #3E2B2E;
+  --color-text-muted:       #6B5456;
+  --color-text-faint:       #A89597;
+  --color-text-on-maroon:   #FDF4F2;
+
+  --color-border:           #EBD2CF;
+  --color-border-strong:    #D9B4B0;
+
+  --color-success:          #2E7D5B;
+  --color-warning:          #D07E1A;
+  --color-error:            #B5352F;
+
+  /* ── Typography ──────────────────────────────────────────────────────── */
+  --font-serif:   'Playfair Display', 'Georgia', 'Times New Roman', serif;
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ── Radii ───────────────────────────────────────────────────────────── */
+  --radius-xs:   6px;
+  --radius-sm:   10px;
+  --radius-md:   14px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-pill: 999px;
+  /* legacy */
+  --radius-card:  14px;
+  --radius-btn:   999px;
+  --radius-input: 14px;
+
+  /* ── Shadows (warm-tinted) ───────────────────────────────────────────── */
+  --shadow-xs:   0 1px 2px rgba(107,15,26,0.06);
+  --shadow-sm:   0 2px 6px rgba(107,15,26,0.07), 0 1px 2px rgba(107,15,26,0.04);
+  --shadow-md:   0 8px 24px rgba(107,15,26,0.10), 0 2px 6px rgba(107,15,26,0.06);
+  --shadow-lg:   0 18px 40px rgba(107,15,26,0.14), 0 4px 10px rgba(107,15,26,0.06);
+  --shadow-book: 0 10px 24px rgba(60,10,18,0.28);
+  /* legacy */
+  --shadow-card:  var(--shadow-sm);
+  --shadow-modal: var(--shadow-lg);
+  --shadow-btn:   0 2px 6px rgba(138,18,40,0.25);
+  --shadow-nav:   0 -2px 8px rgba(0,0,0,0.06);
+
+  /* ── Motion ──────────────────────────────────────────────────────────── */
+  --ease-out:    cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast:    120ms;
+  --dur-base:    200ms;
+  --dur-slow:    360ms;
+
+  /* ── Shimmer animation ───────────────────────────────────────────────── */
+  --animate-shimmer: shimmer 1.5s infinite;
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+}
+
+/* ── Base reset ──────────────────────────────────────────────────────────── */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 html {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background-color: #FDF6F7;
-  color: #1A1A1A;
+  background-color: var(--color-bg-app);
+  color: var(--color-text);
+  line-height: 1.6;
 }
 
-/* RTL support for Arabic */
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--color-blush-100); }
+::-webkit-scrollbar-thumb { background: var(--color-maroon-700); border-radius: 3px; }
+
+/* ── RTL (Arabic) ────────────────────────────────────────────────────────── */
 [lang="ar"] {
   direction: rtl;
-  font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+  font-family: 'Noto Sans Arabic', var(--font-sans);
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #7B0D1E; border-radius: 3px; }
-
-/* Reader font */
+/* ── Reader prose ────────────────────────────────────────────────────────── */
 .reader-content {
-  font-family: 'Lora', serif;
+  font-family: var(--font-serif);
   line-height: 1.8;
+  font-size: 1.0625rem;
+}
+
+/* ── Global utility classes (design-system helpers) ─────────────────────── */
+.iuea-serif {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+.overline {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.card-surface {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
 }
