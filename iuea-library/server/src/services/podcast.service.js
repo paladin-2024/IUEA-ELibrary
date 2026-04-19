@@ -9,31 +9,46 @@ const parser = new RSSParser({
   },
 });
 
-// ── 5 seed academic podcasts ──────────────────────────────────────────────────
+// ── Seed academic podcasts ────────────────────────────────────────────────────
 const SEED_FEEDS = [
   {
-    rssUrl:   'https://feeds.feedburner.com/TEDTalks_audio',
+    rssUrl:   'https://feeds.ted.com/tedtalks/audio',
     category: 'Education',
     language: 'English',
   },
   {
-    rssUrl:   'https://www.sciencemag.org/rss/podcast.xml',
-    category: 'Science',
+    rssUrl:   'https://podcasts.files.bbci.co.uk/p01f0vzr.rss',
+    category: 'Philosophy',
     language: 'English',
   },
   {
-    rssUrl:   'https://newbooksnetwork.com/new-books-in-literature/feed',
-    category: 'Literature',
+    rssUrl:   'https://rss.art19.com/freakonomics-radio',
+    category: 'Economics',
     language: 'English',
   },
   {
     rssUrl:   'https://feeds.harvardbusiness.org/harvardbusiness/ideacast',
-    category: 'Technology',
+    category: 'Business',
     language: 'English',
   },
   {
     rssUrl:   'https://feed.podbean.com/lawfarepodcast/feed.xml',
     category: 'Law',
+    language: 'English',
+  },
+  {
+    rssUrl:   'https://feeds.megaphone.fm/sciencefriday',
+    category: 'Science',
+    language: 'English',
+  },
+  {
+    rssUrl:   'https://historyofphilosophy.net/feed/podcast',
+    category: 'Philosophy',
+    language: 'English',
+  },
+  {
+    rssUrl:   'https://feeds.simplecast.com/54nAGcIl',
+    category: 'Technology',
     language: 'English',
   },
 ];
@@ -121,13 +136,16 @@ async function syncAllFeeds() {
   console.log('[podcast.service] Sync complete.');
 }
 
-// ── seedPodcasts — run once on first startup ──────────────────────────────────
+// ── seedPodcasts — ensure all seed feeds exist in DB ─────────────────────────
 async function seedPodcasts() {
-  const count = await prisma.podcast.count();
-  if (count > 0) return;
+  const existingUrls = await prisma.podcast.findMany({ select: { rssUrl: true } })
+    .then((rows) => new Set(rows.map((r) => r.rssUrl)));
 
-  console.log('[podcast.service] Seeding initial podcasts…');
-  await Promise.allSettled(SEED_FEEDS.map(syncPodcast));
+  const missing = SEED_FEEDS.filter((f) => !existingUrls.has(f.rssUrl));
+  if (missing.length === 0) return;
+
+  console.log(`[podcast.service] Seeding ${missing.length} new podcast feeds…`);
+  await Promise.allSettled(missing.map(syncPodcast));
   console.log('[podcast.service] Seed complete.');
 }
 

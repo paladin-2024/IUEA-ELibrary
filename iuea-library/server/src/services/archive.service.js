@@ -9,9 +9,9 @@ const GUTENBERG_API  = 'https://gutendex.com/books';
 async function searchArchive(query) {
   const { data } = await axios.get(ARCHIVE_SEARCH, {
     params: {
-      q:         `${query} subject:academic`,
-      'fl[]':    ['identifier', 'title', 'creator', 'subject'],
-      rows:      8,
+      q:         `${query} AND mediatype:texts`,
+      'fl[]':    ['identifier', 'title', 'creator', 'subject', 'language'],
+      rows:      20,
       output:    'json',
       mediatype: 'texts',
     },
@@ -45,12 +45,12 @@ async function getArchiveBookUrl(identifier) {
 
 async function searchGutenberg(query) {
   const { data } = await axios.get(GUTENBERG_API, {
-    params:  { search: query },
+    params:  { search: query, page_size: 32 },
     timeout: 8000,
   });
 
   const results = data?.results ?? [];
-  return results.slice(0, 8).map((b) => {
+  return results.slice(0, 32).map((b) => {
     const epubUrl = b.formats?.['application/epub+zip'] ?? null;
     return {
       source:      'gutenberg',

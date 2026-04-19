@@ -135,13 +135,19 @@ export default function BookDetailPage() {
           </div>
 
           {/* Source attribution */}
-          <p className="text-[11px] text-gray-400 mt-1">Source: IUEA Koha Catalogue</p>
+          <p className="text-[11px] text-gray-400 mt-1">
+            Source:{' '}
+            {book.gutenbergId ? 'Project Gutenberg'
+              : book.archiveId ? 'Internet Archive'
+              : book.kohaId ? 'IUEA Koha Catalogue'
+              : 'IUEA Library'}
+          </p>
 
           {/* Action buttons */}
           <div className="flex flex-wrap gap-3 mt-5">
             <button
               disabled={!hasFile}
-              onClick={() => navigate(`/reader/${book._id}`)}
+              onClick={() => navigate(`/reader/${book.id ?? book._id}`)}
               className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-btn text-sm
                          font-semibold hover:bg-[#4A0810] transition-colors disabled:opacity-40"
             >
@@ -150,7 +156,7 @@ export default function BookDetailPage() {
 
             <button
               disabled={!hasFile}
-              onClick={() => navigate(`/reader/${book._id}?mode=audio`)}
+              onClick={() => navigate(`/reader/${book.id ?? book._id}?mode=audio`)}
               className="flex items-center gap-2 border border-primary text-primary px-5 py-2.5 rounded-btn
                          text-sm font-semibold hover:bg-primary/5 transition-colors disabled:opacity-40"
             >

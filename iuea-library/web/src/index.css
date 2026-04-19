@@ -103,6 +103,11 @@
     from { background-position: 200% 0; }
     to   { background-position: -200% 0; }
   }
+
+  /* ── Spin animation (used by loading spinners) ───────────────────────── */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 }
 
 /* ── Base reset ──────────────────────────────────────────────────────────── */

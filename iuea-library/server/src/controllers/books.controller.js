@@ -182,4 +182,88 @@ const getSimilarBooks = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { getBooks, getFeatured, getContinueReading, searchBooks, getBookById, getSimilarBooks };
+// POST /api/books/resolve  — import an external book into the DB and return its real record
+const resolveBook = async (req, res, next) => {
+  try {
+    const {
+      title, author, gutenbergId, archiveId, openLibraryKey,
+      isbn, coverUrl, category, fileUrl: inputFileUrl,
+      fileFormat, description, languages, source,
+    } = req.body;
+
+    if (!title) return res.status(400).json({ message: 'title is required' });
+
+    // ── 1. Check existing ──────────────────────────────────────────────────────
+    let existing = null;
+    if (gutenbergId)    existing = await prisma.book.findUnique({ where: { gutenbergId: Number(gutenbergId) } });
+    if (!existing && archiveId) existing = await prisma.book.findUnique({ where: { archiveId } });
+    if (!existing && isbn)      existing = await prisma.book.findFirst({ where: { isbn } });
+    if (!existing) {
+      existing = await prisma.book.findFirst({
+        where: {
+          title:  { equals: title, mode: 'insensitive' },
+          author: { contains: (author ?? '').split(',')[0].trim(), mode: 'insensitive' },
+        },
+      });
+    }
+
+    if (existing) {
+      const bookObj = { ...existing };
+      if (!bookObj.fileUrl && bookObj.fileKey) {
+        try { bookObj.fileUrl = await getSignedDownloadUrl(bookObj.fileKey); } catch {}
+      }
+      if (!bookObj.fileUrl && bookObj.archiveId) {
+        try { bookObj.fileUrl = await archiveService.getArchiveBookUrl(bookObj.archiveId); } catch {}
+      }
+      return res.json({ book: bookObj });
+    }
+
+    // ── 2. Resolve file URL for archive books ──────────────────────────────────
+    let fileUrl = inputFileUrl ?? null;
+    let resolvedFormat = fileFormat ?? null;
+    if (source === 'archive' && archiveId && !fileUrl) {
+      try {
+        fileUrl = await archiveService.getArchiveBookUrl(archiveId);
+        if (fileUrl) resolvedFormat = fileUrl.toLowerCase().endsWith('.epub') ? 'epub' : 'pdf';
+      } catch {}
+    }
+
+    // ── 3. Build create payload ────────────────────────────────────────────────
+    const payload = {
+      title:         title ?? 'Unknown Title',
+      author:        author ?? 'Unknown',
+      category:      category ?? 'General',
+      coverUrl:      coverUrl   ?? null,
+      description:   description ?? null,
+      isbn:          isbn ?? null,
+      fileUrl:       fileUrl ?? null,
+      fileFormat:    resolvedFormat ?? null,
+      languages:     languages ?? ['English'],
+      isActive:      true,
+    };
+    if (gutenbergId)   payload.gutenbergId   = Number(gutenbergId);
+    if (archiveId)     payload.archiveId     = archiveId;
+
+    // ── 4. Upsert / create ─────────────────────────────────────────────────────
+    let book;
+    if (gutenbergId) {
+      book = await prisma.book.upsert({
+        where:  { gutenbergId: Number(gutenbergId) },
+        create: payload,
+        update: { fileUrl: payload.fileUrl, coverUrl: payload.coverUrl, description: payload.description },
+      });
+    } else if (archiveId) {
+      book = await prisma.book.upsert({
+        where:  { archiveId },
+        create: payload,
+        update: { fileUrl: payload.fileUrl, coverUrl: payload.coverUrl },
+      });
+    } else {
+      book = await prisma.book.create({ data: payload });
+    }
+
+    res.json({ book });
+  } catch (err) { next(err); }
+};
+
+module.exports = { getBooks, getFeatured, getContinueReading, searchBooks, getBookById, getSimilarBooks, resolveBook };

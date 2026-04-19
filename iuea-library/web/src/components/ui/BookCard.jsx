@@ -1,5 +1,6 @@
 import { useState }    from 'react';
 import { useNavigate } from 'react-router-dom';
+import api             from '../../services/api';
 
 /**
  * BookCard — premium book card.
@@ -18,14 +19,52 @@ export default function BookCard({
   onClick,
 }) {
   const navigate   = useNavigate();
-  const [hovered,  setHovered]  = useState(false);
+  const [hovered,   setHovered]   = useState(false);
+  const [resolving, setResolving] = useState(false);
 
   const progress = book.progress?.percentComplete ?? 0;
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (onClick) { onClick(book); return; }
+
+    const bookId = book.id ?? book._id;
+
+    // External books from Gutenberg or Archive — resolve into DB first so we
+    // get a real UUID and a working file URL, then navigate to the reader.
+    if (book.isExternal && (book.source === 'gutenberg' || book.source === 'archive')) {
+      if (resolving) return;
+      setResolving(true);
+      try {
+        const { data } = await api.post('/books/resolve', {
+          title:         book.title,
+          author:        book.author,
+          gutenbergId:   book.gutenbergId,
+          archiveId:     book.archiveId,
+          openLibraryKey: book.openLibraryKey,
+          isbn:          book.isbn,
+          coverUrl:      book.coverUrl,
+          category:      book.category,
+          fileUrl:       book.fileUrl,
+          fileFormat:    book.fileFormat,
+          description:   book.description,
+          languages:     book.languages,
+          source:        book.source,
+        });
+        navigate(`/home/books/${data.book.id}`);
+      } catch {
+        // Fallback: if resolve fails and we have a direct file URL, open it
+        if (book.fileUrl) window.open(book.fileUrl, '_blank');
+      } finally {
+        setResolving(false);
+      }
+      return;
+    }
+
+    // External books with no readable source (Google Books preview, OpenLibrary) — open externally
     if (book.isExternal && book.fileUrl) { window.open(book.fileUrl, '_blank'); return; }
-    if (book._id) navigate(`/home/books/${book._id}`);
+
+    // DB books
+    if (bookId) navigate(`/home/books/${bookId}`);
   };
 
   /* ── Portrait card (default) ─────────────────────────────────────────── */
@@ -142,12 +181,21 @@ export default function BookCard({
               transform: hovered ? 'scale(1)' : 'scale(0.7)',
               transition: 'transform 0.25s cubic-bezier(.22,1,.36,1)',
             }}>
-              <span className="material-symbols-outlined" style={{
-                color: '#5C0F1F', fontSize: 20,
-                fontVariationSettings: "'FILL' 1",
-              }}>
-                {book.isExternal ? 'open_in_new' : 'menu_book'}
-              </span>
+              {resolving ? (
+                <div style={{
+                  width: 18, height: 18, border: '2px solid #EBD2CF',
+                  borderTopColor: '#5C0F1F', borderRadius: '50%',
+                  animation: 'spin 0.7s linear infinite',
+                }} />
+              ) : (
+                <span className="material-symbols-outlined" style={{
+                  color: '#5C0F1F', fontSize: 20,
+                  fontVariationSettings: "'FILL' 1",
+                }}>
+                  {book.isExternal && book.source !== 'gutenberg' && book.source !== 'archive'
+                    ? 'open_in_new' : 'menu_book'}
+                </span>
+              )}
             </div>
           </div>
         </div>
