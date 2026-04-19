@@ -4,6 +4,7 @@ import useAuthStore   from '../../store/authStore';
 import { useLogout }  from '../../hooks/useAuth';
 import MobileBottomNav from './MobileBottomNav';
 import ChatbotOverlay  from '../chatbot/ChatbotOverlay';
+import useFcm          from '../../hooks/useFcm';
 
 const ADMIN_NAV = [
   { to: '/home',            end: true,  icon: 'dashboard',            label: 'Dashboard'  },
@@ -28,6 +29,7 @@ export default function DashboardLayout() {
   const logout     = useLogout();
   const navigate   = useNavigate();
   const location   = useLocation();
+  useFcm();
   const [search, setSearch]       = useState('');
   const [chatOpen, setChatOpen]   = useState(false);
 

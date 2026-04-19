@@ -31,8 +31,8 @@ export default function useFcm() {
         }
 
         // Foreground message handler — show a toast or in-app notification
+        const { default: toast } = await import('react-hot-toast');
         onMessage(messaging, (payload) => {
-          const { default: toast } = require('react-hot-toast');
           const title = payload.notification?.title ?? 'New notification';
           const body  = payload.notification?.body  ?? '';
           toast(`${title}${body ? ` — ${body}` : ''}`);

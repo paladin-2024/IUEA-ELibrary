@@ -5,7 +5,7 @@ const User          = require('../models/User');
 const { searchBooks } = require('../services/koha.service');
 const { syncPodcast }  = require('../services/podcast.service');
 const { uploadBookFile, uploadCover } = require('../services/r2.service');
-const { sendMulticast } = require('../services/firebase.service');
+const { sendMulticast, sendNewBookNotification } = require('../services/firebase.service');
 
 
 // GET /api/admin/stats
@@ -111,6 +111,8 @@ const uploadBook = async (req, res, next) => {
     }
 
     res.status(201).json({ book });
+    // Fire-and-forget — don't await so it doesn't delay the response
+    sendNewBookNotification(book).catch(() => {});
   } catch (err) { next(err); }
 };
 
@@ -553,6 +555,7 @@ const importBook = async (req, res, next) => {
     }
 
     res.status(201).json({ book });
+    sendNewBookNotification(book).catch(() => {});
   } catch (err) { next(err); }
 };
 
