@@ -129,7 +129,7 @@ const getMe = (req, res) => res.json(safeUser(req.user));
 // PUT /api/auth/me
 const updateMe = async (req, res, next) => {
   try {
-    const allowed = ['name', 'faculty', 'avatar', 'readingGoal', 'preferredLanguages'];
+    const allowed = ['name', 'faculty', 'avatar', 'readingGoal', 'preferredLanguages', 'readingPrefs'];
     const data    = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) data[key] = req.body[key];
@@ -139,6 +139,49 @@ const updateMe = async (req, res, next) => {
 
     const user = await prisma.user.update({ where: { id: req.user.id }, data });
     return res.json(safeUser(user));
+  } catch (err) { next(err); }
+};
+
+// POST /api/auth/avatar
+const uploadAvatar = async (req, res, next) => {
+  try {
+    const file = req.file;
+    if (!file) return res.status(400).json({ message: 'No image file provided.' });
+
+    const { uploadAvatar: uploadAvatarFile } = require('../services/r2.service');
+    const avatarUrl = await uploadAvatarFile(file, req.user.id);
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data:  { avatar: avatarUrl },
+    });
+    return res.json(safeUser(user));
+  } catch (err) { next(err); }
+};
+
+// GET /api/profile/notification-prefs
+const getNotificationPrefs = async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where:  { id: req.user.id },
+      select: { notificationPrefs: true },
+    });
+    return res.json({ prefs: user?.notificationPrefs ?? {} });
+  } catch (err) { next(err); }
+};
+
+// PATCH /api/profile/notification-prefs
+const updateNotificationPrefs = async (req, res, next) => {
+  try {
+    const { prefs } = req.body;
+    if (!prefs || typeof prefs !== 'object')
+      return res.status(400).json({ message: 'prefs object is required.' });
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data:  { notificationPrefs: prefs },
+    });
+    return res.json({ prefs: user.notificationPrefs });
   } catch (err) { next(err); }
 };
 
@@ -210,4 +253,8 @@ const updateFcmToken = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { register, login, googleAuth, getMe, updateMe, forgotPassword, resetPassword, updateFcmToken };
+module.exports = {
+  register, login, googleAuth, getMe, updateMe, uploadAvatar,
+  getNotificationPrefs, updateNotificationPrefs,
+  forgotPassword, resetPassword, updateFcmToken,
+};

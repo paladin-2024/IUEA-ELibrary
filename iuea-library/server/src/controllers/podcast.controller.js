@@ -1,5 +1,6 @@
-const prisma = require('../config/prisma');
-const axios  = require('axios');
+const prisma        = require('../config/prisma');
+const PodcastModel  = require('../models/Podcast');
+const axios         = require('axios');
 
 const toResponse = (p) => ({ ...p, author: p.hostName ?? '' });
 
@@ -177,21 +178,19 @@ const getPodcast = async (req, res, next) => {
 // POST /api/podcasts/subscribe/:id
 const subscribe = async (req, res, next) => {
   try {
-    const userId   = req.user.id;
+    const userId    = req.user.id;
     const podcastId = req.params.id;
 
-    const podcast = await prisma.podcast.findUnique({ where: { id: podcastId } });
+    const podcast = await PodcastModel.findByIdAndUpdate(
+      podcastId,
+      { $addToSet: { subscribers: userId } },
+      { new: true },
+    );
     if (!podcast) return res.status(404).json({ message: 'Podcast not found.' });
 
-    // upsert subscriber (ignore if already exists)
-    await prisma.podcastSubscriber.upsert({
-      where:  { podcastId_userId: { podcastId, userId } },
-      update: {},
-      create: { podcastId, userId },
-    });
-
-    const count = await prisma.podcastSubscriber.count({ where: { podcastId } });
-    await prisma.podcast.update({ where: { id: podcastId }, data: { subscriberCount: count } });
+    const count = podcast.subscribers.length;
+    podcast.subscriberCount = count;
+    await podcast.save();
 
     res.json({ subscribed: true, subscriberCount: count });
   } catch (err) { next(err); }
@@ -203,10 +202,16 @@ const unsubscribe = async (req, res, next) => {
     const userId    = req.user.id;
     const podcastId = req.params.id;
 
-    await prisma.podcastSubscriber.deleteMany({ where: { podcastId, userId } });
+    const podcast = await PodcastModel.findByIdAndUpdate(
+      podcastId,
+      { $pull: { subscribers: userId } },
+      { new: true },
+    );
+    if (!podcast) return res.status(404).json({ message: 'Podcast not found.' });
 
-    const count = await prisma.podcastSubscriber.count({ where: { podcastId } });
-    await prisma.podcast.update({ where: { id: podcastId }, data: { subscriberCount: count } });
+    const count = podcast.subscribers.length;
+    podcast.subscriberCount = count;
+    await podcast.save();
 
     res.json({ subscribed: false, subscriberCount: count });
   } catch (err) { next(err); }
@@ -215,15 +220,25 @@ const unsubscribe = async (req, res, next) => {
 // GET /api/podcasts/subscriptions
 const getSubscriptions = async (req, res, next) => {
   try {
-    const subs = await prisma.podcastSubscriber.findMany({
-      where:   { userId: req.user.id },
-      include: { podcast: true },
-    });
-    const podcasts = subs
-      .filter((s) => s.podcast?.isActive)
-      .map((s) => toResponse(s.podcast));
-    res.json({ podcasts });
+    const userId   = req.user.id;
+    const podcasts = await PodcastModel.find({ subscribers: userId, isActive: true }).lean();
+    res.json({ podcasts: podcasts.map(toResponse) });
   } catch (err) { next(err); }
 };
 
-module.exports = { listPodcasts, getByCategory, getPodcast, subscribe, unsubscribe, getSubscriptions };
+// POST /api/podcasts/:id/play
+const trackPlay = async (req, res, next) => {
+  try {
+    const podcast = await prisma.podcast.findUnique({ where: { id: req.params.id } });
+    if (!podcast) return res.status(404).json({ message: 'Podcast not found.' });
+
+    const updated = await prisma.podcast.update({
+      where: { id: req.params.id },
+      data:  { playCount: { increment: 1 } },
+      select: { id: true, playCount: true },
+    });
+    res.json({ playCount: updated.playCount });
+  } catch (err) { next(err); }
+};
+
+module.exports = { listPodcasts, getByCategory, getPodcast, subscribe, unsubscribe, getSubscriptions, trackPlay };

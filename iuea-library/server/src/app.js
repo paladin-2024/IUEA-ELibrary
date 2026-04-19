@@ -41,6 +41,7 @@ app.get('/health', (req, res) => res.json({
 
 // Routes
 app.use('/api/auth',       require('./routes/auth.routes'));
+app.use('/api/profile',    require('./routes/profile.routes'));
 app.use('/api/books',      require('./routes/books.routes'));
 app.use('/api/library',    require('./routes/library.routes'));
 app.use('/api/chat',       require('./routes/chat.routes'));

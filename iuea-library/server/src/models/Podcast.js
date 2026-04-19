@@ -35,7 +35,6 @@ const podcastSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['Education', 'Science', 'Literature', 'Law', 'Technology', 'Culture'],
     },
     language: {
       type:    String,
@@ -46,6 +45,10 @@ const podcastSchema = new mongoose.Schema(
       default: [],
     },
     subscriberCount: {
+      type:    Number,
+      default: 0,
+    },
+    playCount: {
       type:    Number,
       default: 0,
     },

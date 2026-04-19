@@ -29,10 +29,14 @@ const bookSchema = new mongoose.Schema(
       type: String, // R2 path — EPUB or PDF
     },
     archiveId: {
-      type: String, // Internet Archive identifier
+      type:   String,
+      unique: true,
+      sparse: true,
     },
     gutenbergId: {
-      type: Number,
+      type:   Number,
+      unique: true,
+      sparse: true,
     },
     fileFormat: {
       type: String,

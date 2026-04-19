@@ -11,6 +11,9 @@ router.get('/subscriptions',    authGuard, ctrl.getSubscriptions);
 router.post('/subscribe/:id',   authGuard, ctrl.subscribe);
 router.delete('/subscribe/:id', authGuard, ctrl.unsubscribe);
 
+// Play count (public — no auth needed to count a play)
+router.post('/:id/play', ctrl.trackPlay);
+
 // Public detail (episodes included)
 router.get('/:id', ctrl.getPodcast);
 

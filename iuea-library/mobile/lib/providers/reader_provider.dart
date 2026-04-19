@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../data/models/book_model.dart';
 import '../data/services/api_service.dart';
@@ -42,10 +43,49 @@ class ReaderProvider extends ChangeNotifier {
 
   final _api = ApiService();
   final _tts = TTSService();
+  Timer? _saveTimer;
 
   // ── TTS init ─────────────────────────────────────────────────────────────────
   Future<void> initTts() async {
     await _tts.init();
+  }
+
+  // ── Load/save reading prefs from/to API ──────────────────────────────────────
+  Future<void> loadReadingPrefs() async {
+    try {
+      final response = await _api.get(ApiConstants.authMe);
+      final data = response.data as Map<String, dynamic>?;
+      final user = data?['user'] as Map<String, dynamic>?;
+      final prefs = user?['readingPrefs'] as Map<String, dynamic>?;
+      if (prefs == null) return;
+      if (prefs['fontSize'] != null)    fontSize      = (prefs['fontSize']    as num).toDouble();
+      if (prefs['lineHeight'] != null)  lineHeight     = (prefs['lineHeight']  as num).toDouble();
+      if (prefs['theme'] != null)       theme          = prefs['theme']      as String;
+      if (prefs['fontFamily'] != null)  fontFamily     = prefs['fontFamily'] as String;
+      if (prefs['autoSave'] != null)    autoSave       = prefs['autoSave']   as bool;
+      if (prefs['offlineReading'] != null) offlineReading = prefs['offlineReading'] as bool;
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  Future<void> saveReadingPrefs() async {
+    try {
+      await _api.put(ApiConstants.authMe, data: {
+        'readingPrefs': {
+          'fontSize':      fontSize,
+          'lineHeight':    lineHeight,
+          'theme':         theme,
+          'fontFamily':    fontFamily,
+          'autoSave':      autoSave,
+          'offlineReading': offlineReading,
+        },
+      });
+    } catch (_) {}
+  }
+
+  void _scheduleSave() {
+    _saveTimer?.cancel();
+    _saveTimer = Timer(const Duration(seconds: 2), saveReadingPrefs);
   }
 
   // ── loadProgress ─────────────────────────────────────────────────────────────
@@ -134,31 +174,37 @@ class ReaderProvider extends ChangeNotifier {
   void setFontSize(double size) {
     fontSize = size.clamp(12, 30);
     notifyListeners();
+    _scheduleSave();
   }
 
   void setTheme(String t) {
     theme = t;
     notifyListeners();
+    _scheduleSave();
   }
 
   void setFontFamily(String f) {
     fontFamily = f;
     notifyListeners();
+    _scheduleSave();
   }
 
   void setAutoSave(bool v) {
     autoSave = v;
     notifyListeners();
+    _scheduleSave();
   }
 
   void setOfflineReading(bool v) {
     offlineReading = v;
     notifyListeners();
+    _scheduleSave();
   }
 
   void setLineHeight(double lh) {
     lineHeight = lh;
     notifyListeners();
+    _scheduleSave();
   }
 
   void setReadingMode(String mode) {
@@ -197,6 +243,7 @@ class ReaderProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _saveTimer?.cancel();
     _tts.dispose();
     super.dispose();
   }

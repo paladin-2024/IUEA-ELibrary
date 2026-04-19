@@ -17,8 +17,21 @@ const _kThemes = [
   {'id': 'dark',  'label': 'Dark',  'bg': 0xFF1A1A2E, 'text': 0xFFE5E5E5},
 ];
 
-class PreferencesScreen extends StatelessWidget {
+class PreferencesScreen extends StatefulWidget {
   const PreferencesScreen({super.key});
+
+  @override
+  State<PreferencesScreen> createState() => _PreferencesScreenState();
+}
+
+class _PreferencesScreenState extends State<PreferencesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ReaderProvider>().loadReadingPrefs();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,9 +1,4 @@
-const prisma         = require('../config/prisma');
-const { randomUUID } = require('crypto');
-
-function newId() {
-  return 'c' + randomUUID().replace(/-/g, '').substring(0, 24);
-}
+const prisma = require('../config/prisma');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SAVED BOOKS
@@ -115,7 +110,7 @@ const createCollection = async (req, res, next) => {
     const { name } = req.body;
     if (!name?.trim()) return res.status(400).json({ message: 'Name is required.' });
     const collection = await prisma.collection.create({
-      data: { id: newId(), userId: req.user.id, name: name.trim(), bookIds: [] },
+      data: { userId: req.user.id, name: name.trim(), bookIds: [] },
     });
     res.status(201).json({ collection });
   } catch (err) { next(err); }
@@ -131,8 +126,8 @@ const addBookToCollection = async (req, res, next) => {
     const col = await prisma.collection.findFirst({ where: { id, userId: req.user.id } });
     if (!col) return res.status(404).json({ message: 'Collection not found.' });
 
-    const bookIds = Array.isArray(col.bookIds) ? col.bookIds : [];
-    if (!bookIds.includes(bookId)) {
+    const bookIds = (Array.isArray(col.bookIds) ? col.bookIds : []).map(String);
+    if (!bookIds.includes(String(bookId))) {
       await prisma.collection.update({
         where: { id },
         data:  { bookIds: [...bookIds, bookId] },

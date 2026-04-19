@@ -126,6 +126,16 @@ class PodcastProvider extends ChangeNotifier {
       await _player.setSpeed(_speed);
       await _player.play();
     } catch (_) {}
+    // Fire-and-forget: increment play count for the parent podcast
+    if (_current != null && _current!.id.isNotEmpty) {
+      _trackPlay(_current!.id);
+    }
+  }
+
+  Future<void> _trackPlay(String podcastId) async {
+    try {
+      await _repo.trackPlay(podcastId);
+    } catch (_) {}
   }
 
   Future<void> togglePlay() async {

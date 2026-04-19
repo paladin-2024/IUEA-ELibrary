@@ -8,6 +8,126 @@ import toast from 'react-hot-toast';
 const fetchStats        = ()       => api.get('/admin/stats').then(r => r.data);
 const fetchRecentBooks  = ()       => api.get('/admin/books', { params: { limit: 4, page: 1 } }).then(r => r.data);
 const syncPodcastFeeds  = ()       => api.post('/admin/sync-patrons').then(r => r.data);
+const sendPush          = (body)   => api.post('/admin/notifications/push', body).then(r => r.data);
+
+const ROLES = [
+  { value: '',        label: 'All Users'  },
+  { value: 'student', label: 'Students'   },
+  { value: 'admin',   label: 'Admins'     },
+];
+
+function PushNotificationPanel() {
+  const [title,      setTitle]      = useState('');
+  const [body,       setBody]       = useState('');
+  const [targetRole, setTargetRole] = useState('');
+  const [open,       setOpen]       = useState(false);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: sendPush,
+    onSuccess: (data) => {
+      toast.success(`Sent to ${data.sent ?? 0} device(s)`);
+      setTitle(''); setBody(''); setOpen(false);
+    },
+    onError: () => toast.error('Failed to send notification'),
+  });
+
+  return (
+    <section style={{ marginBottom: '2rem' }}>
+      {/* Header row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h4 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#1C0A0C', margin: 0 }}>
+          Push Notifications
+        </h4>
+        <button
+          onClick={() => setOpen(o => !o)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '0.5rem 1rem', borderRadius: 9999,
+            background: open ? '#EBD2CF' : '#5C0F1F',
+            color: open ? '#5C0F1F' : '#fff',
+            border: 'none', cursor: 'pointer',
+            fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', fontWeight: 700,
+            transition: 'background 0.15s',
+          }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+            {open ? 'close' : 'send'}
+          </span>
+          {open ? 'Cancel' : 'Compose'}
+        </button>
+      </div>
+
+      {open && (
+        <div style={{
+          background: '#fff', borderRadius: '1rem',
+          border: '1px solid rgba(223,191,190,0.4)',
+          boxShadow: '0 4px 20px rgba(138,18,40,0.08)',
+          padding: '1.5rem',
+          display: 'flex', flexDirection: 'column', gap: '1rem',
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.7rem', fontWeight: 700, color: '#6B5456', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>
+                Title
+              </label>
+              <input
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="e.g. New books available!"
+                style={{ width: '100%', borderRadius: 8, border: '1.5px solid rgba(223,191,190,0.6)', padding: '0.6rem 0.875rem', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', outline: 'none', boxSizing: 'border-box' }}
+                onFocus={e => (e.target.style.borderColor = '#5C0F1F')}
+                onBlur={e => (e.target.style.borderColor = 'rgba(223,191,190,0.6)')}
+              />
+            </div>
+            <div>
+              <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.7rem', fontWeight: 700, color: '#6B5456', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>
+                Target Audience
+              </label>
+              <select
+                value={targetRole}
+                onChange={e => setTargetRole(e.target.value)}
+                style={{ width: '100%', borderRadius: 8, border: '1.5px solid rgba(223,191,190,0.6)', padding: '0.6rem 0.875rem', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', outline: 'none', background: '#fff', boxSizing: 'border-box' }}>
+                {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.7rem', fontWeight: 700, color: '#6B5456', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>
+              Message
+            </label>
+            <textarea
+              value={body}
+              onChange={e => setBody(e.target.value)}
+              placeholder="Write your notification message…"
+              rows={3}
+              style={{ width: '100%', borderRadius: 8, border: '1.5px solid rgba(223,191,190,0.6)', padding: '0.6rem 0.875rem', fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+              onFocus={e => (e.target.style.borderColor = '#5C0F1F')}
+              onBlur={e => (e.target.style.borderColor = 'rgba(223,191,190,0.6)')}
+            />
+          </div>
+
+          <button
+            onClick={() => { if (title.trim() && body.trim()) mutate({ title: title.trim(), body: body.trim(), targetRole: targetRole || undefined }); }}
+            disabled={isPending || !title.trim() || !body.trim()}
+            style={{
+              alignSelf: 'flex-end', display: 'flex', alignItems: 'center', gap: 8,
+              padding: '0.625rem 1.5rem', borderRadius: 9999, border: 'none',
+              background: (!title.trim() || !body.trim()) ? '#EBD2CF' : '#5C0F1F',
+              color: (!title.trim() || !body.trim()) ? '#A89597' : '#fff',
+              fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontWeight: 700,
+              cursor: (isPending || !title.trim() || !body.trim()) ? 'not-allowed' : 'pointer',
+              transition: 'background 0.15s',
+            }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+              {isPending ? 'hourglass_empty' : 'send'}
+            </span>
+            {isPending ? 'Sending…' : 'Send Notification'}
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
 
 // ── RecentBooks — real data from DB ──────────────────────────────────────────
 function RecentBooks() {
@@ -237,6 +357,9 @@ export default function AdminDashboard() {
             </button>
           </div>
         </section>
+
+        {/* ── Push Notification Composer ── */}
+        <PushNotificationPanel />
 
         {/* ── Recently Added Books ── */}
         <RecentBooks />

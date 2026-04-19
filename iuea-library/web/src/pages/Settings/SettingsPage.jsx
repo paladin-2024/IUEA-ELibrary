@@ -102,23 +102,41 @@ export default function SettingsPage() {
    ───────────────────────────────────────────────────────────────────────────── */
 function AccountTab() {
   const { user, updateUser } = useAuthStore();
-  const [name,     setName]    = useState(user?.name    ?? '');
-  const [email,    setEmail]   = useState(user?.email   ?? '');
-  const [goal,     setGoal]    = useState(user?.readingGoal ?? 12);
-  const [saving,   setSaving]  = useState(false);
-  const [saved,    setSaved]   = useState(false);
+  const [name,        setName]       = useState(user?.name    ?? '');
+  const [email,       setEmail]      = useState(user?.email   ?? '');
+  const [goal,        setGoal]       = useState(user?.readingGoal ?? 12);
+  const [saving,      setSaving]     = useState(false);
+  const [saved,       setSaved]      = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarPreview,   setAvatarPreview]   = useState(user?.avatar ?? null);
 
   const initials = name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const { data } = await api.patch('/auth/me', { name, readingGoal: goal });
+      const { data } = await api.put('/auth/me', { name, readingGoal: goal });
       if (updateUser) updateUser(data.user ?? data);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch { /* ignore */ }
     setSaving(false);
+  };
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarPreview(URL.createObjectURL(file));
+    setAvatarUploading(true);
+    try {
+      const form = new FormData();
+      form.append('avatar', file);
+      const { data } = await api.post('/auth/avatar', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (updateUser) updateUser(data.user ?? data);
+    } catch { setAvatarPreview(user?.avatar ?? null); }
+    setAvatarUploading(false);
   };
 
   return (
@@ -127,23 +145,40 @@ function AccountTab() {
       {/* Avatar */}
       <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: '50%', flexShrink: 0,
-            background: 'linear-gradient(135deg, #B8964A, #e6c96a)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '3px solid rgba(107,15,26,0.15)',
-            overflow: 'hidden',
-          }}>
-            {user?.avatar
-              ? <img src={user.avatar} alt={name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-              : <span style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:24, fontWeight:800, color:'#3d2900' }}>{initials}</span>
-            }
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <div style={{
+              width: 72, height: 72, borderRadius: '50%',
+              background: 'linear-gradient(135deg, #B8964A, #e6c96a)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '3px solid rgba(107,15,26,0.15)',
+              overflow: 'hidden',
+            }}>
+              {avatarPreview
+                ? <img src={avatarPreview} alt={name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                : <span style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:24, fontWeight:800, color:'#3d2900' }}>{initials}</span>
+              }
+            </div>
+            {avatarUploading && (
+              <div style={{
+                position:'absolute', inset:0, borderRadius:'50%',
+                background:'rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center',
+              }}>
+                <div style={{ width:20, height:20, border:'2px solid rgba(255,255,255,0.4)', borderTopColor:'#fff', borderRadius:'50%', animation:'spin 0.7s linear infinite' }} />
+              </div>
+            )}
           </div>
           <div>
             <p style={fieldLabel}>Profile Photo</p>
-            <p style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#A89597', margin:0 }}>
-              Photo upload coming soon
-            </p>
+            <label style={{
+              display:'inline-flex', alignItems:'center', gap:6, marginTop:4,
+              padding:'6px 14px', borderRadius:99, cursor:'pointer',
+              background:'rgba(107,15,26,0.07)', border:'1px solid rgba(107,15,26,0.15)',
+              fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:600, color:'#5C0F1F',
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize:14 }}>upload</span>
+              {avatarUploading ? 'Uploading…' : 'Change Photo'}
+              <input type="file" accept="image/*" onChange={handleAvatarChange} style={{ display:'none' }} />
+            </label>
           </div>
         </div>
       </Card>
@@ -214,17 +249,27 @@ function ReadingTab() {
     fontSize, lineHeight, fontFamily, theme,
     setFontSize, setLineHeight, setFontFamily, setTheme,
   } = useReaderStore();
+  const { user, updateUser } = useAuthStore();
 
-  // Persist to localStorage so it loads on next reader open
   const [autoSave, setAutoSave] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('iuea_reading_prefs') ?? '{}').autoSave ?? true; }
+    try { return (user?.readingPrefs?.autoSave) ?? JSON.parse(localStorage.getItem('iuea_reading_prefs') ?? '{}').autoSave ?? true; }
     catch { return true; }
   });
+  const [saving, setSaving] = useState(false);
+  const [saved,  setSaved]  = useState(false);
 
-  useEffect(() => {
-    const p = JSON.parse(localStorage.getItem('iuea_reading_prefs') ?? '{}');
-    localStorage.setItem('iuea_reading_prefs', JSON.stringify({ ...p, autoSave }));
-  }, [autoSave]);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const prefs = { fontSize, lineHeight, fontFamily, theme, autoSave };
+      localStorage.setItem('iuea_reading_prefs', JSON.stringify(prefs));
+      const { data } = await api.put('/auth/me', { readingPrefs: prefs });
+      if (updateUser) updateUser(data.user ?? data);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch { /* ignore */ }
+    setSaving(false);
+  };
 
   const FONTS = [
     { key: 'serif', label: 'Serif', sample: 'Playfair Display, Georgia, serif' },
@@ -320,6 +365,8 @@ function ReadingTab() {
       <Card title="Behaviour">
         <Toggle label="Auto-save position" sub="Resume where you left off" checked={autoSave} onChange={setAutoSave} />
       </Card>
+
+      <SaveButton saved={saved} saving={saving} onClick={handleSave} />
     </div>
   );
 }
@@ -346,7 +393,13 @@ function LanguageTab() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const { data } = await api.patch('/auth/me', { language: primary });
+      const langPrefs = { primary, autoTrans, ttsLang, aiLang };
+      localStorage.setItem(LANG_PREF_KEY, JSON.stringify(langPrefs));
+      const langName = LANGUAGES.find(l => l.code === primary)?.name ?? 'English';
+      const { data } = await api.put('/auth/me', {
+        preferredLanguages: [langName],
+        readingPrefs: { ttsLang, aiLang, autoTrans },
+      });
       if (updateUser) updateUser(data.user ?? data);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -392,40 +445,55 @@ function LanguageTab() {
    NotificationsTab
    ───────────────────────────────────────────────────────────────────────────── */
 function NotificationsTab() {
-  const load = () => { try { return JSON.parse(localStorage.getItem(NOTIF_PREF_KEY) ?? '{}'); } catch { return {}; } };
-  const saved0 = load();
-
-  const [newBooks,    setNewBooks]    = useState(saved0.newBooks    ?? true);
-  const [readRemind,  setReadRemind]  = useState(saved0.readRemind  ?? true);
-  const [goalAlert,   setGoalAlert]   = useState(saved0.goalAlert   ?? true);
-  const [newEpisodes, setNewEpisodes] = useState(saved0.newEpisodes ?? false);
-  const [newsletter,  setNewsletter]  = useState(saved0.newsletter  ?? false);
+  const [newBooks,    setNewBooks]    = useState(true);
+  const [readRemind,  setReadRemind]  = useState(true);
+  const [goalAlert,   setGoalAlert]   = useState(true);
+  const [newEpisodes, setNewEpisodes] = useState(false);
+  const [newsletter,  setNewsletter]  = useState(false);
+  const [loading,     setLoading]     = useState(true);
+  const [saving,      setSaving]      = useState(false);
+  const [saved,       setSaved]       = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(NOTIF_PREF_KEY, JSON.stringify({ newBooks, readRemind, goalAlert, newEpisodes, newsletter }));
-  }, [newBooks, readRemind, goalAlert, newEpisodes, newsletter]);
+    api.get('/profile/notification-prefs')
+      .then(({ data }) => {
+        const p = data.prefs ?? {};
+        if (p.newBooks    !== undefined) setNewBooks(p.newBooks);
+        if (p.readRemind  !== undefined) setReadRemind(p.readRemind);
+        if (p.goalAlert   !== undefined) setGoalAlert(p.goalAlert);
+        if (p.newEpisodes !== undefined) setNewEpisodes(p.newEpisodes);
+        if (p.newsletter  !== undefined) setNewsletter(p.newsletter);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const prefs = { newBooks, readRemind, goalAlert, newEpisodes, newsletter };
+      await api.patch('/profile/notification-prefs', { prefs });
+      localStorage.setItem(NOTIF_PREF_KEY, JSON.stringify(prefs));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch { /* ignore */ }
+    setSaving(false);
+  };
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
       <Card title="Library Notifications">
-        <Toggle label="New book arrivals"   sub="When new books are added to your faculty"  checked={newBooks}    onChange={setNewBooks} />
-        <Toggle label="Reading reminders"   sub="Daily reminders to hit your reading goal"  checked={readRemind}  onChange={setReadRemind} />
-        <Toggle label="Goal milestones"     sub="Celebrate when you hit reading milestones" checked={goalAlert}   onChange={setGoalAlert} />
+        <Toggle label="New book arrivals"   sub="When new books are added to your faculty"  checked={newBooks}    onChange={setNewBooks}    disabled={loading} />
+        <Toggle label="Reading reminders"   sub="Daily reminders to hit your reading goal"  checked={readRemind}  onChange={setReadRemind}  disabled={loading} />
+        <Toggle label="Goal milestones"     sub="Celebrate when you hit reading milestones" checked={goalAlert}   onChange={setGoalAlert}   disabled={loading} />
       </Card>
       <Card title="Podcast Notifications">
-        <Toggle label="New episodes"        sub="From podcasts in your library"              checked={newEpisodes} onChange={setNewEpisodes} />
+        <Toggle label="New episodes"        sub="From podcasts in your library"              checked={newEpisodes} onChange={setNewEpisodes} disabled={loading} />
       </Card>
       <Card title="General">
-        <Toggle label="Newsletter"          sub="Monthly digest of top content"              checked={newsletter}  onChange={setNewsletter} />
+        <Toggle label="Newsletter"          sub="Monthly digest of top content"              checked={newsletter}  onChange={setNewsletter}  disabled={loading} />
       </Card>
-      <div style={{
-        padding:'12px 16px', borderRadius:12,
-        background:'rgba(201,168,76,0.08)', border:'1px solid rgba(201,168,76,0.3)',
-      }}>
-        <p style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#503d00', margin:0 }}>
-          Preferences are saved automatically and applied to your next session.
-        </p>
-      </div>
+      <SaveButton saved={saved} saving={saving || loading} onClick={handleSave} />
     </div>
   );
 }
@@ -506,14 +574,15 @@ function Field({ label, children }) {
   );
 }
 
-function Toggle({ label, sub, checked, onChange }) {
+function Toggle({ label, sub, checked, onChange, disabled }) {
   return (
     <label style={{
       display:'flex', alignItems:'center', justifyContent:'space-between',
-      gap:16, cursor:'pointer', padding:'10px 0',
+      gap:16, cursor: disabled ? 'not-allowed' : 'pointer', padding:'10px 0',
       borderTop:'1px solid rgba(223,191,190,0.2)',
+      opacity: disabled ? 0.5 : 1,
     }}
-      onClick={() => onChange(!checked)}
+      onClick={() => !disabled && onChange(!checked)}
     >
       <div>
         <p style={{ fontFamily:'Inter, sans-serif', fontSize:13, fontWeight:600, color:'#1a0609', margin:0 }}>{label}</p>

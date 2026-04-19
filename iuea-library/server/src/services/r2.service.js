@@ -1,7 +1,9 @@
 const {
   PutObjectCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
 } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const r2Client = require('../config/r2');
 const path     = require('path');
 const fs       = require('fs');
@@ -63,6 +65,32 @@ const uploadCover = async (buffer, bookId) => {
   return uploadFile(buffer, key, 'image/jpeg');
 };
 
+// ── getSignedDownloadUrl ──────────────────────────────────────────────────────
+// Returns a time-limited presigned URL for a private R2 object.
+// Falls back to the local public URL in dev mode.
+const getSignedDownloadUrl = async (key, expiresIn = 3600) => {
+  if (!isR2Configured()) {
+    const base = process.env.SERVER_URL || 'http://localhost:5000';
+    return `${base}/uploads/${key}`;
+  }
+
+  // If R2 has a public URL configured, just return that (no signing needed)
+  if (process.env.R2_PUBLIC_URL) {
+    return `${process.env.R2_PUBLIC_URL}/${key}`;
+  }
+
+  const command = new GetObjectCommand({ Bucket: BUCKET, Key: key });
+  return getSignedUrl(r2Client, command, { expiresIn });
+};
+
+// ── uploadAvatar ──────────────────────────────────────────────────────────────
+// Takes a multer file object. Key: avatars/{userId}.{ext}
+const uploadAvatar = async (file, userId) => {
+  const ext = (file.originalname.split('.').pop() || 'jpg').toLowerCase();
+  const key = `avatars/${userId}.${ext}`;
+  return uploadFile(file.buffer, key, file.mimetype);
+};
+
 // ── deleteFile ────────────────────────────────────────────────────────────────
 const deleteFile = async (key) => {
   if (!isR2Configured()) {
@@ -75,4 +103,4 @@ const deleteFile = async (key) => {
   await r2Client.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
 };
 
-module.exports = { uploadFile, uploadBookFile, uploadCover, deleteFile };
+module.exports = { uploadFile, uploadBookFile, uploadCover, uploadAvatar, deleteFile, getSignedDownloadUrl };

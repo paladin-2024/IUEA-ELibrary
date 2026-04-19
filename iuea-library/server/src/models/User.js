@@ -76,6 +76,20 @@ const userSchema = new mongoose.Schema(
       type:    Boolean,
       default: true,
     },
+    passwordResetToken: {
+      type: String,
+    },
+    passwordResetExpiresAt: {
+      type: Date,
+    },
+    notificationPrefs: {
+      type:    mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+    readingPrefs: {
+      type:    mongoose.Schema.Types.Mixed,
+      default: {},
+    },
   },
   { timestamps: true }
 );

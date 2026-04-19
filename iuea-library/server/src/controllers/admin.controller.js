@@ -119,7 +119,19 @@ const uploadBook = async (req, res, next) => {
 // PATCH /api/admin/books/:id
 const updateBook = async (req, res, next) => {
   try {
-    const book = await prisma.book.update({ where: { id: req.params.id }, data: req.body });
+    const ALLOWED = [
+      'title', 'author', 'description', 'category', 'faculty', 'tags',
+      'languages', 'publishedYear', 'pageCount', 'coverUrl', 'fileUrl',
+      'fileFormat', 'isbn', 'isActive', 'rating', 'ratingCount',
+    ];
+    const data = {};
+    for (const key of ALLOWED) {
+      if (req.body[key] !== undefined) data[key] = req.body[key];
+    }
+    if (!Object.keys(data).length)
+      return res.status(400).json({ message: 'No updatable fields provided.' });
+
+    const book = await prisma.book.update({ where: { id: req.params.id }, data });
     res.json({ book });
   } catch (err) {
     if (err.code === 'P2025') return res.status(404).json({ message: 'Book not found.' });
@@ -267,12 +279,17 @@ const updateUserRole = async (req, res, next) => {
 // DELETE /api/admin/users/:id
 const deleteUser = async (req, res, next) => {
   try {
+    const existing = await prisma.user.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ message: 'User not found.' });
+
+    // Cascade-delete dependent records before removing the user
+    await Promise.all([
+      prisma.userProgress.deleteMany({ where: { userId: req.params.id } }),
+      prisma.chatSession.deleteMany({ where: { userId: req.params.id } }),
+    ]);
     await prisma.user.delete({ where: { id: req.params.id } });
     res.json({ message: 'User deleted.' });
-  } catch (err) {
-    if (err.code === 'P2025') return res.status(404).json({ message: 'User not found.' });
-    next(err);
-  }
+  } catch (err) { next(err); }
 };
 
 // PATCH /api/admin/books/:id/toggle

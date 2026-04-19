@@ -40,4 +40,8 @@ class PodcastRepository {
   Future<void> unsubscribe(String id) async {
     await _api.delete(ApiConstants.podcastSubscribe(id));
   }
+
+  Future<void> trackPlay(String id) async {
+    await _api.post(ApiConstants.podcastPlay(id));
+  }
 }

@@ -26,6 +26,8 @@ model User {
   isActive                Boolean  @default(true)
   passwordResetToken      String?
   passwordResetExpiresAt  DateTime?
+  notificationPrefs       Json     @default("{}")
+  readingPrefs            Json     @default("{}")
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
@@ -119,6 +121,7 @@ model Podcast {
   category        String?
   language        String    @default("English")
   subscriberCount Int       @default(0)
+  playCount       Int       @default(0)
   episodes        Json      @default("[]")
   lastFetched     DateTime?
   isActive        Boolean   @default(true)

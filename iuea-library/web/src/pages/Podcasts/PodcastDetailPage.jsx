@@ -47,6 +47,7 @@ export default function PodcastDetailPage() {
   };
 
   const playEpisode = (ep) => {
+    api.post(`/podcasts/${id}/play`).catch(() => {});
     navigate(`/podcasts/${id}/play`, {
       state: {
         episode:      ep,

@@ -32,22 +32,30 @@ function toFilter(where) {
     }
 
     if (v && typeof v === 'object' && !Array.isArray(v)) {
-      const cond = {};
-      if ('gt'       in v) cond.$gt    = v.gt;
-      if ('gte'      in v) cond.$gte   = v.gte;
-      if ('lt'       in v) cond.$lt    = v.lt;
-      if ('lte'      in v) cond.$lte   = v.lte;
-      if ('contains' in v) cond.$regex = new RegExp(v.contains.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      const cond      = {};
+      const caseFlag  = v.mode === 'insensitive' ? 'i' : '';
+      const escapeRx  = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      if ('gt'         in v) cond.$gt    = v.gt;
+      if ('gte'        in v) cond.$gte   = v.gte;
+      if ('lt'         in v) cond.$lt    = v.lt;
+      if ('lte'        in v) cond.$lte   = v.lte;
+      if ('contains'   in v) cond.$regex = new RegExp(escapeRx(v.contains), caseFlag || 'i');
+      if ('startsWith' in v) cond.$regex = new RegExp(`^${escapeRx(v.startsWith)}`, caseFlag);
+      if ('endsWith'   in v) cond.$regex = new RegExp(`${escapeRx(v.endsWith)}$`,   caseFlag);
+      if ('equals'     in v) {
+        if (caseFlag) { filter[field] = new RegExp(`^${escapeRx(v.equals)}$`, 'i'); continue; }
+        filter[field] = v.equals; continue;
+      }
       if ('notIn'    in v) cond.$nin   = v.notIn;
       if ('in'       in v) cond.$in    = v.in;
-      if ('has'      in v) { filter[field] = v.has; continue; }   // array elem
+      if ('has'      in v) { filter[field] = v.has; continue; }
       if ('not'      in v) {
         if (v.not === null) { cond.$exists = true; cond.$ne = null; }
         else                cond.$ne = v.not;
       }
-      // { not: null } already handled, so check if 'not' is the only key
-      if (!('not' in v) && Object.keys(cond).length === 0) {
-        filter[field] = v; // pass-through unknown shape
+      if (Object.keys(cond).length === 0 && !('not' in v)) {
+        filter[field] = v;
       } else {
         filter[field] = cond;
       }
@@ -182,11 +190,21 @@ function wrap(ModelFn) {
 
     // ── update ─────────────────────────────────────────────────────────────
     async update({ where, data, select } = {}) {
-      const filter = toFilter(where);
-      const proj   = toProjection(select);
+      const filter  = toFilter(where);
+      const proj    = toProjection(select);
+      // Split data into $set fields and $inc fields (Prisma { increment: N })
+      const setData = {};
+      const incData = {};
+      for (const [k, v] of Object.entries(data || {})) {
+        if (v && typeof v === 'object' && 'increment' in v) incData[k] = v.increment;
+        else setData[k] = v;
+      }
+      const update = {};
+      if (Object.keys(setData).length) update.$set = setData;
+      if (Object.keys(incData).length) update.$inc = incData;
       const doc = await M().findOneAndUpdate(
         filter,
-        { $set: data },
+        update,
         { new: true, projection: proj || undefined },
       ).lean();
       if (!doc) {
