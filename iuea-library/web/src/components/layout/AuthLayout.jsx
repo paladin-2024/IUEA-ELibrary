@@ -6,7 +6,7 @@ import { FiBookOpen } from 'react-icons/fi';
  */
 export default function AuthLayout({ children, title, subtitle }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-surface px-4 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-bg-app px-4 py-12">
       {/* Brand */}
       <Link to="/" className="flex items-center gap-2 mb-8 font-serif text-2xl font-semibold text-primary">
         <FiBookOpen size={26} className="text-accent" />

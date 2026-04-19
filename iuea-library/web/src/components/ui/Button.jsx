@@ -13,11 +13,11 @@ import { cn }       from '../../utils/cn';
  */
 
 const variants = {
-  primary: 'bg-primary-container text-white hover:bg-primary shadow-btn active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
-  secondary: 'border border-outline-variant bg-surface-container-lowest text-primary hover:bg-surface-container-low active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
-  ghost: 'text-primary hover:bg-surface-container-low active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
-  danger: 'bg-error text-white hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
-  accent: 'bg-tertiary-container text-on-tertiary-container hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+  primary:   'bg-primary text-white hover:bg-primary-dark shadow-btn active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+  secondary: 'border border-border-line bg-white text-primary hover:bg-blush-100 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+  ghost:     'text-primary hover:bg-blush-100 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+  danger:    'bg-error text-white hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
+  accent:    'bg-gold-500 text-white hover:bg-gold-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed',
 };
 
 const sizes = {
@@ -42,7 +42,7 @@ export default function Button({
       className={cn(
         'font-label font-bold transition-all duration-150',
         'inline-flex items-center justify-center gap-2',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container/40',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
         variants[variant] ?? variants.primary,
         sizes[size]       ?? sizes.md,
         className,

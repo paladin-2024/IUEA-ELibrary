@@ -61,7 +61,7 @@ export default function Dropdown({
                 'w-full text-left px-3 py-2 text-sm transition-colors',
                 opt.value === value
                   ? 'bg-primary/10 text-primary font-medium'
-                  : 'text-gray-700 hover:bg-surface',
+                  : 'text-gray-700 hover:bg-blush-100',
               )}
             >
               {opt.label}

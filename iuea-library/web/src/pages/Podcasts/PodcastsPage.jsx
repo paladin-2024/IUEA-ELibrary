@@ -84,7 +84,7 @@ export default function PodcastsPage() {
       {/* ── Topbar ── */}
       <header className="pp-topbar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ fontFamily: 'Newsreader, serif', fontWeight: 700, fontSize: '1.125rem', color: C.primary }}>
+          <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontWeight: 700, fontSize: '1.125rem', color: C.primary }}>
             Podcast Hub
           </span>
         </div>
@@ -127,7 +127,7 @@ export default function PodcastsPage() {
               <span style={{ display:'inline-block', padding:'4px 12px', background:C.tertiaryContainer, color:C.onTertiaryContainer, fontSize:'10px', fontWeight:700, letterSpacing:'0.15em', textTransform:'uppercase', borderRadius:'0.25rem', marginBottom:'1rem', width:'fit-content', fontFamily:'Inter, sans-serif' }}>
                 {featured.category ?? 'Featured Series'}
               </span>
-              <h2 style={{ fontFamily:'Newsreader, serif', fontSize:'clamp(2rem,5vw,3.75rem)', fontWeight:700, color:'#ffffff', maxWidth:'42rem', lineHeight:1.15, marginBottom:'1rem' }}>
+              <h2 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'clamp(2rem,5vw,3.75rem)', fontWeight:700, color:'#ffffff', maxWidth:'42rem', lineHeight:1.15, marginBottom:'1rem' }}>
                 {featured.title}
               </h2>
               {featured.description && (
@@ -162,7 +162,7 @@ export default function PodcastsPage() {
         <section>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:'2rem' }}>
             <div>
-              <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.875rem', fontWeight:700, color:C.onSurface, margin:0 }}>
+              <h3 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.875rem', fontWeight:700, color:C.onSurface, margin:0 }}>
                 Popular Podcasts
               </h3>
               <p style={{ color:C.onSurfaceVariant, fontFamily:'Inter, sans-serif', marginTop:4 }}>
@@ -190,7 +190,7 @@ export default function PodcastsPage() {
 
           {/* Left: Popular this week */}
           <div className="pp-bento-left">
-            <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.875rem', fontWeight:700, color:C.onSurface, marginBottom:'2rem' }}>
+            <h3 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.875rem', fontWeight:700, color:C.onSurface, marginBottom:'2rem' }}>
               Popular this week
             </h3>
             <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
@@ -207,7 +207,7 @@ export default function PodcastsPage() {
 
           {/* Right: Browse Categories */}
           <div className="pp-bento-right">
-            <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.875rem', fontWeight:700, color:C.onSurface, marginBottom:'2rem' }}>
+            <h3 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.875rem', fontWeight:700, color:C.onSurface, marginBottom:'2rem' }}>
               Browse Categories
             </h3>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
@@ -229,7 +229,7 @@ export default function PodcastsPage() {
                 <div key={label} className="pp-cat-tile"
                   onClick={() => navigate(`/home/search?category=${encodeURIComponent(label)}`)}
                   style={{ height:96, borderRadius:'1rem', background:bg, display:'flex', alignItems:'center', justifyContent:'center', padding:'1rem', textAlign:'center', cursor:'pointer', transition:'transform 0.2s' }}>
-                  <span style={{ fontFamily:'Newsreader, serif', fontWeight:700, fontSize:'1.125rem', color }}>
+                  <span style={{ fontFamily:'Playfair Display, Georgia, serif', fontWeight:700, fontSize:'1.125rem', color }}>
                     {label}
                   </span>
                 </div>

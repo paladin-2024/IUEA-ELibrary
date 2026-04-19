@@ -116,7 +116,7 @@ function EmptyState({ tab }) {
   };
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-      <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center">
+      <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center">
         <FiBookOpen size={28} className="text-gray-300" />
       </div>
       <p className="text-sm text-gray-500">{messages[tab]}</p>

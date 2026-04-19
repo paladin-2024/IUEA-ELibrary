@@ -1,6 +1,9 @@
 const prisma  = require('../config/prisma');
 const gemini  = require('../services/gemini.service');
 
+const GENERAL_BOOK_ID = '__general__';
+const GENERAL_BOOK    = { id: GENERAL_BOOK_ID, title: 'IUEA Library', author: 'IUEA', faculty: [] };
+
 // POST /api/chat/:bookId
 const chat = async (req, res, next) => {
   try {
@@ -11,10 +14,12 @@ const chat = async (req, res, next) => {
     if (!message?.trim())
       return res.status(400).json({ message: 'message is required.' });
 
-    const book = await prisma.book.findUnique({
-      where:  { id: bookId },
-      select: { id: true, title: true, author: true, faculty: true },
-    });
+    const book = bookId === GENERAL_BOOK_ID
+      ? GENERAL_BOOK
+      : await prisma.book.findUnique({
+          where:  { id: bookId },
+          select: { id: true, title: true, author: true, faculty: true },
+        });
     if (!book) return res.status(404).json({ message: 'Book not found.' });
 
     let session = await prisma.chatSession.findUnique({
@@ -61,10 +66,12 @@ const streamChat = async (req, res, next) => {
   res.flushHeaders();
 
   try {
-    const book = await prisma.book.findUnique({
-      where:  { id: bookId },
-      select: { id: true, title: true, author: true, faculty: true },
-    });
+    const book = bookId === GENERAL_BOOK_ID
+      ? GENERAL_BOOK
+      : await prisma.book.findUnique({
+          where:  { id: bookId },
+          select: { id: true, title: true, author: true, faculty: true },
+        });
     if (!book) {
       res.write(`data: ${JSON.stringify({ error: 'Book not found.' })}\n\n`);
       res.end(); return;

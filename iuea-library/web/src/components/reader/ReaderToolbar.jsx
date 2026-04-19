@@ -163,7 +163,7 @@ function SettingsDrawer({ theme: t, iconColor, onClose }) {
   const border  = t.border ?? 'rgba(223,191,190,0.4)';
 
   const FONTS = [
-    { key: 'serif', label: 'Serif', sample: 'Newsreader, Georgia, serif' },
+    { key: 'serif', label: 'Serif', sample: 'Playfair Display, Georgia, serif' },
     { key: 'sans',  label: 'Sans',  sample: 'Inter, system-ui, sans-serif' },
     { key: 'mono',  label: 'Mono',  sample: 'JetBrains Mono, monospace' },
   ];
@@ -201,7 +201,7 @@ function SettingsDrawer({ theme: t, iconColor, onClose }) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <span style={{
-          fontFamily: 'Newsreader, Georgia, serif',
+          fontFamily: 'Playfair Display, Georgia, serif',
           fontSize: 16, fontWeight: 700, color: iconColor,
         }}>Reading Settings</span>
         <button onClick={onClose} style={{
@@ -304,7 +304,7 @@ function SettingsDrawer({ theme: t, iconColor, onClose }) {
           }}>
             <span style={{
               display: 'block',
-              fontFamily: 'Newsreader, Georgia, serif',
+              fontFamily: 'Playfair Display, Georgia, serif',
               fontSize: 12, fontWeight: 700, color: swText,
             }}>{label}</span>
           </button>

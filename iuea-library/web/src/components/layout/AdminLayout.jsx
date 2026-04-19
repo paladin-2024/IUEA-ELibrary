@@ -29,42 +29,42 @@ export default function AdminLayout() {
         .al-sidebar {
           width: 240px; height: 100vh;
           position: sticky; left: 0; top: 0;
-          background: #56000f;
+          background: #5C0F1F;
           display: flex; flex-direction: column;
           padding: 1.5rem 0;
-          box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+          box-shadow: 4px 0 20px rgba(60,10,18,0.25);
           z-index: 50; flex-shrink: 0;
         }
         .al-nav-item {
           display: flex; align-items: center; gap: 0.75rem;
           padding: 0.75rem 1rem; margin: 0 0.5rem;
-          border-radius: 0.5rem;
-          font-family: Inter, sans-serif; font-size: 0.875rem;
-          letter-spacing: 0.025em; text-decoration: none;
+          border-radius: 10px;
+          font-family: Inter, sans-serif; font-size: 0.875rem; font-weight: 500;
+          letter-spacing: 0.02em; text-decoration: none;
           transition: all 0.15s; cursor: pointer;
         }
-        .al-nav-active   { background: #7b0d1e; color: #ffffff; }
-        .al-nav-inactive { color: rgba(255,209,212,0.7); }
-        .al-nav-inactive:hover { color: #ffffff; background: rgba(123,13,30,0.5); }
+        .al-nav-active   { background: #8A1228; color: #ffffff; }
+        .al-nav-inactive { color: rgba(248,215,211,0.65); }
+        .al-nav-inactive:hover { color: #ffffff; background: rgba(138,18,40,0.4); }
         .al-topbar {
           position: sticky; top: 0; width: 100%; z-index: 40;
-          height: 64px; background: #fff0f0;
+          height: 64px; background: #FCE8E6; border-bottom: 1px solid #EBD2CF;
           display: flex; justify-content: space-between; align-items: center;
           padding: 0 2rem; flex-shrink: 0;
         }
       `}</style>
 
-      <div style={{ display: 'flex', minHeight: '100vh', background: '#fff0f0' }}>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#FCE8E6' }}>
 
         {/* ── Sidebar ── */}
         <aside className="al-sidebar">
           {/* Logo / Title */}
           <div style={{ padding: '0 1.5rem', marginBottom: '2.5rem' }}>
-            <h1 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.25rem', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.01em', margin: 0 }}>
+            <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.25rem', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.01em', margin: 0 }}>
               IUEA Library
             </h1>
-            <p style={{ color: 'rgba(255,209,212,0.6)', fontSize: '10px', fontFamily: 'Inter, sans-serif', textTransform: 'uppercase', letterSpacing: '0.2em', marginTop: 4 }}>
-              Digital Curator
+            <p style={{ color: 'rgba(248,215,211,0.45)', fontSize: '10px', fontFamily: 'Inter, sans-serif', textTransform: 'uppercase', letterSpacing: '0.2em', marginTop: 4 }}>
+              Admin Console
             </p>
           </div>
 
@@ -77,7 +77,7 @@ export default function AdminLayout() {
                 className={`al-nav-item ${isActive(to, end) ? 'al-nav-active' : 'al-nav-inactive'}`}
               >
                 <span className="material-symbols-outlined"
-                  style={{ color: isActive(to, end) ? '#c9a84c' : undefined, fontVariationSettings: isActive(to, end) ? "'FILL' 1" : "'FILL' 0" }}>
+                  style={{ color: isActive(to, end) ? '#D9B96B' : undefined, fontVariationSettings: isActive(to, end) ? "'FILL' 1" : "'FILL' 0" }}>
                   {icon}
                 </span>
                 <span>{label}</span>
@@ -102,7 +102,7 @@ export default function AdminLayout() {
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           {/* Topbar */}
           {showLayoutTopbar && <header className="al-topbar">
-            <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.5rem', fontWeight: 700, color: '#56000f', margin: 0 }}>
+            <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.5rem', fontWeight: 700, color: '#8A1228', margin: 0 }}>
               Curator Overview
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -115,9 +115,9 @@ export default function AdminLayout() {
                   onBlur={e => (e.target.style.boxShadow = 'none')}
                 />
               </div>
-              <button style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(86,0,15,0.8)' }}>
+              <button style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(138,18,40,0.7)' }}>
                 <span className="material-symbols-outlined">notifications</span>
-                <span style={{ position: 'absolute', top: 2, right: 2, width: 8, height: 8, background: '#ba1a1a', borderRadius: '50%', border: '2px solid #fff0f0' }} />
+                <span style={{ position: 'absolute', top: 2, right: 2, width: 8, height: 8, background: '#B5352F', borderRadius: '50%', border: '2px solid #FCE8E6' }} />
               </button>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingLeft: '1rem', borderLeft: '1px solid rgba(223,191,190,0.4)' }}>
                 <img
@@ -125,7 +125,7 @@ export default function AdminLayout() {
                   alt="Admin"
                   style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }}
                 />
-                <span className="material-symbols-outlined" style={{ color: '#56000f' }}>account_circle</span>
+                <span className="material-symbols-outlined" style={{ color: '#8A1228' }}>account_circle</span>
               </div>
             </div>
           </header>}

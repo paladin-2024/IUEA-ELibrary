@@ -209,7 +209,7 @@ export default function LanguageSetupPage() {
             <img src="/iuea_logo.png" alt="IUEA Logo"
               style={{ height: 40, width: 40, objectFit: 'contain' }} />
             <span style={{
-              fontFamily: 'Newsreader, serif', fontWeight: 700,
+              fontFamily: 'Playfair Display, Georgia, serif', fontWeight: 700,
               fontSize: '1.125rem', color: '#56000f',
             }}>
               IUEA Library
@@ -236,7 +236,7 @@ export default function LanguageSetupPage() {
             {/* Heading */}
             <div className="ls-heading-block" style={{ marginBottom: '3rem' }}>
               <h1 style={{
-                fontFamily: 'Newsreader, serif',
+                fontFamily: 'Playfair Display, Georgia, serif',
                 fontSize: 'clamp(2.5rem, 5vw, 3.75rem)',
                 fontWeight: 800, color: '#56000f',
                 letterSpacing: '-0.02em', lineHeight: 1.15,
@@ -272,7 +272,7 @@ export default function LanguageSetupPage() {
                       <img src={flagUrl} alt={`${name} flag`} />
                     </div>
                     <h3 style={{
-                      fontFamily: 'Newsreader, serif',
+                      fontFamily: 'Playfair Display, Georgia, serif',
                       fontSize: '1.5rem', fontWeight: 700,
                       color: '#56000f',
                     }}>

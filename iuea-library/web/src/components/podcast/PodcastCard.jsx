@@ -113,7 +113,7 @@ export default function PodcastCard({ podcast, variant = 'square', onPlay }) {
         </div>
         {/* Info */}
         <p style={{
-          fontFamily: 'Newsreader, Georgia, serif',
+          fontFamily: 'Playfair Display, Georgia, serif',
           fontSize: 14, fontWeight: 700, color: '#1a0609',
           lineHeight: 1.3, margin: '0 0 3px',
           display: '-webkit-box', WebkitLineClamp: 2,
@@ -158,7 +158,7 @@ export default function PodcastCard({ podcast, variant = 'square', onPlay }) {
         </div>
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <p style={{
-            fontFamily: 'Newsreader, Georgia, serif',
+            fontFamily: 'Playfair Display, Georgia, serif',
             fontSize: 14, fontWeight: 700, color: '#1a0609',
             margin: '0 0 2px', lineHeight: 1.3,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
@@ -229,7 +229,7 @@ export default function PodcastCard({ podcast, variant = 'square', onPlay }) {
           }}>{podcast.category}</span>
         )}
         <h2 style={{
-          fontFamily: 'Newsreader, Georgia, serif',
+          fontFamily: 'Playfair Display, Georgia, serif',
           fontSize: 'clamp(1.4rem,3vw,2.2rem)', fontWeight: 800,
           color: '#fff', lineHeight: 1.2, margin: '0 0 6px', maxWidth: '60%',
         }}>{podcast.title}</h2>

@@ -79,7 +79,7 @@ function AddBookPanel({ onClose }) {
       <div style={{ flex: 1, background: 'rgba(0,0,0,0.4)' }} onClick={onClose} />
       <div style={{ width: '100%', maxWidth: 448, background: '#ffffff', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '-4px 0 40px rgba(86,0,15,0.15)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 1.5rem', borderBottom: '1px solid #fff0f0' }}>
-          <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.25rem', fontWeight: 700, color: '#56000f', margin: 0 }}>Add Book</h2>
+          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#56000f', margin: 0 }}>Add Book</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#584141' }}>
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -167,7 +167,7 @@ function EditBookModal({ book, onClose }) {
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }}>
       <div style={{ background: '#ffffff', borderRadius: '1rem', boxShadow: '0 24px 64px rgba(86,0,15,0.18)', width: '100%', maxWidth: 384, padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.25rem', fontWeight: 700, color: '#56000f', margin: 0 }}>Edit Book</h2>
+          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#56000f', margin: 0 }}>Edit Book</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#584141' }}>
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -230,7 +230,7 @@ export default function AdminBooksPage() {
       {/* Topbar */}
       <header style={{ position: 'sticky', top: 0, width: '100%', zIndex: 40, height: 80, background: '#fff0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 2rem', flexShrink: 0, boxSizing: 'border-box' }}>
         <div>
-          <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.875rem', fontWeight: 600, color: '#56000f', margin: 0 }}>Book Management</h2>
+          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.875rem', fontWeight: 600, color: '#56000f', margin: 0 }}>Book Management</h2>
           <span style={{ fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#584141', fontFamily: 'Inter, sans-serif' }}>Inventory Control</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -273,7 +273,7 @@ export default function AdminBooksPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#584141', margin: '0 0 4px', fontFamily: 'Inter, sans-serif' }}>Total Volumes</p>
-                <h3 style={{ fontFamily: 'Newsreader, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f', margin: 0 }}>{total > 0 ? total.toLocaleString() : '12,482'}</h3>
+                <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f', margin: 0 }}>{total > 0 ? total.toLocaleString() : '12,482'}</h3>
               </div>
               <div style={{ padding: '0.75rem', background: '#ffd9dc', borderRadius: '0.5rem', color: '#56000f' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.5rem' }}>library_books</span>
@@ -289,7 +289,7 @@ export default function AdminBooksPage() {
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #56000f, #7b0d1e)', opacity: 0.8 }} />
             <div style={{ position: 'relative', zIndex: 1, display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', color: '#fff' }}>
               <div style={{ maxWidth: '28rem' }}>
-                <h4 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.5rem', marginBottom: '0.5rem', fontStyle: 'italic', margin: '0 0 0.5rem' }}>"Knowledge is the only wealth that increases when shared."</h4>
+                <h4 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', marginBottom: '0.5rem', fontStyle: 'italic', margin: '0 0 0.5rem' }}>"Knowledge is the only wealth that increases when shared."</h4>
                 <p style={{ color: 'rgba(255,209,212,0.7)', fontSize: '0.875rem', margin: 0, fontFamily: 'Inter, sans-serif' }}>Reviewing 42 pending book acquisitions from the Humanities department.</p>
               </div>
               <button style={{ background: '#c9a84c', color: '#503d00', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap', flexShrink: 0 }}
@@ -361,7 +361,7 @@ export default function AdminBooksPage() {
                         </td>
                         {/* Book Details */}
                         <td style={{ padding: '1rem 1.5rem' }}>
-                          <span style={{ display: 'block', fontFamily: 'Newsreader, serif', fontWeight: 700, fontSize: '1.125rem', color: '#56000f', cursor: 'pointer' }}
+                          <span style={{ display: 'block', fontFamily: 'Playfair Display, Georgia, serif', fontWeight: 700, fontSize: '1.125rem', color: '#56000f', cursor: 'pointer' }}
                             onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
                             onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
                           >{b.title}</span>

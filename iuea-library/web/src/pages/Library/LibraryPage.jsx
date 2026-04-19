@@ -144,7 +144,7 @@ export default function LibraryPage() {
 
         {/* Heading + Tabs */}
         <div style={{ marginBottom: '3rem' }}>
-          <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '2.5rem', fontWeight: 700, color: '#56000f', marginBottom: '0.5rem' }}>
+          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.5rem', fontWeight: 700, color: '#56000f', marginBottom: '0.5rem' }}>
             My Library
           </h2>
           <div style={{ display: 'flex', gap: '1.5rem', marginTop: '1.5rem' }}>
@@ -188,7 +188,7 @@ export default function LibraryPage() {
                     <span style={{ display: 'inline-block', background: book.badgeBg, color: book.badgeColor, fontSize: '10px', padding: '2px 8px', borderRadius: 9999, fontFamily: 'Inter, sans-serif', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', width: 'fit-content' }}>
                       {book.badge}
                     </span>
-                    <h3 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.125rem', fontWeight: 700, color: '#56000f', lineHeight: 1.3 }}>{book.title}</h3>
+                    <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.125rem', fontWeight: 700, color: '#56000f', lineHeight: 1.3 }}>{book.title}</h3>
                     <p style={{ fontSize: '12px', color: 'rgba(88,65,65,0.7)', fontWeight: 500, fontFamily: 'Inter, sans-serif' }}>{book.author}</p>
                     {book.progress != null ? (
                       <div style={{ paddingTop: '0.5rem' }}>

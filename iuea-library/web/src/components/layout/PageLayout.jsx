@@ -8,7 +8,7 @@ import MobileBottomNav from './MobileBottomNav';
  */
 export default function PageLayout({ children, noPadding = false }) {
   return (
-    <div className="min-h-screen flex flex-col bg-surface">
+    <div className="min-h-screen flex flex-col bg-bg-app">
       <Navbar />
 
       <div className="flex flex-1 overflow-hidden">

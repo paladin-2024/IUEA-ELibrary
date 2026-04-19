@@ -257,6 +257,97 @@ const syncPatrons = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// PATCH /api/admin/users/:id/role
+const updateUserRole = async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    if (!['student', 'staff', 'admin'].includes(role))
+      return res.status(400).json({ message: 'Invalid role. Must be student, staff, or admin.' });
+    const user = await prisma.user.update({
+      where:  { id: req.params.id },
+      data:   { role },
+      select: { id: true, name: true, email: true, role: true },
+    });
+    res.json({ user });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ message: 'User not found.' });
+    next(err);
+  }
+};
+
+// DELETE /api/admin/users/:id
+const deleteUser = async (req, res, next) => {
+  try {
+    await prisma.user.delete({ where: { id: req.params.id } });
+    res.json({ message: 'User deleted.' });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ message: 'User not found.' });
+    next(err);
+  }
+};
+
+// PATCH /api/admin/books/:id/toggle
+const toggleBookStatus = async (req, res, next) => {
+  try {
+    const existing = await prisma.book.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ message: 'Book not found.' });
+    const book = await prisma.book.update({
+      where: { id: req.params.id },
+      data:  { isActive: !existing.isActive },
+    });
+    res.json({ book, message: book.isActive ? 'Book activated.' : 'Book deactivated.' });
+  } catch (err) { next(err); }
+};
+
+// GET /api/admin/analytics/top-books
+const getTopBooks = async (req, res, next) => {
+  try {
+    const topBooks = await UserProgress.aggregate([
+      { $group: { _id: '$bookId', sessions: { $sum: 1 } } },
+      { $sort: { sessions: -1 } },
+      { $limit: 10 },
+      { $lookup: { from: 'books', localField: '_id', foreignField: '_id', as: 'bookInfo' } },
+      { $unwind: { path: '$bookInfo', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 0,
+          bookId:   { $toString: '$_id' },
+          sessions: 1,
+          title:    { $ifNull: ['$bookInfo.title',  'Unknown'] },
+          author:   { $ifNull: ['$bookInfo.author', 'Unknown'] },
+        },
+      },
+    ]);
+    res.json({ topBooks });
+  } catch (err) { next(err); }
+};
+
+// GET /api/admin/analytics/user-growth
+const getUserGrowth = async (req, res, next) => {
+  try {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const dailySignups = await User.aggregate([
+      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+      { $group: { _id: { $dateToString: { format: '%m/%d', date: '$createdAt' } }, count: { $sum: 1 } } },
+      { $project: { _id: 0, date: '$_id', count: 1 } },
+      { $sort: { date: 1 } },
+    ]);
+    res.json({ dailySignups });
+  } catch (err) { next(err); }
+};
+
+// POST /api/admin/notifications/push
+const sendPushNotification = async (req, res, next) => {
+  try {
+    const { title, body, targetRole } = req.body;
+    if (!title || !body) return res.status(400).json({ message: 'title and body are required.' });
+    const where = targetRole ? { role: targetRole, isActive: true } : { isActive: true };
+    const users  = await prisma.user.findMany({ where, select: { fcmToken: true } });
+    const tokens = users.map(u => u.fcmToken).filter(Boolean);
+    res.json({ message: `Notification queued for ${tokens.length} device(s).`, sent: tokens.length });
+  } catch (err) { next(err); }
+};
+
 // POST /api/admin/podcasts
 const addPodcast = async (req, res, next) => {
   try {
@@ -351,7 +442,8 @@ const getAnalytics = async (req, res, next) => {
 };
 
 module.exports = {
-  getStats, getBooks, uploadBook, updateBook, deleteBook,
-  getUsers, suspendUser, getUserDetail,
+  getStats, getBooks, uploadBook, updateBook, deleteBook, toggleBookStatus,
+  getUsers, suspendUser, getUserDetail, updateUserRole, deleteUser,
   syncKoha, syncPatrons, addPodcast, getAnalytics,
+  getTopBooks, getUserGrowth, sendPushNotification,
 };

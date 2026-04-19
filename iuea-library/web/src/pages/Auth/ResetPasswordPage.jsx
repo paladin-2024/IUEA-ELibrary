@@ -45,7 +45,7 @@ export default function ResetPasswordPage() {
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
             <img src="/iuea_logo.png" alt="IUEA Logo" style={{ height: 80, width: 'auto', objectFit: 'contain' }} />
           </div>
-          <h1 style={{ fontFamily: 'Lora, Newsreader, serif', fontSize: '2.5rem', lineHeight: 1.2, color: '#2d1418', fontWeight: 700, marginBottom: '1rem' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.5rem', lineHeight: 1.2, color: '#2d1418', fontWeight: 700, marginBottom: '1rem' }}>
             {done ? 'Password updated!' : 'Choose a new password'}
           </h1>
           {!done && (

@@ -41,7 +41,7 @@ function UserDetailModal({ userId, onClose }) {
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', padding: '1rem' }}>
       <div style={{ background: '#ffffff', borderRadius: '1rem', boxShadow: '0 24px 64px rgba(86,0,15,0.18)', width: '100%', maxWidth: 480, maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 1.5rem', borderBottom: '1px solid #fff0f0' }}>
-          <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.25rem', fontWeight: 700, color: '#56000f', margin: 0 }}>Student Profile</h2>
+          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#56000f', margin: 0 }}>Student Profile</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#584141', padding: 4, borderRadius: 6 }}>
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -149,7 +149,7 @@ export default function AdminUsersPage() {
       {/* Topbar */}
       <header className="aup-topbar">
         <div>
-          <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.5rem', fontWeight: 700, color: '#56000f', margin: 0 }}>User Management</h2>
+          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', fontWeight: 700, color: '#56000f', margin: 0 }}>User Management</h2>
           <p style={{ color: '#584141', fontSize: '0.875rem', fontFamily: 'Inter, sans-serif', margin: 0 }}>Managing academic access and librarian roles</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
@@ -195,7 +195,7 @@ export default function AdminUsersPage() {
           <div className="aup-stat-card">
             <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#584141', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Total Students</span>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <span style={{ fontFamily: 'Newsreader, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f' }}>
+              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f' }}>
                 {total > 0 ? total.toLocaleString() : '12,842'}
               </span>
               <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#755b00', background: '#ffe08f', padding: '2px 8px', borderRadius: '0.25rem' }}>+12%</span>
@@ -204,7 +204,7 @@ export default function AdminUsersPage() {
           <div className="aup-stat-card" style={{ borderBottom: '4px solid #7b0d1e' }}>
             <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#584141', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Active Now</span>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <span style={{ fontFamily: 'Newsreader, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f' }}>892</span>
+              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f' }}>892</span>
               <div style={{ display: 'flex' }}>
                 {[
                   'https://lh3.googleusercontent.com/aida-public/AB6AXuBBi--i6fm8IWiHtd0iA1R4KxhCGP-1-hU2V0kPXFmhaSIUHNlVbDiRZFt5tHFgqgzhJSl0CYcIDoDvK0rf6qY8tw33jLPFxQalY0ifJPOxp8LC8PBc8otZS1a5dfSmE5IIRCQ6-qvcGtJyza8XhKLNIjunFmK-1nYh3yKK0N6xQLnNYwCYqSITCGPBIICFsFKVRyJxo1OHtvdK_WxYmWcqFcRgOqW3aUo5qTQRh2A9DJZ7-JYctehqhEJ8mGgOzwO_r6dleEtD0Ww',
@@ -219,14 +219,14 @@ export default function AdminUsersPage() {
           <div className="aup-stat-card">
             <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#584141', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Faculty of Law</span>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <span style={{ fontFamily: 'Newsreader, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f' }}>3,120</span>
+              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f' }}>3,120</span>
               <span className="material-symbols-outlined" style={{ color: '#c9a84c', fontSize: '1.5rem' }}>gavel</span>
             </div>
           </div>
           <div className="aup-stat-card">
             <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#584141', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>Faculty of Eng.</span>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: '1rem' }}>
-              <span style={{ fontFamily: 'Newsreader, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f' }}>4,502</span>
+              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f' }}>4,502</span>
               <span className="material-symbols-outlined" style={{ color: '#c9a84c', fontSize: '1.5rem' }}>precision_manufacturing</span>
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function AdminUsersPage() {
         {/* Table */}
         <div style={{ background: '#ffffff', borderRadius: '1rem', boxShadow: '0 12px 40px rgba(74,8,16,0.06)', overflow: 'hidden' }}>
           <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid #fff0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.25rem', fontWeight: 700, color: '#56000f', margin: 0 }}>Student Registry</h3>
+            <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#56000f', margin: 0 }}>Student Registry</h3>
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
               <select
                 value={faculty}

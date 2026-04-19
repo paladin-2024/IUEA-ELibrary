@@ -48,7 +48,7 @@ export default function SettingsPage() {
       {/* ── Page title ──────────────────────────────────────────────────────── */}
       <div style={{ marginBottom: '1.5rem' }}>
         <h1 style={{
-          fontFamily: 'Newsreader, Georgia, serif',
+          fontFamily: 'Playfair Display, Georgia, serif',
           fontSize: 28, fontWeight: 800, color: '#1a0609', margin: 0, lineHeight: 1.1,
         }}>Settings</h1>
         <p style={{
@@ -136,7 +136,7 @@ function AccountTab() {
           }}>
             {user?.avatar
               ? <img src={user.avatar} alt={name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-              : <span style={{ fontFamily:'Newsreader, Georgia, serif', fontSize:24, fontWeight:800, color:'#3d2900' }}>{initials}</span>
+              : <span style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:24, fontWeight:800, color:'#3d2900' }}>{initials}</span>
             }
           </div>
           <div>
@@ -194,7 +194,7 @@ function AccountTab() {
             style={{ flex:1, accentColor:'#7b0d1e', height:4 }}
           />
           <span style={{
-            fontFamily:'Newsreader, Georgia, serif', fontSize:20, fontWeight:800,
+            fontFamily:'Playfair Display, Georgia, serif', fontSize:20, fontWeight:800,
             color:'#7b0d1e', minWidth:40, textAlign:'center',
           }}>{goal}</span>
           <span style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'#8b7170' }}>books</span>
@@ -227,7 +227,7 @@ function ReadingTab() {
   }, [autoSave]);
 
   const FONTS = [
-    { key: 'serif', label: 'Serif', sample: 'Newsreader, Georgia, serif' },
+    { key: 'serif', label: 'Serif', sample: 'Playfair Display, Georgia, serif' },
     { key: 'sans',  label: 'Sans',  sample: 'Inter, system-ui, sans-serif' },
     { key: 'mono',  label: 'Mono',  sample: 'JetBrains Mono, monospace' },
   ];
@@ -278,7 +278,7 @@ function ReadingTab() {
         <p style={{
           marginTop:12, padding:'12px 16px', borderRadius:10,
           background:'#fff8f7', border:'1px solid rgba(223,191,190,0.3)',
-          fontFamily: fontFamily === 'mono' ? 'JetBrains Mono, monospace' : fontFamily === 'sans' ? 'Inter, system-ui' : 'Newsreader, Georgia, serif',
+          fontFamily: fontFamily === 'mono' ? 'JetBrains Mono, monospace' : fontFamily === 'sans' ? 'Inter, system-ui' : 'Playfair Display, Georgia, serif',
           fontSize, color:'#1a0609', lineHeight: lineHeight,
         }}>The quick brown fox jumps over the lazy dog.</p>
       </Card>
@@ -310,7 +310,7 @@ function ReadingTab() {
               cursor:'pointer', textAlign:'center',
               transition:'border-color 0.18s ease, box-shadow 0.18s ease',
             }}>
-              <span style={{ fontFamily:'Newsreader, Georgia, serif', fontSize:13, fontWeight:700, color:text }}>{label}</span>
+              <span style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:13, fontWeight:700, color:text }}>{label}</span>
             </button>
           ))}
         </div>
@@ -449,7 +449,7 @@ function AboutTab() {
           fontSize:48, color:'#c9a84c', fontVariationSettings:"'FILL' 1",
           display:'block', marginBottom:12,
         }}>local_library</span>
-        <h2 style={{ fontFamily:'Newsreader, Georgia, serif', fontSize:24, fontWeight:800, color:'#fff', margin:'0 0 4px' }}>
+        <h2 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:24, fontWeight:800, color:'#fff', margin:'0 0 4px' }}>
           IUEA Library
         </h2>
         <p style={{ fontFamily:'Inter, sans-serif', fontSize:12, color:'rgba(255,209,212,0.7)', margin:0 }}>

@@ -172,7 +172,7 @@ export default function PodcastHomePage() {
 function PodcastCard({ podcast: p, onClick }) {
   return (
     <button onClick={onClick} className="text-left bg-white rounded-card shadow-card overflow-hidden hover:shadow-md transition-shadow">
-      <div className="aspect-square bg-surface">
+      <div className="aspect-square bg-white">
         {p.coverUrl
           ? <img src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" />
           : <div className="w-full h-full flex items-center justify-center">

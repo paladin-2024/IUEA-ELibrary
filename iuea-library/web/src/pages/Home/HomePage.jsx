@@ -153,7 +153,7 @@ export default function HomePage() {
             <span style={{ fontFamily:'Inter, sans-serif', fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.2em', color:'#c9a84c', marginBottom:'1rem', display:'block' }}>
               Personalized Curation
             </span>
-            <h1 style={{ fontFamily:'Newsreader, serif', fontSize:'clamp(2.2rem,4vw,3rem)', fontWeight:800, color:'#fff', lineHeight:1.15, marginBottom:'1rem' }}>
+            <h1 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'clamp(2.2rem,4vw,3rem)', fontWeight:800, color:'#fff', lineHeight:1.15, marginBottom:'1rem' }}>
               {greeting}, {displayName}.
             </h1>
             <p style={{ color:'rgba(255,209,212,0.8)', fontSize:'1.125rem', fontFamily:'Inter, sans-serif', lineHeight:1.6, marginBottom:'2rem' }}>
@@ -180,7 +180,7 @@ export default function HomePage() {
           {/* Continue Reading */}
           <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
             <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between' }}>
-              <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.875rem', fontWeight:700, color:'#2d1418' }}>Continue Reading</h3>
+              <h3 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.875rem', fontWeight:700, color:'#2d1418' }}>Continue Reading</h3>
               <Link to="/home/library" style={{ color:'#7b0d1e', fontWeight:700, fontSize:'0.875rem', textDecoration:'none', fontFamily:'Inter, sans-serif' }}>
                 View All History
               </Link>
@@ -202,7 +202,7 @@ export default function HomePage() {
 
           {/* Faculty Archives */}
           <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
-            <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.5rem', fontWeight:700, color:'#2d1418' }}>Faculty Archives</h3>
+            <h3 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.5rem', fontWeight:700, color:'#2d1418' }}>Faculty Archives</h3>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.75rem' }}>
               {FACULTY_GRID.map(({ icon, label }) => (
                 <button key={label} className="hp-faculty-btn" onClick={() => navigate(`/home/search?faculty=${encodeURIComponent(label)}`)}>
@@ -217,7 +217,7 @@ export default function HomePage() {
         {/* ── New Arrivals ── */}
         <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
           <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between' }}>
-            <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.875rem', fontWeight:700, color:'#2d1418' }}>New Arrivals</h3>
+            <h3 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.875rem', fontWeight:700, color:'#2d1418' }}>New Arrivals</h3>
             {newestBooks.length > PER_PAGE && (
               <div style={{ display:'flex', gap:'0.5rem' }}>
                 <button onClick={()=>setArrivalIdx(p=>Math.max(0,p-1))} disabled={arrivalIdx===0}
@@ -259,7 +259,7 @@ export default function HomePage() {
 
         {/* ── Popular this week ── */}
         <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
-          <h3 style={{ fontFamily:'Newsreader, serif', fontSize:'1.875rem', fontWeight:700, color:'#2d1418' }}>Popular this week</h3>
+          <h3 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.875rem', fontWeight:700, color:'#2d1418' }}>Popular this week</h3>
 
           {isLoading ? (
             <div className="hp-popular-grid">
@@ -280,13 +280,13 @@ export default function HomePage() {
                     </div>
                   ) : (
                     <div style={{ width:96, height:96, flexShrink:0, padding:'1rem' }}>
-                      <div style={{ width:'100%', height:'100%', borderRadius:'50%', background:'linear-gradient(135deg,#56000f 0%,#7b0d1e 100%)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontFamily:'Newsreader, serif', fontSize:'1.5rem', fontWeight:700 }}>
+                      <div style={{ width:'100%', height:'100%', borderRadius:'50%', background:'linear-gradient(135deg,#56000f 0%,#7b0d1e 100%)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.5rem', fontWeight:700 }}>
                         {i + 1}
                       </div>
                     </div>
                   )}
                   <div style={{ padding:'1rem', overflow:'hidden' }}>
-                    <h4 style={{ fontFamily:'Newsreader, serif', fontSize:'1.125rem', fontWeight:700, color:'#2d1418', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                    <h4 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.125rem', fontWeight:700, color:'#2d1418', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
                       {book.title}
                     </h4>
                     <p style={{ color:'#584141', fontSize:'0.75rem', marginTop:4, fontFamily:'Inter, sans-serif' }}>

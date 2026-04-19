@@ -93,7 +93,7 @@ export default function EpisodePlayerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-dark text-white flex flex-col">
+    <div className="min-h-screen bg-ink-900 text-white flex flex-col">
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 px-4 pt-safe-top pt-4">
         <button

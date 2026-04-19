@@ -1,15 +1,5 @@
 import { cn } from '../../utils/cn';
 
-/**
- * Input — pixel-perfect Stitch design.
- *
- * Props:
- *   label     — label shown above input (uppercase tracking style)
- *   icon      — React node rendered on the left
- *   error     — red error text below field
- *   hint      — gray hint text below field
- *   className — extra classes on the <input>
- */
 export default function Input({
   label,
   id,
@@ -24,19 +14,18 @@ export default function Input({
       {label && (
         <label
           htmlFor={id}
-          className="block text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider ml-1 mb-2"
+          className="block text-[11px] font-semibold text-ink-500 uppercase tracking-wider ml-1 mb-2"
         >
           {label}
         </label>
       )}
 
       <div className="relative group">
-        {/* Left icon — transitions to primary on focus */}
         {icon && (
           <span className={cn(
             'absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none',
-            'text-outline transition-colors duration-150',
-            'group-focus-within:text-primary-container',
+            'text-ink-300 transition-colors duration-150',
+            'group-focus-within:text-primary',
           )}>
             {icon}
           </span>
@@ -45,13 +34,13 @@ export default function Input({
         <input
           id={id}
           className={cn(
-            'w-full bg-surface-container-lowest border-none',
-            'ring-1 ring-outline-variant/30',
-            'focus:ring-2 focus:ring-primary-container',
-            'rounded-xl py-4 pr-4 text-on-surface',
-            'placeholder:text-outline-variant',
+            'w-full bg-white border-none',
+            'ring-1 ring-border-line',
+            'focus:ring-2 focus:ring-primary',
+            'rounded-xl py-4 pr-4 text-ink-900',
+            'placeholder:text-ink-300',
             'transition-all duration-150 outline-none',
-            'font-body text-sm',
+            'text-sm',
             error && 'ring-error focus:ring-error',
             icon ? 'pl-12' : 'pl-4',
             className,
@@ -64,7 +53,7 @@ export default function Input({
         <p className="text-error text-[12px] mt-1 ml-1 leading-tight">{error}</p>
       )}
       {!error && hint && (
-        <p className="text-on-surface-variant/60 text-[12px] mt-1 ml-1 leading-tight">{hint}</p>
+        <p className="text-ink-300 text-[12px] mt-1 ml-1 leading-tight">{hint}</p>
       )}
     </div>
   );

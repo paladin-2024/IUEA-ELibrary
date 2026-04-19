@@ -160,7 +160,7 @@ export default function BookPage() {
               { label: 'Categories', active: false, to: '/home/search'  },
             ].map(({ label, active, to }) => (
               <a key={label} href="#" onClick={e => { e.preventDefault(); navigate(to); }} style={{
-                fontFamily: 'Newsreader, serif',
+                fontFamily: 'Playfair Display, Georgia, serif',
                 fontWeight: active ? 700 : 600,
                 fontSize: '0.9375rem',
                 color: active ? '#7b0d1e' : 'rgba(86,0,15,0.55)',
@@ -283,7 +283,7 @@ export default function BookPage() {
           {/* Stats */}
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <div className="bdp-stat-box">
-              <p style={{ fontFamily: 'Newsreader, serif', fontSize: '1.75rem', fontWeight: 700, color: '#2d1418', lineHeight: 1 }}>
+              <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.75rem', fontWeight: 700, color: '#2d1418', lineHeight: 1 }}>
                 {book?.rating ?? '4.8'}
               </p>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#584141', marginTop: 4 }}>
@@ -291,7 +291,7 @@ export default function BookPage() {
               </p>
             </div>
             <div className="bdp-stat-box">
-              <p style={{ fontFamily: 'Newsreader, serif', fontSize: '1.75rem', fontWeight: 700, color: '#2d1418', lineHeight: 1 }}>
+              <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.75rem', fontWeight: 700, color: '#2d1418', lineHeight: 1 }}>
                 {book?.readers ? (book.readers >= 1000 ? `${(book.readers / 1000).toFixed(1)}k` : book.readers) : '12.4k'}
               </p>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#584141', marginTop: 4 }}>
@@ -330,7 +330,7 @@ export default function BookPage() {
 
           {/* Title */}
           <h1 style={{
-            fontFamily: 'Newsreader, serif',
+            fontFamily: 'Playfair Display, Georgia, serif',
             fontSize: 'clamp(2rem, 3.5vw, 3rem)',
             fontWeight: 700, color: '#2d1418',
             lineHeight: 1.15, margin: 0,
@@ -394,7 +394,7 @@ export default function BookPage() {
           {/* Related by Authors */}
           <div style={{ paddingTop: '0.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.5rem', fontWeight: 700, color: '#2d1418', margin: 0 }}>
+              <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', fontWeight: 700, color: '#2d1418', margin: 0 }}>
                 Related by Authors
               </h3>
               <a href="#" onClick={e => { e.preventDefault(); navigate(`/home/search?category=${encodeURIComponent(category)}`); }} style={{
@@ -431,7 +431,7 @@ export default function BookPage() {
                       </div>
                     </div>
                   </div>
-                  <p style={{ fontFamily: 'Newsreader, serif', fontSize: '0.875rem', fontWeight: 700, color: '#2d1418', lineHeight: 1.3, margin: '0 0 2px' }}>
+                  <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '0.875rem', fontWeight: 700, color: '#2d1418', lineHeight: 1.3, margin: '0 0 2px' }}>
                     {b.title?.length > 20 ? b.title.slice(0, 20) + '…' : b.title}
                   </p>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: '#584141', margin: 0 }}>

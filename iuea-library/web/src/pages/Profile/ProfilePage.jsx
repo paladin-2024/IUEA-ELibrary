@@ -85,7 +85,7 @@ export default function ProfilePage() {
             {user?.avatar
               ? <img src={user.avatar} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               : <span style={{
-                  fontFamily: 'Newsreader, Georgia, serif',
+                  fontFamily: 'Playfair Display, Georgia, serif',
                   fontSize: 28, fontWeight: 800, color: '#3d2900',
                 }}>{initials}</span>
             }
@@ -94,7 +94,7 @@ export default function ProfilePage() {
           {/* Identity */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1 style={{
-              fontFamily: 'Newsreader, Georgia, serif',
+              fontFamily: 'Playfair Display, Georgia, serif',
               fontSize: 22, fontWeight: 800, color: '#fff',
               margin: '0 0 4px', lineHeight: 1.2,
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
@@ -157,7 +157,7 @@ export default function ProfilePage() {
               fontVariationSettings: "'FILL' 1", display: 'block', marginBottom: 4,
             }}>{icon}</span>
             <p style={{
-              fontFamily: 'Newsreader, Georgia, serif',
+              fontFamily: 'Playfair Display, Georgia, serif',
               fontSize: 24, fontWeight: 800, color: '#7b0d1e', margin: 0, lineHeight: 1,
             }}>{value}</p>
             <p style={{
@@ -185,7 +185,7 @@ export default function ProfilePage() {
             </p>
           </div>
           <span style={{
-            fontFamily: 'Newsreader, Georgia, serif',
+            fontFamily: 'Playfair Display, Georgia, serif',
             fontSize: 22, fontWeight: 800, color: '#7b0d1e',
           }}>{stats.goalPct}%</span>
         </div>

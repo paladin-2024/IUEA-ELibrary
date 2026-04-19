@@ -56,7 +56,7 @@ export default function DownloadsPage() {
       {/* ── File list ─────────────────────────────────────────────────────── */}
       {downloads.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
-          <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center">
             <FiDownload size={28} className="text-gray-300" />
           </div>
           <p className="text-sm text-gray-500">No downloads yet.</p>

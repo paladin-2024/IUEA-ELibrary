@@ -66,7 +66,7 @@ export default function AdminDashboard() {
         {/* ── Hero Section ── */}
         <section style={{ maxWidth: '72rem' }}>
           {/* font-headline text-5xl lg:text-6xl text-on-background leading-tight max-w-2xl mb-4 */}
-          <h1 style={{ fontFamily: 'Newsreader, serif', fontSize: 'clamp(2.5rem,5vw,3.75rem)', fontWeight: 700, color: '#2d1418', lineHeight: 1.15, maxWidth: '42rem', marginBottom: '1rem' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: 'clamp(2.5rem,5vw,3.75rem)', fontWeight: 700, color: '#2d1418', lineHeight: 1.15, maxWidth: '42rem', marginBottom: '1rem' }}>
             Refining the{' '}
             <span style={{ fontStyle: 'italic', fontWeight: 400, color: '#7b0d1e' }}>Knowledge</span>
             {' '}Landscape.
@@ -96,7 +96,7 @@ export default function AdminDashboard() {
                   {label}
                 </p>
                 {/* font-headline text-3xl font-bold */}
-                <h3 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.875rem', fontWeight: 700, color: '#2d1418', marginTop: 4 }}>
+                <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.875rem', fontWeight: 700, color: '#2d1418', marginTop: 4 }}>
                   {isLoading ? '–' : (stats[key] != null ? Number(stats[key]).toLocaleString() : fallback)}
                 </h3>
               </div>
@@ -113,7 +113,7 @@ export default function AdminDashboard() {
             <div style={{ background: '#ffffff', padding: '2rem', borderRadius: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem' }}>
                 <div>
-                  <h4 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.25rem', fontWeight: 700, color: '#2d1418', marginBottom: 4 }}>
+                  <h4 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#2d1418', marginBottom: 4 }}>
                     Daily Active Users
                   </h4>
                   <p style={{ fontSize: '0.75rem', color: '#584141', fontFamily: 'Inter, sans-serif' }}>
@@ -162,7 +162,7 @@ export default function AdminDashboard() {
 
           {/* Recent Activity */}
           <div style={{ background: '#fff0f0', padding: '2rem', borderRadius: '1rem', border: '1px solid rgba(223,191,190,0.15)' }}>
-            <h4 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.25rem', fontWeight: 700, color: '#2d1418', marginBottom: '1.5rem' }}>
+            <h4 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#2d1418', marginBottom: '1.5rem' }}>
               Recent Activity
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
         {/* ── Featured Catalog Items ── */}
         <section style={{ paddingBottom: '3rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
-            <h4 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.5rem', fontWeight: 700, color: '#2d1418', margin: 0 }}>
+            <h4 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', fontWeight: 700, color: '#2d1418', margin: 0 }}>
               Featured Catalog Items
             </h4>
             <a href="#" style={{ fontSize: '0.875rem', fontWeight: 500, color: '#56000f', textDecoration: 'none', fontFamily: 'Inter, sans-serif' }}
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
                 <img className="ad-catalog-img" src={c.img} alt={c.title} />
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(86,0,15,0.8) 0%, transparent 60%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '1.5rem' }}>
                   <p style={{ fontSize: 10, color: 'rgba(255,209,212,0.7)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 4, fontFamily: 'Inter, sans-serif' }}>{c.genre}</p>
-                  <h5 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.125rem', fontWeight: 700, color: '#ffffff', lineHeight: 1.3, margin: 0 }}>{c.title}</h5>
+                  <h5 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.125rem', fontWeight: 700, color: '#ffffff', lineHeight: 1.3, margin: 0 }}>{c.title}</h5>
                 </div>
               </div>
             ))}

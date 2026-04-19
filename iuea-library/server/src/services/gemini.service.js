@@ -3,7 +3,15 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
+const GENERAL_BOOK_ID = '__general__';
+
 function buildSystemPrompt(book, chapter, language) {
+  if (book.id === GENERAL_BOOK_ID) {
+    return `You are IUEA Library AI Assistant at the International University of East Africa, Kampala, Uganda.
+You help staff and students navigate the digital library: find books, understand features, answer academic questions, and support research.
+Respond ONLY in ${language || 'English'}.
+Be concise, helpful, and professional. Do not fabricate information. Keep responses under 300 words.`;
+  }
   return `You are IUEA Library AI Assistant for students at the International University of East Africa, Kampala, Uganda.
 Book: ${book.title} by ${book.author}
 Faculty: ${(book.faculty ?? []).join(', ') || 'General'}

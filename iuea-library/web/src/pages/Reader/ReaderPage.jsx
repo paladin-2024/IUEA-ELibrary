@@ -170,7 +170,7 @@ function TopHeader({ book, progress, theme: t, onBack, onTOC, sidebarOpen }) {
       {/* Title area */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{
-          fontFamily: 'Newsreader, Georgia, serif',
+          fontFamily: 'Playfair Display, Georgia, serif',
           fontSize: 14, fontWeight: 700, color: t.text,
           margin: 0, lineHeight: 1.2,
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',

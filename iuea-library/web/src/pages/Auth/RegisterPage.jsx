@@ -165,7 +165,7 @@ export default function RegisterPage() {
         {/* IUEA watermark — top-left */}
         <div className="rp-deco-iuea">
           <span style={{
-            fontFamily: 'Newsreader, serif', fontSize: '5rem',
+            fontFamily: 'Playfair Display, Georgia, serif', fontSize: '5rem',
             fontWeight: 700, color: '#56000f',
             transform: 'rotate(-5deg)', display: 'block', lineHeight: 1,
           }}>
@@ -200,14 +200,14 @@ export default function RegisterPage() {
                 }}>
                   <img src="/iuea_logo.png" alt="IUEA" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>
-                <span style={{ fontFamily: 'Newsreader, serif', fontSize: '1.375rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>
+                <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.375rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>
                   IUEA Library
                 </span>
               </div>
 
               {/* h1 — text-5xl leading-tight mb-6 */}
               <h1 style={{
-                fontFamily: 'Newsreader, serif',
+                fontFamily: 'Playfair Display, Georgia, serif',
                 fontSize: 'clamp(2.2rem, 4vw, 3rem)',
                 fontWeight: 700, color: '#fff',
                 lineHeight: 1.2, marginBottom: '1.5rem',
@@ -258,7 +258,7 @@ export default function RegisterPage() {
                   }}>
                     <img src="/iuea_logo.png" alt="IUEA" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </div>
-                  <span style={{ fontFamily: 'Newsreader, serif', fontSize: '1.375rem', fontWeight: 700, color: '#56000f', letterSpacing: '-0.02em' }}>
+                  <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.375rem', fontWeight: 700, color: '#56000f', letterSpacing: '-0.02em' }}>
                     IUEA Library
                   </span>
                 </div>
@@ -267,7 +267,7 @@ export default function RegisterPage() {
 
             {/* Heading */}
             <div style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '2rem', fontWeight: 700, color: '#56000f', marginBottom: '0.5rem' }}>
+              <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2rem', fontWeight: 700, color: '#56000f', marginBottom: '0.5rem' }}>
                 Create Account
               </h2>
               <p style={{ color: '#584141', fontSize: '0.875rem' }}>

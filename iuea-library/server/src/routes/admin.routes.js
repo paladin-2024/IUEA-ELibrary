@@ -33,19 +33,25 @@ const bookUpload = upload.fields([
 ]);
 
 // ── Stats & analytics ─────────────────────────────────────────────────────────
-router.get('/stats',     ctrl.getStats);
-router.get('/analytics', ctrl.getAnalytics);
+router.get('/stats',                   ctrl.getStats);
+router.get('/analytics',               ctrl.getAnalytics);
+router.get('/analytics/top-books',     ctrl.getTopBooks);
+router.get('/analytics/user-growth',   ctrl.getUserGrowth);
+router.post('/notifications/push',     ctrl.sendPushNotification);
 
 // ── Books ─────────────────────────────────────────────────────────────────────
-router.get('/books',          ctrl.getBooks);
-router.post('/books',         bookUpload, ctrl.uploadBook);
-router.patch('/books/:id',    ctrl.updateBook);
-router.delete('/books/:id',   ctrl.deleteBook);
+router.get('/books',             ctrl.getBooks);
+router.post('/books',            bookUpload, ctrl.uploadBook);
+router.patch('/books/:id/toggle',ctrl.toggleBookStatus);
+router.patch('/books/:id',       ctrl.updateBook);
+router.delete('/books/:id',      ctrl.deleteBook);
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 router.get('/users',               ctrl.getUsers);
 router.get('/users/:id',           ctrl.getUserDetail);
 router.patch('/users/:id/suspend', ctrl.suspendUser);
+router.patch('/users/:id/role',    ctrl.updateUserRole);
+router.delete('/users/:id',        ctrl.deleteUser);
 
 // ── Sync ──────────────────────────────────────────────────────────────────────
 router.post('/sync-koha',    ctrl.syncKoha);

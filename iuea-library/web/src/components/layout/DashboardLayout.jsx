@@ -5,13 +5,22 @@ import { useLogout }  from '../../hooks/useAuth';
 import MobileBottomNav from './MobileBottomNav';
 import ChatbotOverlay  from '../chatbot/ChatbotOverlay';
 
-const NAV_ITEMS = [
-  { to: '/home',           end: true,  icon: 'dashboard',            label: 'Dashboard'  },
-  { to: '/home/search',    end: false, icon: 'library_books',        label: 'Books'      },
-  { to: '/home/podcasts',  end: false, icon: 'podcasts',             label: 'Podcasts'   },
-  { to: '/admin/users',    end: false, icon: 'group',                label: 'Users'      },
-  { to: '/admin',          end: true,  icon: 'admin_panel_settings', label: 'Admin'      },
-  { to: '/home/settings',  end: false, icon: 'tune',                 label: 'Settings'   },
+const ADMIN_NAV = [
+  { to: '/home',            end: true,  icon: 'dashboard',            label: 'Dashboard'  },
+  { to: '/home/search',     end: false, icon: 'library_books',        label: 'Books'      },
+  { to: '/home/podcasts',   end: false, icon: 'podcasts',             label: 'Podcasts'   },
+  { to: '/admin/users',     end: false, icon: 'group',                label: 'Users'      },
+  { to: '/admin',           end: true,  icon: 'admin_panel_settings', label: 'Admin'      },
+  { to: '/home/settings',   end: false, icon: 'tune',                 label: 'Settings'   },
+];
+
+const STUDENT_NAV = [
+  { to: '/home',            end: true,  icon: 'home',          label: 'Home'      },
+  { to: '/home/search',     end: false, icon: 'library_books', label: 'Books'     },
+  { to: '/home/podcasts',   end: false, icon: 'podcasts',      label: 'Podcasts'  },
+  { to: '/home/library',    end: false, icon: 'bookmark',      label: 'Library'   },
+  { to: '/home/profile',    end: false, icon: 'person',        label: 'Profile'   },
+  { to: '/home/settings',   end: false, icon: 'tune',          label: 'Settings'  },
 ];
 
 export default function DashboardLayout() {
@@ -22,6 +31,8 @@ export default function DashboardLayout() {
   const [search, setSearch]       = useState('');
   const [chatOpen, setChatOpen]   = useState(false);
 
+  const isAdmin = user?.role === 'admin' || user?.role === 'staff';
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (search.trim()) navigate(`/home/search?q=${encodeURIComponent(search.trim())}`);
@@ -30,7 +41,7 @@ export default function DashboardLayout() {
   const isActive = (to, end) =>
     end ? location.pathname === to : location.pathname.startsWith(to);
 
-  const allNavItems = NAV_ITEMS;
+  const allNavItems = isAdmin ? ADMIN_NAV : STUDENT_NAV;
 
   // Pages that render their own topbar — hide the layout topbar on these routes
   const CUSTOM_TOPBAR = ['/home/search', '/home/podcasts', '/home/library', '/home/books/'];
@@ -136,7 +147,7 @@ export default function DashboardLayout() {
               fontFamily: 'Inter, sans-serif', textTransform: 'uppercase',
               letterSpacing: '0.15em', marginTop: 4,
             }}>
-              Admin Console
+              {isAdmin ? 'Admin Console' : 'Digital Library'}
             </p>
           </div>
 
@@ -271,7 +282,7 @@ export default function DashboardLayout() {
 
       {/* ── Chatbot overlay (slides in from bottom-right) ── */}
       {chatOpen && (
-        <ChatbotOverlay bookId={null} onClose={() => setChatOpen(false)} />
+        <ChatbotOverlay bookId="__general__" onClose={() => setChatOpen(false)} />
       )}
     </>
   );

@@ -102,14 +102,14 @@ export default function LoginPage() {
               }}>
                 <img src="/iuea_logo.png" alt="IUEA" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
-              <span style={{ fontFamily: 'Newsreader, serif', fontSize: '1.5rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>
+              <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>
                 IUEA Library
               </span>
             </div>
 
             {/* h1 */}
             <h1 style={{
-              fontFamily: 'Newsreader, serif',
+              fontFamily: 'Playfair Display, Georgia, serif',
               fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
               fontWeight: 700, color: '#fff',
               lineHeight: 1.1, marginBottom: '2rem', maxWidth: '36rem',
@@ -145,7 +145,7 @@ export default function LoginPage() {
 
             {/* Quote */}
             <div style={{ marginBottom: 16 }}>
-              <p style={{ fontFamily: 'Newsreader, serif', fontStyle: 'italic', color: '#ffe08f', fontSize: '1.25rem' }}>
+              <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontStyle: 'italic', color: '#ffe08f', fontSize: '1.25rem' }}>
                 "Knowledge is the light of the mind."
               </p>
               <p style={{ fontFamily: 'Inter, sans-serif', color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>
@@ -164,7 +164,7 @@ export default function LoginPage() {
         </div>
 
         {/* ══════════════════════════════════════
-            RIGHT — bg-surface-container-low = #fff0f0
+            RIGHT — bg-white-container-low = #fff0f0
         ══════════════════════════════════════ */}
         <div style={{
           flex: 1, display: 'flex', flexDirection: 'column',
@@ -180,13 +180,13 @@ export default function LoginPage() {
               <div style={{ width: 64, height: 64, borderRadius: '1rem', background: '#7b0d1e', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, boxShadow: '0 20px 40px rgba(0,0,0,0.2)', padding: 10 }}>
                 <img src="/iuea_logo.png" alt="IUEA" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
-              <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.875rem', fontWeight: 700, color: '#56000f' }}>IUEA Library</h2>
+              <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.875rem', fontWeight: 700, color: '#56000f' }}>IUEA Library</h2>
               <p style={{ color: '#584141', fontSize: '0.875rem' }}>Sign in to your curator account</p>
             </div>
 
             {/* Desktop heading */}
             <div>
-              <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f', marginBottom: 8 }}>
+              <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#56000f', marginBottom: 8 }}>
                 Welcome Back
               </h2>
               <p style={{ color: '#584141', fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem' }}>

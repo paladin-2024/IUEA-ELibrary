@@ -84,7 +84,7 @@ export default function SplashPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <h1
                 style={{
-                  fontFamily: 'Newsreader, serif',
+                  fontFamily: 'Playfair Display, Georgia, serif',
                   fontSize: 'clamp(2.8rem, 6vw, 4.5rem)',
                   fontWeight: 800,
                   letterSpacing: '-0.02em',
@@ -96,7 +96,7 @@ export default function SplashPage() {
               </h1>
               <p
                 style={{
-                  fontFamily: 'Newsreader, serif',
+                  fontFamily: 'Playfair Display, Georgia, serif',
                   fontStyle: 'italic',
                   fontSize: 'clamp(1rem, 1.8vw, 1.5rem)',
                   color: '#ffe08f',
@@ -174,7 +174,7 @@ export default function SplashPage() {
                 </span>
                 <h3
                   style={{
-                    fontFamily: 'Newsreader, serif',
+                    fontFamily: 'Playfair Display, Georgia, serif',
                     color: '#ffffff',
                     fontSize: '1.5rem',
                     fontWeight: 600,
@@ -322,7 +322,7 @@ export default function SplashPage() {
       >
         <span
           style={{
-            fontFamily: 'Newsreader, serif',
+            fontFamily: 'Playfair Display, Georgia, serif',
             fontSize: '12vw',
             fontWeight: 900,
             color: '#ffffff',

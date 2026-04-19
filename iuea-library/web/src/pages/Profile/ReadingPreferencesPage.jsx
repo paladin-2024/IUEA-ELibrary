@@ -54,7 +54,7 @@ export default function ReadingPreferencesPage() {
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-full hover:bg-surface transition-colors"
+          className="p-2 rounded-full hover:bg-blush-100 transition-colors"
         >
           <FiArrowLeft size={20} className="text-gray-600" />
         </button>
@@ -110,7 +110,7 @@ export default function ReadingPreferencesPage() {
             <span>24px</span>
           </div>
           <p
-            className="mt-3 text-gray-600 leading-relaxed p-3 bg-surface rounded-lg"
+            className="mt-3 text-gray-600 leading-relaxed p-3 bg-white rounded-lg"
             style={{ fontSize: `${fontSize}px` }}
           >
             The quick brown fox jumps over the lazy dog.

@@ -155,7 +155,7 @@ export default function BookCard({
         {/* Metadata */}
         <div style={{ marginTop: 10, paddingLeft: 2, paddingRight: 2 }}>
           <p style={{
-            fontFamily: 'Newsreader, Georgia, serif',
+            fontFamily: 'Playfair Display, Georgia, serif',
             fontSize: 13, fontWeight: 700,
             color: '#1a0609', lineHeight: 1.35,
             display: '-webkit-box', WebkitLineClamp: 2,
@@ -263,7 +263,7 @@ export default function BookCard({
             </span>
           )}
           <p style={{
-            fontFamily: 'Newsreader, Georgia, serif',
+            fontFamily: 'Playfair Display, Georgia, serif',
             fontSize: 15, fontWeight: 700, color: '#1a0609',
             lineHeight: 1.3, margin: '0 0 4px',
             display: '-webkit-box', WebkitLineClamp: 2,
@@ -338,7 +338,7 @@ export default function BookCard({
       </div>
       <div style={{ flex: 1, overflow: 'hidden' }}>
         <p style={{
-          fontFamily: 'Newsreader, Georgia, serif',
+          fontFamily: 'Playfair Display, Georgia, serif',
           fontSize: 13, fontWeight: 700, color: '#1a0609',
           margin: '0 0 2px', lineHeight: 1.3,
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
@@ -381,7 +381,7 @@ function Nocover({ title = '', size = 28 }) {
       alignItems: 'center', justifyContent: 'center', gap: 6,
     }}>
       <span style={{
-        fontFamily: 'Newsreader, Georgia, serif',
+        fontFamily: 'Playfair Display, Georgia, serif',
         fontSize: size * 1.2, fontWeight: 800, color: 'rgba(255,255,255,0.9)',
         letterSpacing: '-0.02em',
       }}>

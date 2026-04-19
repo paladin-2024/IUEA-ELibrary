@@ -135,7 +135,7 @@ export default function SearchPage() {
 
         {/* Title */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '3rem', fontWeight: 700, color: '#56000f', letterSpacing: '-0.02em', margin: 0 }}>
+          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '3rem', fontWeight: 700, color: '#56000f', letterSpacing: '-0.02em', margin: 0 }}>
             Library Archive
           </h2>
           <p style={{ fontFamily: 'Lora, serif', fontStyle: 'italic', color: '#584141', fontSize: '1.125rem', maxWidth: '42rem', margin: 0 }}>

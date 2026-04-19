@@ -116,7 +116,7 @@ export default function ForgotPasswordPage() {
               />
             </div>
             <h1 style={{
-              fontFamily: 'Lora, Newsreader, serif',
+              fontFamily: 'Playfair Display, Georgia, serif',
               fontSize: '2.5rem', lineHeight: 1.2,
               color: '#2d1418', fontWeight: 700,
               marginBottom: '1rem',
@@ -141,7 +141,7 @@ export default function ForgotPasswordPage() {
                 }}>
                   <span className="material-symbols-outlined" style={{ color: '#c9a84c', fontSize: '1.75rem' }}>mark_email_read</span>
                 </div>
-                <h2 style={{ fontFamily: 'Newsreader, serif', fontSize: '1.375rem', fontWeight: 700, color: '#56000f', margin: '0 0 0.5rem' }}>
+                <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.375rem', fontWeight: 700, color: '#56000f', margin: '0 0 0.5rem' }}>
                   Check your inbox
                 </h2>
                 <p style={{ fontSize: '0.875rem', color: '#584141', lineHeight: 1.6, margin: '0 0 1.5rem' }}>

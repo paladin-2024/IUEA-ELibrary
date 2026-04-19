@@ -59,7 +59,7 @@ export default function LanguagePreferencesPage() {
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-full hover:bg-surface transition-colors"
+          className="p-2 rounded-full hover:bg-blush-100 transition-colors"
         >
           <FiArrowLeft size={20} className="text-gray-600" />
         </button>
@@ -117,7 +117,7 @@ export default function LanguagePreferencesPage() {
             </div>
           </label>
           {autoTrans && (
-            <p className="mt-2 text-[11px] text-gray-400 bg-surface rounded-lg px-3 py-2">
+            <p className="mt-2 text-[11px] text-gray-400 bg-white rounded-lg px-3 py-2">
               Translations powered by MyMemory API. Accuracy may vary.
             </p>
           )}

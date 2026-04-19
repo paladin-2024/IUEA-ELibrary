@@ -117,7 +117,7 @@ function CollectionCard({ col, onRemove }) {
   return (
     <div className="bg-white rounded-card shadow-card overflow-hidden group relative">
       {/* Stacked covers */}
-      <div className="aspect-[3/4] bg-surface relative flex items-end justify-center pb-2">
+      <div className="aspect-[3/4] bg-white relative flex items-end justify-center pb-2">
         {covers.length === 0 ? (
           <FiBookOpen size={36} className="text-gray-300 mb-6" />
         ) : (
