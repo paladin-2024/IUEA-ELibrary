@@ -4,6 +4,13 @@ import api        from '../../services/api';
 import toast      from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 
+const BOOK_CATEGORIES = [
+  'General', 'Law', 'Science', 'Technology', 'Computer Science',
+  'Business', 'Engineering', 'Petroleum Engineering', 'Civil Engineering',
+  'Politics', 'Medicine', 'Education', 'Economics', 'Mathematics',
+  'Philosophy', 'Literature', 'Social Sciences', 'Arts', 'History',
+];
+
 // ── API helpers ───────────────────────────────────────────────────────────────
 const fetchBooks    = (params)       => api.get('/admin/books',         { params }).then(r => r.data);
 const deleteBook    = (id)           => api.delete(`/admin/books/${id}`).then(r => r.data);
@@ -98,7 +105,9 @@ function AddBookPanel({ onClose }) {
               <input placeholder="Author *" value={form.author} onChange={e => setForm(p => ({ ...p, author: e.target.value }))} style={inputStyle} required />
               <textarea placeholder="Description" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={2} style={{ ...inputStyle, resize: 'none' }} />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                <input placeholder="Category" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} style={inputStyle} />
+                <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} style={inputStyle}>
+                  {BOOK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
                 <input placeholder="Year" type="number" value={form.publishedYear} onChange={e => setForm(p => ({ ...p, publishedYear: e.target.value }))} style={inputStyle} />
               </div>
               <input placeholder="Faculty (comma-separated)" value={form.faculty}    onChange={e => setForm(p => ({ ...p, faculty: e.target.value }))}    style={inputStyle} />
@@ -189,7 +198,9 @@ function AddBookPanel({ onClose }) {
               <input placeholder="Title *" value={form.title}   onChange={e => setForm(p => ({ ...p, title: e.target.value }))}  style={inputStyle} />
               <input placeholder="Author *" value={form.author} onChange={e => setForm(p => ({ ...p, author: e.target.value }))} style={inputStyle} />
               <input placeholder="Internet Archive Identifier (e.g. the-great-gatsby_1925)" value={form.archiveId} onChange={e => setForm(p => ({ ...p, archiveId: e.target.value }))} style={inputStyle} />
-              <input placeholder="Category" value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} style={inputStyle} />
+              <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} style={inputStyle}>
+                {BOOK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
             </div>
           )}
         </div>
@@ -230,12 +241,18 @@ function EditBookModal({ book, onClose }) {
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
-        {[['title', 'Title'], ['author', 'Author'], ['category', 'Category']].map(([k, label]) => (
+        {[['title', 'Title'], ['author', 'Author']].map(([k, label]) => (
           <div key={k}>
             <label style={{ fontSize: '0.75rem', color: '#6B5456', display: 'block', marginBottom: 4, fontFamily: 'Inter, sans-serif' }}>{label}</label>
             <input value={form[k]} onChange={e => setForm(p => ({ ...p, [k]: e.target.value }))} style={inputStyle} />
           </div>
         ))}
+        <div>
+          <label style={{ fontSize: '0.75rem', color: '#6B5456', display: 'block', marginBottom: 4, fontFamily: 'Inter, sans-serif' }}>Category</label>
+          <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} style={inputStyle}>
+            {BOOK_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: '#6B5456', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>
           <input type="checkbox" checked={form.isActive} onChange={e => setForm(p => ({ ...p, isActive: e.target.checked }))} />
           Active

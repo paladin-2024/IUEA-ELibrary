@@ -10,14 +10,25 @@ const fetchUserDetail = (id)     => api.get(`/admin/users/${id}`).then(r => r.da
 const toggleSuspend   = (id)     => api.patch(`/admin/users/${id}/suspend`).then(r => r.data);
 const syncPatrons     = ()       => api.post('/admin/sync-patrons').then(r => r.data);
 
-const FACULTIES = ['', 'Law', 'Medicine', 'Engineering', 'Business', 'IT', 'Education', 'Arts', 'Science'];
-
+const FACULTIES = [
+  '', 'Law', 'Medicine', 'Science', 'Technology', 'Computer Science',
+  'Engineering', 'Petroleum Engineering', 'Civil Engineering',
+  'Business', 'Economics', 'Education', 'Politics',
+  'Mathematics', 'Philosophy', 'Literature', 'Social Sciences', 'Arts',
+];
 
 const FACULTY_BADGE_COLOR = {
-  'Science & Tech': { bg: '#ffdad9', color: '#8a1a27' },
-  'Law':            { bg: '#D9B96B', color: '#584400' },
-  'Business':       { bg: '#EBD2CF', color: '#6B5456' },
-  'Engineering':    { bg: '#ffdad9', color: '#8a1a27' },
+  'Law':                   { bg: '#D9B96B', color: '#584400' },
+  'Business':              { bg: '#EBD2CF', color: '#6B5456' },
+  'Engineering':           { bg: '#ffdad9', color: '#8a1a27' },
+  'Petroleum Engineering': { bg: '#ffdad9', color: '#8a1a27' },
+  'Civil Engineering':     { bg: '#ffdad9', color: '#8a1a27' },
+  'Science':               { bg: '#d9f2e6', color: '#1a6640' },
+  'Medicine':              { bg: '#d9f2e6', color: '#1a6640' },
+  'Technology':            { bg: '#dce8ff', color: '#1a3a8a' },
+  'Computer Science':      { bg: '#dce8ff', color: '#1a3a8a' },
+  'Politics':              { bg: '#f0d9ff', color: '#5a1a8a' },
+  'Economics':             { bg: '#fff5d9', color: '#7a5000' },
 };
 
 // ── User detail modal ─────────────────────────────────────────────────────────

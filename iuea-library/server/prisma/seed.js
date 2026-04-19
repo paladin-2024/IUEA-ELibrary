@@ -22,14 +22,18 @@ const GUTENDEX = 'https://gutendex.com/books';
 
 // Topic queries that map to IUEA faculty categories
 const TOPICS = [
-  { q: 'science biology chemistry',   category: 'Science',    faculty: 'Science' },
-  { q: 'law justice constitution',    category: 'Law',        faculty: 'Law' },
-  { q: 'economics business finance',  category: 'Economics',  faculty: 'Economics' },
-  { q: 'computer programming technology', category: 'IT',    faculty: 'IT' },
-  { q: 'history africa east africa',  category: 'History',    faculty: 'General' },
-  { q: 'philosophy ethics logic',     category: 'Philosophy', faculty: 'General' },
-  { q: 'literature fiction poetry',   category: 'Literature', faculty: 'General' },
-  { q: 'mathematics statistics',      category: 'Mathematics',faculty: 'Science' },
+  { q: 'science biology chemistry',        category: 'Science',               faculty: 'Science' },
+  { q: 'law justice constitution',         category: 'Law',                   faculty: 'Law' },
+  { q: 'economics business finance',       category: 'Economics',             faculty: 'Business' },
+  { q: 'computer programming technology',  category: 'Computer Science',      faculty: 'Technology' },
+  { q: 'engineering mechanics civil',      category: 'Engineering',           faculty: 'Engineering' },
+  { q: 'petroleum oil gas geology',        category: 'Petroleum Engineering', faculty: 'Engineering' },
+  { q: 'politics government democracy',    category: 'Politics',              faculty: 'Politics' },
+  { q: 'history africa east africa',       category: 'History',               faculty: 'General' },
+  { q: 'philosophy ethics logic',          category: 'Philosophy',            faculty: 'General' },
+  { q: 'literature fiction poetry',        category: 'Literature',            faculty: 'General' },
+  { q: 'mathematics statistics algebra',   category: 'Mathematics',           faculty: 'Science' },
+  { q: 'business management marketing',    category: 'Business',              faculty: 'Business' },
 ];
 
 async function fetchGutenberg(query, count = 10) {

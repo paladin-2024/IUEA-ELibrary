@@ -5,10 +5,18 @@ import useAuthStore   from '../../store/authStore';
 import BookCard       from '../../components/ui/BookCard';
 
 const FACULTY_GRID = [
-  { icon: 'gavel',           label: 'Law'       },
-  { icon: 'biotech',         label: 'Science'   },
-  { icon: 'account_balance', label: 'Economics' },
-  { icon: 'laptop_mac',      label: 'IT'        },
+  { icon: 'gavel',              label: 'Law'                   },
+  { icon: 'biotech',            label: 'Science'               },
+  { icon: 'laptop_mac',         label: 'Technology'            },
+  { icon: 'terminal',           label: 'Computer Science'      },
+  { icon: 'business_center',    label: 'Business'              },
+  { icon: 'engineering',        label: 'Engineering'           },
+  { icon: 'local_gas_station',  label: 'Petroleum Engineering' },
+  { icon: 'foundation',         label: 'Civil Engineering'     },
+  { icon: 'account_balance',    label: 'Politics'              },
+  { icon: 'medical_services',   label: 'Medicine'              },
+  { icon: 'school',             label: 'Education'             },
+  { icon: 'trending_up',        label: 'Economics'             },
 ];
 
 function CoverPlaceholder({ title, size = 112 }) {
@@ -201,13 +209,14 @@ export default function HomePage() {
           </div>
 
           {/* Faculty Archives */}
-          <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
             <h3 style={{ fontFamily:'Playfair Display, Georgia, serif', fontSize:'1.5rem', fontWeight:700, color:'#1C0A0C' }}>Faculty Archives</h3>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.75rem' }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.625rem' }}>
               {FACULTY_GRID.map(({ icon, label }) => (
-                <button key={label} className="hp-faculty-btn" onClick={() => navigate(`/home/search?faculty=${encodeURIComponent(label)}`)}>
-                  <span className="material-symbols-outlined hp-faculty-icon" style={{ color:'#5C0F1F', fontSize:'2rem' }}>{icon}</span>
-                  <span style={{ fontFamily:'Inter, sans-serif', fontSize:'11px', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:'#1C0A0C' }}>{label}</span>
+                <button key={label} className="hp-faculty-btn"
+                  onClick={() => navigate(`/home/search?category=${encodeURIComponent(label)}`)}>
+                  <span className="material-symbols-outlined hp-faculty-icon" style={{ color:'#5C0F1F', fontSize:'1.75rem' }}>{icon}</span>
+                  <span style={{ fontFamily:'Inter, sans-serif', fontSize:'10px', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', color:'#1C0A0C', lineHeight:1.2 }}>{label}</span>
                 </button>
               ))}
             </div>

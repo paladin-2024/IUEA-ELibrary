@@ -1,31 +1,115 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams }                  from 'react-router-dom';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams }                          from 'react-router-dom';
 import useBookStore from '../../store/bookStore';
 import BookCard     from '../../components/ui/BookCard';
 
+const ALL_CATEGORIES = [
+  { label: 'Law',                    icon: 'gavel'              },
+  { label: 'Science',                icon: 'biotech'            },
+  { label: 'Technology',             icon: 'laptop_mac'         },
+  { label: 'Computer Science',       icon: 'terminal'           },
+  { label: 'Business',               icon: 'business_center'    },
+  { label: 'Engineering',            icon: 'engineering'        },
+  { label: 'Petroleum Engineering',  icon: 'local_gas_station'  },
+  { label: 'Civil Engineering',      icon: 'foundation'         },
+  { label: 'Politics',               icon: 'account_balance'    },
+  { label: 'Medicine',               icon: 'medical_services'   },
+  { label: 'Education',              icon: 'school'             },
+  { label: 'Economics',              icon: 'trending_up'        },
+  { label: 'Mathematics',            icon: 'functions'          },
+  { label: 'Philosophy',             icon: 'psychology'         },
+  { label: 'Literature',             icon: 'menu_book'          },
+  { label: 'Social Sciences',        icon: 'groups'             },
+  { label: 'Arts',                   icon: 'palette'            },
+  { label: 'History',                icon: 'history_edu'        },
+];
+
+const ALL_LANGUAGES = ['English', 'French', 'Swahili', 'Arabic', 'Portuguese', 'Spanish'];
+const ALL_FORMATS   = ['epub', 'pdf'];
+
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [query,        setQuery]        = useState(searchParams.get('q') ?? '');
-  const [activeFilter, setActiveFilter] = useState('');
+  const [query,       setQuery]        = useState(searchParams.get('q') ?? '');
+  const [activeCategory, setActiveCategory] = useState(searchParams.get('category') ?? '');
+  const [activeLanguage,  setActiveLanguage]  = useState(searchParams.get('language') ?? '');
+  const [activeFormat,    setActiveFormat]    = useState('');
+  const [langOpen,        setLangOpen]        = useState(false);
+  const langRef = useRef(null);
 
   const { searchBooks, searchResults, externalResults, searchLoading } = useBookStore();
   const isLoading = searchLoading;
 
-  const doSearch = useCallback((q) => { if (q.trim()) searchBooks(q.trim()); }, [searchBooks]);
+  const buildFilters = (cat = activeCategory, lang = activeLanguage) => {
+    const f = {};
+    if (cat)  f.category = cat;
+    if (lang) f.language = lang;
+    return f;
+  };
+
+  const doSearch = useCallback((q, cat = activeCategory, lang = activeLanguage) => {
+    const term = q.trim() || cat || lang || 'education university academic';
+    searchBooks(term, buildFilters(cat, lang));
+  }, [searchBooks, activeCategory, activeLanguage]);
 
   useEffect(() => {
-    const q = searchParams.get('q');
-    if (q) { setQuery(q); doSearch(q); }
-    else   { doSearch('education africa university academic'); }
+    const q   = searchParams.get('q')        ?? '';
+    const cat = searchParams.get('category') ?? '';
+    const lang = searchParams.get('language') ?? '';
+    setQuery(q);
+    setActiveCategory(cat);
+    setActiveLanguage(lang);
+    doSearch(q || 'education university academic', cat, lang);
+  }, []);
+
+  // Close language dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => { if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSearchParams(query ? { q: query } : {});
-    doSearch(query);
+    const params = {};
+    if (query)          params.q        = query;
+    if (activeCategory) params.category = activeCategory;
+    if (activeLanguage) params.language = activeLanguage;
+    setSearchParams(params);
+    doSearch(query, activeCategory, activeLanguage);
   };
 
-  const allBooks    = [...(searchResults ?? []), ...(externalResults ?? [])];
+  const selectCategory = (cat) => {
+    const next = cat === activeCategory ? '' : cat;
+    setActiveCategory(next);
+    const params = {};
+    if (query) params.q = query;
+    if (next)  params.category = next;
+    if (activeLanguage) params.language = activeLanguage;
+    setSearchParams(params);
+    doSearch(query, next, activeLanguage);
+  };
+
+  const selectLanguage = (lang) => {
+    const next = lang === activeLanguage ? '' : lang;
+    setActiveLanguage(next);
+    setLangOpen(false);
+    const params = {};
+    if (query) params.q = query;
+    if (activeCategory) params.category = activeCategory;
+    if (next) params.language = next;
+    setSearchParams(params);
+    doSearch(query, activeCategory, next);
+  };
+
+  const clearAll = () => {
+    setActiveCategory('');
+    setActiveLanguage('');
+    setActiveFormat('');
+    setSearchParams(query ? { q: query } : {});
+    doSearch(query, '', '');
+  };
+
+  const allBooks     = [...(searchResults ?? []), ...(externalResults ?? [])];
   const displayBooks = allBooks;
 
   return (
@@ -143,57 +227,154 @@ export default function SearchPage() {
           </p>
         </div>
 
-        {/* Filters */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
-          {[
-            { icon: 'category',    label: 'Categories', param: 'category', values: ['Law','Economics','IT','Science','Medicine','Business','Education','Social Sciences'] },
-            { icon: 'language',    label: 'Languages',  param: 'language', values: ['English','French','Swahili','Arabic'] },
-            { icon: 'description', label: 'Formats',    param: 'format',   values: ['epub','pdf','external'] },
-          ].map(({ icon, label, param, values }) => (
-            <div key={label} style={{ position: 'relative' }}>
-              <button className="sp-filter-pill"
-                onClick={() => {
-                  const val = values[0];
-                  setSearchParams(p => { const n = new URLSearchParams(p); n.set(param, val); return n; });
-                  setActiveFilter(val);
-                  doSearch(query || val);
+        {/* ── Filter bar ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+          {/* Row 1: Language dropdown + Format pills + Clear */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+
+            {/* Language dropdown */}
+            <div ref={langRef} style={{ position: 'relative' }}>
+              <button
+                onClick={() => setLangOpen(o => !o)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  padding: '0.5rem 1rem', borderRadius: 9999, cursor: 'pointer',
+                  border: activeLanguage ? '1px solid #5C0F1F' : '1px solid rgba(223,191,190,0.4)',
+                  background: activeLanguage ? '#5C0F1F' : '#ffffff',
+                  color: activeLanguage ? '#fff' : '#8A1228',
+                  fontFamily: 'Inter, sans-serif', fontSize: '0.8125rem', fontWeight: 600,
+                  transition: 'all 0.15s',
                 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>{icon}</span>
-                <span>{label}</span>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>expand_more</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>language</span>
+                <span>{activeLanguage || 'Language'}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+                  {langOpen ? 'expand_less' : 'expand_more'}
+                </span>
               </button>
+              {langOpen && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 6px)', left: 0,
+                  background: '#fff', borderRadius: 12, zIndex: 50, minWidth: 160,
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.14)',
+                  border: '1px solid rgba(223,191,190,0.3)',
+                  overflow: 'hidden',
+                }}>
+                  {ALL_LANGUAGES.map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => selectLanguage(lang)}
+                      style={{
+                        display: 'block', width: '100%', textAlign: 'left',
+                        padding: '0.625rem 1rem', border: 'none', cursor: 'pointer',
+                        background: activeLanguage === lang ? '#FDF4F2' : 'transparent',
+                        color: activeLanguage === lang ? '#5C0F1F' : '#1C0A0C',
+                        fontFamily: 'Inter, sans-serif', fontSize: '0.875rem',
+                        fontWeight: activeLanguage === lang ? 700 : 400,
+                        transition: 'background 0.1s',
+                      }}
+                      onMouseEnter={e => { if (activeLanguage !== lang) e.currentTarget.style.background = '#FDF4F2'; }}
+                      onMouseLeave={e => { if (activeLanguage !== lang) e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      {lang}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
 
-          {/* Faculty Picks — gold tint */}
-          <button style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.625rem 1.25rem', borderRadius: 9999,
-            border: '1px solid rgba(201,168,76,0.3)',
-            background: 'rgba(201,168,76,0.1)', color: '#755b00',
-            fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontWeight: 700,
-            cursor: 'pointer', whiteSpace: 'nowrap',
-          }} onClick={() => { setSearchParams({ faculty: 'Law' }); setActiveFilter('Faculty Picks'); doSearch('Law'); }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>school</span>
-            <span>Faculty Picks</span>
-          </button>
-
-          {/* Divider */}
-          <div style={{ height: 24, width: 1, background: 'rgba(223,191,190,0.3)', margin: '0 0.5rem' }} />
-
-          {/* Active chip */}
-          {activeFilter && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#5C0F1F', color: '#fff', borderRadius: 9999, fontSize: '0.75rem', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>
-              <span>{activeFilter}</span>
-              <button onClick={() => setActiveFilter('')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0, color: '#fff' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>close</span>
+            {/* Format pills */}
+            {ALL_FORMATS.map((fmt) => (
+              <button
+                key={fmt}
+                onClick={() => setActiveFormat(f => f === fmt ? '' : fmt)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.375rem',
+                  padding: '0.5rem 1rem', borderRadius: 9999, cursor: 'pointer',
+                  border: activeFormat === fmt ? '1px solid #5C0F1F' : '1px solid rgba(223,191,190,0.4)',
+                  background: activeFormat === fmt ? '#5C0F1F' : '#ffffff',
+                  color: activeFormat === fmt ? '#fff' : '#8A1228',
+                  fontFamily: 'Inter, sans-serif', fontSize: '0.8125rem', fontWeight: 600,
+                  transition: 'all 0.15s',
+                }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>
+                  {fmt === 'epub' ? 'chrome_reader_mode' : 'picture_as_pdf'}
+                </span>
+                <span style={{ textTransform: 'uppercase' }}>{fmt}</span>
               </button>
-            </div>
-          )}
+            ))}
 
-          <button onClick={() => setActiveFilter('')} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#5C0F1F', fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
-            Clear All Filters
-          </button>
+            {/* Active filter summary + clear */}
+            {(activeCategory || activeLanguage || activeFormat) && (
+              <>
+                <div style={{ height: 20, width: 1, background: 'rgba(223,191,190,0.4)' }} />
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap',
+                }}>
+                  {[activeCategory, activeLanguage, activeFormat].filter(Boolean).map((f) => (
+                    <span key={f} style={{
+                      display: 'flex', alignItems: 'center', gap: '0.375rem',
+                      padding: '0.25rem 0.625rem', background: '#FDF4F2',
+                      border: '1px solid #EBD2CF', borderRadius: 9999,
+                      fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: '#5C0F1F', fontWeight: 600,
+                    }}>
+                      {f}
+                    </span>
+                  ))}
+                  <button onClick={clearAll} style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: '#A89597', fontFamily: 'Inter, sans-serif',
+                    fontSize: '0.75rem', fontWeight: 600, padding: '0.25rem 0.5rem',
+                    display: 'flex', alignItems: 'center', gap: '0.25rem',
+                  }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>close</span>
+                    Clear all
+                  </button>
+                </div>
+              </>
+            )}
+
+            <span style={{
+              marginLeft: 'auto', fontFamily: 'Inter, sans-serif',
+              fontSize: '0.75rem', color: '#A89597',
+            }}>
+              {displayBooks.length} result{displayBooks.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+
+          {/* Row 2: Category chips — horizontally scrollable */}
+          <div style={{
+            display: 'flex', gap: '0.5rem',
+            overflowX: 'auto', paddingBottom: '0.5rem',
+            scrollbarWidth: 'none',
+          }}>
+            <style>{`.sp-cat-scroll::-webkit-scrollbar{display:none}`}</style>
+            {ALL_CATEGORIES.map(({ label, icon }) => {
+              const active = activeCategory === label;
+              return (
+                <button
+                  key={label}
+                  onClick={() => selectCategory(label)}
+                  style={{
+                    flexShrink: 0,
+                    display: 'flex', alignItems: 'center', gap: '0.375rem',
+                    padding: '0.5rem 1rem', borderRadius: 9999, cursor: 'pointer',
+                    border: active ? '1px solid #5C0F1F' : '1px solid rgba(223,191,190,0.4)',
+                    background: active ? '#5C0F1F' : '#ffffff',
+                    color: active ? '#ffffff' : '#3E2B2E',
+                    fontFamily: 'Inter, sans-serif', fontSize: '0.8125rem', fontWeight: active ? 700 : 500,
+                    transition: 'all 0.15s ease',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onMouseEnter={e => { if (!active) { e.currentTarget.style.background = '#FDF4F2'; e.currentTarget.style.borderColor = '#D9B4B0'; } }}
+                  onMouseLeave={e => { if (!active) { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = 'rgba(223,191,190,0.4)'; } }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>{icon}</span>
+                  {label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Book grid */}
