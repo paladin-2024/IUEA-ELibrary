@@ -290,12 +290,10 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                   onEpubLoaded:     () {},
                                   onRelocated: (value) {
                                     reader.setCurrentCfi(value.startCfi);
-                                    if (value.progress != null) {
-                                      reader.setPage(
-                                        reader.currentPage,
-                                        value.progress! * 100,
-                                      );
-                                    }
+                                    reader.setPage(
+                                      reader.currentPage,
+                                      value.progress * 100,
+                                    );
                                   },
                                 )
                               : Center(

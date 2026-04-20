@@ -56,11 +56,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     style: AppTextStyles.h3.copyWith(
                       fontSize: 16, color: AppColors.textPrimary)),
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.settings_outlined,
-                      color: AppColors.textPrimary, size: 22),
-                    onPressed: () {},
-                  ),
                 ]),
               ),
             ),
@@ -395,7 +390,7 @@ class _ToggleRow extends StatelessWidget {
         )),
         Switch(
           value:       value,
-          activeColor: AppColors.primary,
+          activeThumbColor: AppColors.primary,
           onChanged:   onChanged,
         ),
       ]),

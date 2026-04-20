@@ -69,9 +69,6 @@ const userSchema = new mongoose.Schema(
     fcmTokenWeb: {
       type: String,
     },
-    kohaPatronId: {
-      type: String,
-    },
     isActive: {
       type:    Boolean,
       default: true,
@@ -100,9 +97,6 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// ── Indexes ──────────────────────────────────────────────────────────────────
-userSchema.index({ kohaPatronId: 1 }, { sparse: true });
 
 // ── Pre-save: hash password ───────────────────────────────────────────────────
 userSchema.pre('save', async function () {

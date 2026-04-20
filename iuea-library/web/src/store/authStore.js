@@ -56,11 +56,12 @@ const useAuthStore = create(
       // ── loadUser ───────────────────────────────────────────────────────────
       loadUser: async () => {
         if (!get().token) return;
+        set({ isLoading: true });
         try {
           const { data } = await api.get('/auth/me');
-          set({ user: data });
+          set({ user: data, isLoading: false });
         } catch {
-          set({ token: null, user: null });
+          set({ token: null, user: null, isLoading: false });
         }
       },
 

@@ -12,7 +12,7 @@ export default function SplashPage() {
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
-    if (token) navigate('/home', { replace: true });
+    if (token) navigate('/admin', { replace: true });
   }, [token, navigate]);
 
   return (
@@ -225,12 +225,12 @@ export default function SplashPage() {
                 }}
               >
                 <Link
-                  to="/home"
+                  to="/admin"
                   className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer"
                   style={{ color: 'inherit', textDecoration: 'none' }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>help</span>
-                  Library Guide
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>admin_panel_settings</span>
+                  Admin Portal
                 </Link>
                 <Link
                   to="/login"

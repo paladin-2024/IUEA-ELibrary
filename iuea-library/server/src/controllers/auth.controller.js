@@ -3,7 +3,6 @@ const jwt              = require('jsonwebtoken');
 const crypto           = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 const prisma           = require('../config/prisma');
-const koha             = require('../services/koha.service');
 const emailService     = require('../services/email.service');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -31,28 +30,13 @@ const register = async (req, res, next) => {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    let kohaPatronId;
-    try {
-      if (studentId) {
-        const patron = await koha.findPatronByStudentId(studentId);
-        if (patron) kohaPatronId = String(patron.patron_id ?? patron.borrowernumber ?? '');
-      }
-      if (!kohaPatronId) {
-        const created = await koha.createPatron({ name, email, studentId });
-        if (created) kohaPatronId = String(created.patron_id ?? created.borrowernumber ?? '');
-      }
-    } catch (kohaErr) {
-      console.warn('[auth.register] Koha sync failed (non-fatal):', kohaErr.message);
-    }
-
     const user = await prisma.user.create({
       data: {
         name,
-        email:        email.toLowerCase(),
+        email:     email.toLowerCase(),
         passwordHash,
-        studentId:    studentId    || null,
-        faculty:      faculty      || null,
-        kohaPatronId: kohaPatronId || null,
+        studentId: studentId || null,
+        faculty:   faculty   || null,
       },
     });
 
@@ -100,17 +84,6 @@ const googleAuth = async (req, res, next) => {
       user = await prisma.user.create({
         data: { name: payload.name, email: payload.email.toLowerCase(), avatar: payload.picture },
       });
-      try {
-        const created = await koha.createPatron({ name: payload.name, email: payload.email });
-        if (created) {
-          user = await prisma.user.update({
-            where: { id: user.id },
-            data: { kohaPatronId: String(created.patron_id ?? created.borrowernumber ?? '') },
-          });
-        }
-      } catch (kohaErr) {
-        console.warn('[auth.google] Koha patron creation failed (non-fatal):', kohaErr.message);
-      }
       emailService.sendWelcomeEmail(user).catch(console.error);
     } else if (!user.avatar && payload.picture) {
       user = await prisma.user.update({ where: { id: user.id }, data: { avatar: payload.picture } });

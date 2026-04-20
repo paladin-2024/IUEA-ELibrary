@@ -161,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           // Edit profile button
                           OutlinedButton.icon(
-                            onPressed: () {},
+                            onPressed: () => _showEditProfile(context),
                             icon:  const Icon(Icons.edit_outlined,
                               size: 14, color: AppColors.primary),
                             label: const Text('Edit profile'),
@@ -313,19 +313,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(children: [
                         _SettingsTile(
-                          icon:  Icons.settings_outlined,
-                          label: 'Account Settings',
-                          onTap: () {},
+                          icon:  Icons.local_library_outlined,
+                          label: 'My Loans',
+                          onTap: () => context.push('/library/loans'),
                         ),
                         _SettingsTile(
-                          icon:  Icons.history_rounded,
-                          label: 'Borrowing History',
-                          onTap: () {},
+                          icon:  Icons.local_fire_department_outlined,
+                          label: 'Streaks & Badges',
+                          onTap: () => context.push('/profile/streaks'),
+                        ),
+                        _SettingsTile(
+                          icon:  Icons.settings_outlined,
+                          label: 'Reading Preferences',
+                          onTap: () => context.push('/profile/preferences'),
                         ),
                         _SettingsTile(
                           icon:  Icons.support_agent_outlined,
                           label: 'Library Support',
-                          onTap: () {},
+                          onTap: () => _showSupportDialog(context),
                         ),
                         const SizedBox(height: 20),
                         // Sign out
@@ -388,6 +393,121 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
+      ),
+    );
+  }
+
+  void _showEditProfile(BuildContext context) {
+    final auth      = context.read<AuthProvider>();
+    final nameCtrl  = TextEditingController(text: auth.user?.name ?? '');
+    int   goalValue = auth.user?.readingGoal ?? 20;
+
+    showModalBottomSheet(
+      context:            context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModal) => Padding(
+          padding: EdgeInsets.only(
+            left: 20, right: 20, top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.grey300,
+                  borderRadius: BorderRadius.circular(2)),
+              )),
+              const SizedBox(height: 16),
+              Text('Edit Profile',
+                style: AppTextStyles.h2.copyWith(fontSize: 18)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Display Name',
+                  labelStyle: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
+                  filled: true,
+                  fillColor: AppColors.grey100,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text('Annual Reading Goal: $goalValue books',
+                style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
+              Slider(
+                value:     goalValue.toDouble(),
+                min:       5, max: 100, divisions: 19,
+                activeColor: AppColors.primary,
+                label:     '$goalValue',
+                onChanged: (v) => setModal(() => goalValue = v.toInt()),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    final ok = await auth.updateProfile({
+                      'name': nameCtrl.text.trim(),
+                      'readingGoal': goalValue,
+                    });
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(ok ? 'Profile updated!' : 'Could not update profile.'),
+                        backgroundColor: ok ? AppColors.success : null,
+                      ));
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                  child: const Text('Save Changes'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSupportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Library Support',
+          style: AppTextStyles.h2.copyWith(fontSize: 18)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SupportRow(Icons.location_on_outlined, 'Kampala, Uganda — IUEA Campus'),
+            const SizedBox(height: 10),
+            _SupportRow(Icons.email_outlined, 'library@iuea.ac.ug'),
+            const SizedBox(height: 10),
+            _SupportRow(Icons.access_time_outlined, 'Mon – Fri, 8 AM – 6 PM'),
+            const SizedBox(height: 10),
+            _SupportRow(Icons.phone_outlined, '+256 700 000 000'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close',
+              style: AppTextStyles.label.copyWith(color: AppColors.primary)),
+          ),
+        ],
       ),
     );
   }
@@ -486,4 +606,18 @@ class _SettingsTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _SupportRow extends StatelessWidget {
+  final IconData icon;
+  final String   text;
+  const _SupportRow(this.icon, this.text);
+
+  @override
+  Widget build(BuildContext context) => Row(children: [
+    Icon(icon, size: 16, color: AppColors.primary),
+    const SizedBox(width: 10),
+    Expanded(child: Text(text,
+      style: AppTextStyles.body.copyWith(fontSize: 13, color: AppColors.textPrimary))),
+  ]);
 }

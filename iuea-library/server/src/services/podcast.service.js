@@ -12,42 +12,50 @@ const parser = new RSSParser({
 // ── Seed academic podcasts ────────────────────────────────────────────────────
 const SEED_FEEDS = [
   {
-    rssUrl:   'https://feeds.ted.com/tedtalks/audio',
-    category: 'Education',
+    // The Daily — NYT
+    rssUrl:   'https://feeds.simplecast.com/9EE3yXkq',
+    category: 'General',
     language: 'English',
   },
   {
-    rssUrl:   'https://podcasts.files.bbci.co.uk/p01f0vzr.rss',
-    category: 'Philosophy',
-    language: 'English',
-  },
-  {
+    // Freakonomics Radio
     rssUrl:   'https://rss.art19.com/freakonomics-radio',
     category: 'Economics',
     language: 'English',
   },
   {
-    rssUrl:   'https://feeds.harvardbusiness.org/harvardbusiness/ideacast',
-    category: 'Business',
-    language: 'English',
-  },
-  {
-    rssUrl:   'https://feed.podbean.com/lawfarepodcast/feed.xml',
-    category: 'Law',
-    language: 'English',
-  },
-  {
-    rssUrl:   'https://feeds.megaphone.fm/sciencefriday',
-    category: 'Science',
-    language: 'English',
-  },
-  {
-    rssUrl:   'https://historyofphilosophy.net/feed/podcast',
+    // In Our Time: Philosophy — BBC
+    rssUrl:   'https://podcasts.files.bbci.co.uk/p01f0vzr.rss',
     category: 'Philosophy',
     language: 'English',
   },
   {
-    rssUrl:   'https://feeds.simplecast.com/54nAGcIl',
+    // TED Talks Daily
+    rssUrl:   'https://feeds.megaphone.fm/TPG6175446888',
+    category: 'Education',
+    language: 'English',
+  },
+  {
+    // Harvard Business Review IdeaCast
+    rssUrl:   'https://feeds.megaphone.fm/HSW7835889991',
+    category: 'Business',
+    language: 'English',
+  },
+  {
+    // Stuff You Should Know
+    rssUrl:   'https://feeds.megaphone.fm/stuffyoushouldknow',
+    category: 'Science',
+    language: 'English',
+  },
+  {
+    // The History of Rome
+    rssUrl:   'https://feeds.feedburner.com/TheHistoryOfRome',
+    category: 'History',
+    language: 'English',
+  },
+  {
+    // Lex Fridman Podcast
+    rssUrl:   'https://lexfridman.com/feed/podcast/',
     category: 'Technology',
     language: 'English',
   },

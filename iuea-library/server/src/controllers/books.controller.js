@@ -1,5 +1,4 @@
 const prisma           = require('../config/prisma');
-const kohaService      = require('../services/koha.service');
 const archiveService   = require('../services/archive.service');
 const { searchOpenLibrary } = require('../services/openlibrary.service');
 const { getSignedDownloadUrl } = require('../services/r2.service');
@@ -151,9 +150,6 @@ const getBookById = async (req, res, next) => {
 
     if (book.fileKey) {
       try { bookObj.fileUrl = await getSignedDownloadUrl(book.fileKey); } catch {}
-    }
-    if (book.kohaId) {
-      try { bookObj.availability = await kohaService.getBookItems(book.kohaId); } catch { bookObj.availability = null; }
     }
     if (!bookObj.fileUrl && book.archiveId) {
       try { bookObj.fileUrl = await archiveService.getArchiveBookUrl(book.archiveId); } catch {}

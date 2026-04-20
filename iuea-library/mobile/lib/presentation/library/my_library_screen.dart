@@ -61,10 +61,14 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
                 style: AppTextStyles.h2.copyWith(
                   fontSize: 22, color: AppColors.textPrimary)),
               const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.tune_rounded,
-                  color: AppColors.textSecondary, size: 20),
-                onPressed: () {},
+              TextButton.icon(
+                onPressed: () => context.push('/library/loans'),
+                icon: const Icon(Icons.local_library_outlined, size: 16),
+                label: const Text('My Loans'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  textStyle: AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
+                ),
               ),
             ]),
           ),

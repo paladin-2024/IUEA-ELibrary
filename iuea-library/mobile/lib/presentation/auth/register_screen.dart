@@ -213,7 +213,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const AuthFieldLabel('FACULTY/DEPARTMENT'),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
-                        value:      _faculty,
+                        initialValue:      _faculty,
                         isExpanded: true,
                         style: AppTextStyles.body.copyWith(
                           color: AppColors.textPrimary, fontSize: 13),

@@ -19,6 +19,8 @@ import '../../presentation/podcasts/podcasts_home_screen.dart';
 import '../../presentation/podcasts/podcast_detail_screen.dart';
 import '../../presentation/profile/profile_screen.dart';
 import '../../presentation/profile/preferences_screen.dart';
+import '../../presentation/profile/streaks_screen.dart';
+import '../../presentation/library/my_loans_screen.dart';
 import '../../presentation/notifications/notifications_screen.dart';
 
 // ── Auth routes (no shell) ────────────────────────────────────────────────────
@@ -75,6 +77,10 @@ class AppRouter {
                 path:    'downloads',
                 builder: (_, __) => const DownloadsScreen(),
               ),
+              GoRoute(
+                path:    'loans',
+                builder: (_, __) => const MyLoansScreen(),
+              ),
             ],
           ),
           GoRoute(path: '/podcasts', builder: (_, __) => const PodcastsHomeScreen()),
@@ -85,6 +91,10 @@ class AppRouter {
               GoRoute(
                 path:    'preferences',
                 builder: (_, __) => const PreferencesScreen(),
+              ),
+              GoRoute(
+                path:    'streaks',
+                builder: (_, __) => const StreaksScreen(),
               ),
             ],
           ),
@@ -152,9 +162,9 @@ class _MainShellState extends State<_MainShell> {
             label:      'Home',
           ),
           BottomNavigationBarItem(
-            icon:       Icon(Icons.search),
+            icon:       Icon(Icons.search_outlined),
             activeIcon: Icon(Icons.search),
-            label:      'Library',
+            label:      'Search',
           ),
           BottomNavigationBarItem(
             icon:       Icon(Icons.collections_bookmark_outlined),

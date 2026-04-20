@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -57,7 +56,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
                   IconButton(
                     icon: const Icon(Icons.notifications_none_rounded,
                       color: AppColors.textPrimary, size: 22),
-                    onPressed: () {},
+                    onPressed: () => context.push('/notifications'),
                   ),
                   const CircleAvatar(
                     radius: 16, backgroundColor: AppColors.primaryContainer,
@@ -151,7 +150,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
                               ? AppColors.primary : AppColors.textHint)),
                       Switch(
                         value:          _autoTranslate,
-                        activeColor:    AppColors.primary,
+                        activeThumbColor:    AppColors.primary,
                         onChanged: (v) => setState(() => _autoTranslate = v),
                       ),
                     ],

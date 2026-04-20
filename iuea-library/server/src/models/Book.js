@@ -2,11 +2,6 @@ const mongoose = require('mongoose');
 
 const bookSchema = new mongoose.Schema(
   {
-    kohaId: {
-      type:   String,
-      unique: true,
-      sparse: true,
-    },
     isbn: {
       type: String,
     },
@@ -75,9 +70,6 @@ const bookSchema = new mongoose.Schema(
     isActive: {
       type:    Boolean,
       default: true,
-    },
-    lastSyncedFromKoha: {
-      type: Date,
     },
   },
   { timestamps: true }

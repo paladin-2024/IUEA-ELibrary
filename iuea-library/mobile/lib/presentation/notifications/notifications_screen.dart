@@ -45,7 +45,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   IconButton(
                     icon: const Icon(Icons.notifications_none_rounded,
                       color: AppColors.textPrimary, size: 22),
-                    onPressed: () {},
+                    onPressed: () => context.pop(),
                   ),
                   const CircleAvatar(
                     radius: 16, backgroundColor: AppColors.primaryContainer,
@@ -122,7 +122,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         )),
                         Switch(
                           value:          _silenced,
-                          activeColor:    AppColors.warning,
+                          activeThumbColor:    AppColors.warning,
                           onChanged: (v) => setState(() => _silenced = v),
                         ),
                       ]),
@@ -284,7 +284,7 @@ class _AlertTile extends StatelessWidget {
         )),
         Switch(
           value:       value,
-          activeColor: AppColors.primary,
+          activeThumbColor: AppColors.primary,
           onChanged:   onChanged,
         ),
       ]),

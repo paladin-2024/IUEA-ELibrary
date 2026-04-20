@@ -205,7 +205,7 @@ function wrap(ModelFn) {
       const doc = await M().findOneAndUpdate(
         filter,
         update,
-        { new: true, projection: proj || undefined },
+        { returnDocument: 'after', projection: proj || undefined },
       ).lean();
       if (!doc) {
         const err   = new Error('Record not found');
@@ -225,11 +225,16 @@ function wrap(ModelFn) {
         if (v && typeof v === 'object' && 'increment' in v) incData[k] = v.increment;
         else setData[k] = v;
       }
+      // $setOnInsert must not contain keys already in $set — MongoDB rejects that
+      const insertOnly = {};
+      for (const [k, v] of Object.entries(createData || {})) {
+        if (!(k in setData)) insertOnly[k] = v;
+      }
       const op = {};
       if (Object.keys(setData).length) op.$set = setData;
       if (Object.keys(incData).length) op.$inc = incData;
-      op.$setOnInsert = createData;
-      const doc = await M().findOneAndUpdate(filter, op, { upsert: true, new: true }).lean();
+      if (Object.keys(insertOnly).length) op.$setOnInsert = insertOnly;
+      const doc = await M().findOneAndUpdate(filter, op, { upsert: true, returnDocument: 'after' }).lean();
       doc.id = doc._id?.toString();
       return doc;
     },

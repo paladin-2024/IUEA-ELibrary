@@ -105,7 +105,6 @@ class PrimaryButton extends StatelessWidget {
         );
 
       case ButtonVariant.primary:
-      default:
         button = ElevatedButton(
           onPressed: isLoading ? null : onPressed,
           style: ElevatedButton.styleFrom(

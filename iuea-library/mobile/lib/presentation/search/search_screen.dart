@@ -160,11 +160,17 @@ class _SearchScreenState extends State<SearchScreen> {
                         prefixIcon: const Icon(
                           Icons.search_rounded,
                           color: AppColors.textHint, size: 20),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.mic_none_rounded,
-                            color: AppColors.textHint, size: 18),
-                          onPressed: () {},
-                        ),
+                        suffixIcon: _hasSearched
+                          ? IconButton(
+                              icon: const Icon(Icons.close_rounded,
+                                color: AppColors.textHint, size: 18),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                context.read<BookProvider>().clearSearch();
+                                setState(() => _hasSearched = false);
+                              },
+                            )
+                          : null,
                       ),
                     ),
                   ),
@@ -175,12 +181,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        _FilterChip(
-                          label:    'Filters',
-                          icon:     Icons.tune_rounded,
-                          onTap:    () {},
-                        ),
-                        const SizedBox(width: 8),
                         _DropdownChip(
                           label:    _activeCategory ?? 'Category',
                           onTap:    () => _showPicker(
@@ -289,34 +289,6 @@ class _SearchScreenState extends State<SearchScreen> {
   );
 }
 
-// ── Filter chip ───────────────────────────────────────────────────────────────
-class _FilterChip extends StatelessWidget {
-  final String   label;
-  final IconData icon;
-  final VoidCallback onTap;
-  const _FilterChip({required this.label, required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(
-          color:        AppColors.white,
-          border:       Border.all(color: AppColors.border),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 14, color: AppColors.textSecondary),
-          const SizedBox(width: 4),
-          Text(label, style: AppTextStyles.label.copyWith(
-            color: AppColors.textSecondary)),
-        ]),
-      ),
-    );
-  }
-}
 
 class _DropdownChip extends StatelessWidget {
   final String   label;

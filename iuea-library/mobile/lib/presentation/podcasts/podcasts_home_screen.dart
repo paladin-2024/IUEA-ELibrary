@@ -61,7 +61,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
                   IconButton(
                     icon: const Icon(Icons.search_rounded,
                       color: AppColors.textPrimary, size: 22),
-                    onPressed: () {},
+                    onPressed: () => context.go('/search'),
                   ),
                   IconButton(
                     icon: const Icon(Icons.notifications_none_rounded,

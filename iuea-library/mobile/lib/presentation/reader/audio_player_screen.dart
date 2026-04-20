@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
@@ -130,11 +129,6 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                         fontWeight:    FontWeight.w500)),
                   ],
                 )),
-                IconButton(
-                  icon: const Icon(Icons.more_vert_rounded,
-                    color: AppColors.white, size: 22),
-                  onPressed: () {},
-                ),
               ]),
             ),
 
@@ -272,7 +266,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                         border: Border.all(
                           color: sel ? AppColors.accent : AppColors.grey700),
                         borderRadius: BorderRadius.circular(20)),
-                      child: Text('${s}×',
+                      child: Text('$s×',
                         style: TextStyle(
                           fontSize:   11,
                           fontWeight: FontWeight.w600,

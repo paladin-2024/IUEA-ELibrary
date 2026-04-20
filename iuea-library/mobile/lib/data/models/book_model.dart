@@ -49,7 +49,7 @@ class BookModel {
     // author may come as String or List from different API responses
     final rawAuthor = json['author'];
     final String authorStr = rawAuthor is List
-        ? (rawAuthor as List<dynamic>).cast<String>().join(', ')
+        ? (rawAuthor).map((e) => e.toString()).join(', ')
         : (rawAuthor as String? ?? 'Unknown');
 
     return BookModel(

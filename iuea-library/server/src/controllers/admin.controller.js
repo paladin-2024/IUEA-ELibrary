@@ -2,7 +2,6 @@ const prisma        = require('../config/prisma');
 const UserProgress  = require('../models/UserProgress');
 const Book          = require('../models/Book');
 const User          = require('../models/User');
-const { searchBooks } = require('../services/koha.service');
 const { syncPodcast }  = require('../services/podcast.service');
 const { uploadBookFile, uploadCover } = require('../services/r2.service');
 const { sendMulticast, sendNewBookNotification } = require('../services/firebase.service');
@@ -53,7 +52,6 @@ const getBooks = async (req, res, next) => {
     const where = {};
     if (q)        { where.OR = [{ title: { contains: q, mode: 'insensitive' } }, { author: { contains: q, mode: 'insensitive' } }]; }
     if (category) where.category  = category;
-    if (source === 'koha')      where.kohaId    = { not: null };
     if (source === 'archive')   where.archiveId = { not: null };
     if (source === 'gutenberg') where.gutenbergId = { not: null };
     if (source === 'upload')    where.fileUrl   = { not: null };
@@ -208,44 +206,6 @@ const getUserDetail = async (req, res, next) => {
     });
 
     res.json({ user, progress });
-  } catch (err) { next(err); }
-};
-
-// POST /api/admin/sync-koha
-const syncKoha = async (req, res, next) => {
-  try {
-    const { q = '', limit = 500 } = req.body;
-    const results = await searchBooks({ q, limit: Number(limit) });
-    let synced = 0;
-
-    for (const item of results) {
-      if (!item.biblio_id) continue;
-      await prisma.book.upsert({
-        where:  { kohaId: String(item.biblio_id) },
-        update: {
-          title:              item.title   || 'Untitled',
-          author:             item.author  || 'Unknown',
-          isbn:               item.isbn    || null,
-          category:           item.subject || 'General',
-          languages:          item.language ? [item.language] : ['English'],
-          lastSyncedFromKoha: new Date(),
-          isActive:           true,
-        },
-        create: {
-          kohaId:             String(item.biblio_id),
-          title:              item.title   || 'Untitled',
-          author:             item.author  || 'Unknown',
-          isbn:               item.isbn    || null,
-          category:           item.subject || 'General',
-          languages:          item.language ? [item.language] : ['English'],
-          lastSyncedFromKoha: new Date(),
-          isActive:           true,
-        },
-      });
-      synced++;
-    }
-
-    res.json({ message: `Synced ${synced} book(s) from Koha.`, synced });
   } catch (err) { next(err); }
 };
 
@@ -580,6 +540,6 @@ module.exports = {
   getStats, getBooks, uploadBook, updateBook, deleteBook, toggleBookStatus,
   discoverBooks, importBook,
   getUsers, suspendUser, getUserDetail, updateUserRole, deleteUser,
-  syncKoha, syncPatrons, addPodcast, updatePodcast, deletePodcast, getAnalytics,
+  syncPatrons, addPodcast, updatePodcast, deletePodcast, getAnalytics,
   getTopBooks, getUserGrowth, sendPushNotification,
 };

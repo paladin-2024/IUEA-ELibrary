@@ -56,9 +56,7 @@ router.patch('/users/:id/role',    ctrl.updateUserRole);
 router.delete('/users/:id',        ctrl.deleteUser);
 
 // ── Sync ──────────────────────────────────────────────────────────────────────
-router.post('/sync-koha',     ctrl.syncKoha);
 router.post('/sync-podcasts', ctrl.syncPatrons);
-router.post('/sync-patrons',  ctrl.syncPatrons); // legacy alias
 
 // ── Podcasts ──────────────────────────────────────────────────────────────────
 router.post('/podcasts',          ctrl.addPodcast);

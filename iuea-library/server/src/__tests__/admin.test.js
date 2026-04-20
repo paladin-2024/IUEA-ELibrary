@@ -2,7 +2,6 @@
 
 jest.mock('../config/prisma',  () => require('./mocks/prisma.mock'));
 jest.mock('../config/firebase', () => ({ initFirebase: jest.fn(), getMessaging: jest.fn() }));
-jest.mock('../services/koha.service', () => ({ searchBiblio: jest.fn().mockResolvedValue([]) }));
 jest.mock('../services/podcast.service', () => ({ syncPodcast: jest.fn().mockResolvedValue(undefined) }));
 jest.mock('../services/r2.service', () => ({
   uploadBookFile: jest.fn().mockResolvedValue('http://localhost/uploads/book.epub'),

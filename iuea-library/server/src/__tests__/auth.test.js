@@ -1,10 +1,6 @@
 'use strict';
 
 jest.mock('../config/prisma', () => require('./mocks/prisma.mock'));
-jest.mock('../services/koha.service', () => ({
-  findPatronByStudentId: jest.fn().mockResolvedValue(null),
-  createPatron:         jest.fn().mockResolvedValue(null),
-}));
 jest.mock('../services/email.service', () => ({
   sendWelcomeEmail:    jest.fn().mockResolvedValue(null),
   sendPasswordReset:   jest.fn().mockResolvedValue(null),

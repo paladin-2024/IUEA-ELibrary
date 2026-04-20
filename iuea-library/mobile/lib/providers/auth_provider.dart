@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../data/models/user_model.dart';
@@ -84,6 +83,18 @@ class AuthProvider extends ChangeNotifier {
     _token = null;
     _error = null;
     notifyListeners();
+  }
+
+  // ── updateProfile ──────────────────────────────────────────────────────────
+  Future<bool> updateProfile(Map<String, dynamic> data) async {
+    try {
+      final res = await _api.put(ApiConstants.authMe, data: data);
+      _user = UserModel.fromJson(res.data as Map<String, dynamic>);
+      notifyListeners();
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   // ── updateFcmToken ─────────────────────────────────────────────────────────

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/book_provider.dart';
 import '../../data/models/book_model.dart';
+import '../../data/models/review_model.dart';
 import '../../data/services/download_service.dart';
+import '../../data/repositories/borrowing_repository.dart';
+import '../../data/repositories/reviews_repository.dart';
+import '../../data/services/api_service.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
@@ -27,12 +32,21 @@ class _BookDetailScreenState extends State<BookDetailScreen>
   bool               _downloaded   = false;
   bool               _downloading  = false;
   double             _dlProgress   = 0.0;
-  final _dlService = DownloadService();
+  bool               _borrowing    = false;
+  List<ReviewModel>  _reviews      = [];
+  ReviewModel?       _myReview;
+  int                _reviewRating = 0;
+  final _reviewTextCtrl = TextEditingController();
+  bool               _submittingReview = false;
+
+  final _dlService      = DownloadService();
+  final _borrowingRepo  = BorrowingRepository(ApiService());
+  final _reviewsRepo    = ReviewsRepository(ApiService());
 
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 3, vsync: this);
+    _tabs = TabController(length: 4, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final bp = context.read<BookProvider>();
       await bp.getBook(widget.bookId);
@@ -42,12 +56,80 @@ class _BookDetailScreenState extends State<BookDetailScreen>
         final sims = await bp.getSimilarBooks(widget.bookId);
         if (mounted) setState(() => _similar = sims);
       } catch (_) {}
+      _loadReviews();
     });
+  }
+
+  Future<void> _loadReviews() async {
+    try {
+      final reviews  = await _reviewsRepo.getBookReviews(widget.bookId);
+      final myReview = await _reviewsRepo.getMyReview(widget.bookId);
+      if (mounted) {
+        setState(() { _reviews = reviews; _myReview = myReview; });
+        if (myReview != null) {
+          _reviewRating = myReview.rating;
+          _reviewTextCtrl.text = myReview.text ?? '';
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _borrow(BookModel book) async {
+    setState(() => _borrowing = true);
+    try {
+      await _borrowingRepo.requestBorrow(book.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Request sent! Library will notify you when approved.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _borrowing = false);
+    }
+  }
+
+  Future<void> _submitReview() async {
+    if (_reviewRating == 0) return;
+    setState(() => _submittingReview = true);
+    try {
+      await _reviewsRepo.submitReview(widget.bookId, _reviewRating, _reviewTextCtrl.text);
+      await _loadReviews();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Review saved!'), backgroundColor: AppColors.success));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not save review.')));
+      }
+    } finally {
+      if (mounted) setState(() => _submittingReview = false);
+    }
+  }
+
+  void _showCitationSheet(BookModel book) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => _CitationSheet(book: book),
+    );
   }
 
   @override
   void dispose() {
     _tabs.dispose();
+    _reviewTextCtrl.dispose();
     super.dispose();
   }
 
@@ -96,18 +178,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                 color: AppColors.white, size: 18),
               onPressed: () => context.pop(),
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.bookmark_border_rounded,
-                  color: AppColors.white, size: 22),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.share_outlined,
-                  color: AppColors.white, size: 22),
-                onPressed: () {},
-              ),
-            ],
+            actions: const [],
             flexibleSpace: FlexibleSpaceBar(
               background: book.hasCover
                 ? CachedNetworkImage(
@@ -316,6 +387,40 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                                 borderRadius: BorderRadius.circular(10))),
                           ),
                         ),
+                  // Borrow physical copy button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton.icon(
+                      onPressed: _borrowing ? null : () => _borrow(book),
+                      icon: _borrowing
+                        ? const SizedBox(width: 16, height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : const Icon(Icons.local_library_rounded, size: 18),
+                      label: Text(_borrowing ? 'Requesting…' : 'Borrow Physical Copy'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryDark,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Cite this book
+                  SizedBox(
+                    width: double.infinity,
+                    height: 40,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showCitationSheet(book),
+                      icon: const Icon(Icons.format_quote_rounded, size: 16),
+                      label: const Text('Cite this Book'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.border),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                    ),
+                  ),
                   const SizedBox(height: 12),
                 ],
               ),
@@ -327,14 +432,16 @@ class _BookDetailScreenState extends State<BookDetailScreen>
             pinned: true,
             delegate: _TabBarDelegate(
               TabBar(
-                controller:          _tabs,
-                labelColor:          AppColors.primary,
+                controller:           _tabs,
+                labelColor:           AppColors.primary,
                 unselectedLabelColor: AppColors.textSecondary,
-                indicatorColor:      AppColors.primary,
-                indicatorWeight:     2,
+                indicatorColor:       AppColors.primary,
+                indicatorWeight:      2,
+                isScrollable:         true,
                 labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
                 tabs: const [
                   Tab(text: 'About'),
+                  Tab(text: 'Reviews'),
                   Tab(text: 'Podcasts'),
                   Tab(text: 'Similar'),
                 ],
@@ -394,6 +501,23 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                   ),
                 ),
 
+                // Reviews
+                _ReviewsTab(
+                  reviews:          _reviews,
+                  myReview:         _myReview,
+                  rating:           _reviewRating,
+                  textCtrl:         _reviewTextCtrl,
+                  submitting:       _submittingReview,
+                  onRatingChanged:  (r) => setState(() => _reviewRating = r),
+                  onSubmit:         _submitReview,
+                  onVote:           (reviewId) async {
+                    try {
+                      await _reviewsRepo.voteHelpful(widget.bookId, reviewId);
+                      await _loadReviews();
+                    } catch (_) {}
+                  },
+                ),
+
                 // Podcasts tab - placeholder
                 const Center(
                   child: Text('No related podcasts yet.',
@@ -445,6 +569,297 @@ class _MetaRow extends StatelessWidget {
         Text(value, style: AppTextStyles.body.copyWith(
           fontSize: 13, color: AppColors.textSecondary)),
       ]),
+    );
+  }
+}
+
+// ── Reviews Tab ────────────────────────────────────────────────────────────────
+class _ReviewsTab extends StatelessWidget {
+  final List<ReviewModel>  reviews;
+  final ReviewModel?       myReview;
+  final int                rating;
+  final TextEditingController textCtrl;
+  final bool               submitting;
+  final void Function(int) onRatingChanged;
+  final VoidCallback       onSubmit;
+  final void Function(String) onVote;
+
+  const _ReviewsTab({
+    required this.reviews,
+    required this.myReview,
+    required this.rating,
+    required this.textCtrl,
+    required this.submitting,
+    required this.onRatingChanged,
+    required this.onSubmit,
+    required this.onVote,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Write / edit review
+          Text(myReview == null ? 'Write a Review' : 'Your Review',
+            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          Row(
+            children: List.generate(5, (i) => GestureDetector(
+              onTap: () => onRatingChanged(i + 1),
+              child: Icon(
+                i < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                size: 28, color: AppColors.accent),
+            )),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller:  textCtrl,
+            maxLines:    3,
+            decoration: InputDecoration(
+              hintText:    'Share your thoughts (optional)…',
+              hintStyle:   AppTextStyles.label.copyWith(color: AppColors.textHint),
+              filled:      true,
+              fillColor:   AppColors.grey100,
+              border:      OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide:   BorderSide.none),
+              contentPadding: const EdgeInsets.all(12),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: submitting || rating == 0 ? null : onSubmit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+              child: submitting
+                ? const SizedBox(width: 16, height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : Text(myReview == null ? 'Submit Review' : 'Update Review'),
+            ),
+          ),
+
+          if (reviews.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            Text('${reviews.length} Review${reviews.length != 1 ? "s" : ""}',
+              style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 10),
+            ...reviews.map((r) => _ReviewCard(review: r, onVote: onVote)),
+          ] else ...[
+            const SizedBox(height: 24),
+            Center(child: Text('No reviews yet. Be the first!',
+              style: AppTextStyles.label.copyWith(color: AppColors.textHint))),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ReviewCard extends StatelessWidget {
+  final ReviewModel        review;
+  final void Function(String) onVote;
+  const _ReviewCard({required this.review, required this.onVote});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin:  const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color:        AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0,2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: AppColors.primary.withOpacity(0.15),
+              backgroundImage: review.userAvatar != null
+                ? NetworkImage(review.userAvatar!) : null,
+              child: review.userAvatar == null
+                ? Text((review.userName?.isNotEmpty ?? false) ? review.userName![0].toUpperCase() : '?',
+                    style: AppTextStyles.label.copyWith(
+                      color: AppColors.primary, fontWeight: FontWeight.w700))
+                : null,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  Text(review.userName ?? 'Anonymous',
+                    style: AppTextStyles.label.copyWith(fontWeight: FontWeight.w700)),
+                  if (review.isVerified) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      decoration: BoxDecoration(
+                        color:        AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4)),
+                      child: Text('Verified',
+                        style: AppTextStyles.label.copyWith(
+                          color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w700)),
+                    ),
+                  ],
+                ]),
+                if (review.userFaculty != null)
+                  Text(review.userFaculty!,
+                    style: AppTextStyles.label.copyWith(
+                      color: AppColors.textHint, fontSize: 11)),
+              ]),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(5, (i) => Icon(
+                i < review.rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                size: 12, color: AppColors.accent)),
+            ),
+          ]),
+          if (review.text != null && review.text!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(review.text!,
+              style: AppTextStyles.body.copyWith(fontSize: 13, color: AppColors.textPrimary)),
+          ],
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () => onVote(review.id),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              const Icon(Icons.thumb_up_outlined, size: 14, color: AppColors.textSecondary),
+              const SizedBox(width: 4),
+              Text('${review.helpfulCount} helpful',
+                style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
+            ]),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Citation Sheet ─────────────────────────────────────────────────────────────
+class _CitationSheet extends StatefulWidget {
+  final BookModel book;
+  const _CitationSheet({required this.book});
+
+  @override
+  State<_CitationSheet> createState() => _CitationSheetState();
+}
+
+class _CitationSheetState extends State<_CitationSheet> {
+  String _format = 'APA';
+  static const _formats = ['APA', 'MLA', 'Chicago', 'Harvard', 'BibTeX'];
+
+  String _citation(BookModel b) {
+    final year   = b.publishedYear ?? 'n.d.';
+    final author = b.author;
+    final title  = b.title;
+
+    switch (_format) {
+      case 'MLA':
+        return '$author. ${title.contains(':') ? title : title}. $year.';
+      case 'Chicago':
+        return '$author. $title. $year.';
+      case 'Harvard':
+        return '$author ($year) $title.';
+      case 'BibTeX':
+        final key = author.split(' ').last.toLowerCase() + year.toString();
+        return '@book{$key,\n  author={$author},\n  title={$title},\n  year={$year}\n}';
+      default: // APA
+        return '$author ($year). $title.';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final text = _citation(widget.book);
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16, right: 16, top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.grey300,
+                borderRadius: BorderRadius.circular(2)),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text('Cite this Book',
+            style: AppTextStyles.h2.copyWith(fontSize: 18)),
+          const SizedBox(height: 12),
+
+          // Format chips
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _formats.map((f) {
+                final active = _format == f;
+                return GestureDetector(
+                  onTap: () => setState(() => _format = f),
+                  child: Container(
+                    margin:  const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color:        active ? AppColors.primary : AppColors.grey100,
+                      borderRadius: BorderRadius.circular(999)),
+                    child: Text(f,
+                      style: AppTextStyles.label.copyWith(
+                        color: active ? AppColors.white : AppColors.textSecondary,
+                        fontWeight: FontWeight.w600)),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Citation text
+          Container(
+            width:   double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color:        AppColors.grey100,
+              borderRadius: BorderRadius.circular(10)),
+            child: Text(text,
+              style: AppTextStyles.body.copyWith(
+                fontSize: 13, color: AppColors.textPrimary, height: 1.6)),
+          ),
+          const SizedBox(height: 12),
+
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: text));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Citation copied!')));
+              },
+              icon:  const Icon(Icons.copy_rounded, size: 16),
+              label: const Text('Copy Citation'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

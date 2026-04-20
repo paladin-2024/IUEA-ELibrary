@@ -54,13 +54,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
                 color: AppColors.white, size: 18),
               onPressed: () => Navigator.pop(context),
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.share_outlined,
-                  color: AppColors.white, size: 20),
-                onPressed: () {},
-              ),
-            ],
+            actions: const [],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -228,12 +222,6 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
                           ]),
                         ],
                       )),
-                      // Download icon
-                      IconButton(
-                        icon: const Icon(Icons.download_outlined,
-                          size: 18, color: AppColors.textHint),
-                        onPressed: () {},
-                      ),
                     ]),
                   ),
                 );

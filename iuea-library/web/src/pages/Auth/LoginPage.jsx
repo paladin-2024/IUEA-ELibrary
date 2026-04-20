@@ -22,13 +22,13 @@ export default function LoginPage() {
   const onSubmit = async e => {
     e.preventDefault();
     const { ok } = await login(form);
-    if (ok) navigate('/home');
+    if (ok) navigate('/admin');
     else toast.error(useAuthStore.getState().error ?? 'Login failed.');
   };
 
   const onGoogle = async cred => {
-    const { ok, isNewUser } = await loginWithGoogle(cred.credential);
-    if (ok) navigate(isNewUser ? '/onboarding' : '/home');
+    const { ok } = await loginWithGoogle(cred.credential);
+    if (ok) navigate('/admin');
     else toast.error(useAuthStore.getState().error ?? 'Google sign-in failed.');
   };
 

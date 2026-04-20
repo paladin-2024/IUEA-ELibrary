@@ -6,7 +6,6 @@ import '../../providers/book_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
-import '../../core/constants/app_text_styles.dart';
 import '../widgets/book_card.dart';
 import '../widgets/shimmer_card.dart';
 

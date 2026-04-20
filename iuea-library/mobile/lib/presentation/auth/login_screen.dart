@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +11,11 @@ import '../../data/services/api_service.dart';
 import '../../core/constants/api_constants.dart';
 import 'auth_widgets.dart';
 
-final _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+final _googleSignIn = GoogleSignIn(
+  scopes:         ['email', 'profile'],
+  // serverClientId is required on Android to obtain an idToken
+  serverClientId: dotenv.env['GOOGLE_CLIENT_ID'],
+);
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

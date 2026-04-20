@@ -1,7 +1,6 @@
 'use strict';
 
 jest.mock('../config/prisma', () => require('./mocks/prisma.mock'));
-jest.mock('../services/koha.service',    () => ({ searchBiblio: jest.fn().mockResolvedValue([]) }));
 jest.mock('../services/archive.service', () => ({ searchArchive: jest.fn().mockResolvedValue([]) }));
 jest.mock('../services/r2.service',      () => ({
   uploadBookFile:     jest.fn().mockResolvedValue('http://localhost/uploads/book.epub'),

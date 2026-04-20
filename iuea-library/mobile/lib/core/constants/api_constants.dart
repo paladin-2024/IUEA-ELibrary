@@ -44,4 +44,18 @@ class ApiConstants {
   static String podcastDetail(String id)        => '$baseUrl/podcasts/$id';
   static String podcastSubscribe(String id)     => '$baseUrl/podcasts/subscribe/$id';
   static String podcastPlay(String id)          => '$baseUrl/podcasts/$id/play';
+
+  // ── Borrowing ──────────────────────────────────────────────────────────────
+  static String get borrowing              => '$baseUrl/borrowing';
+  static String get myLoans               => '$baseUrl/borrowing/my';
+  static String cancelLoan(String id)     => '$baseUrl/borrowing/$id';
+  static String renewLoan(String id)      => '$baseUrl/borrowing/$id/renew';
+
+  // ── Reviews ────────────────────────────────────────────────────────────────
+  static String reviews(String bookId)    => '$baseUrl/reviews/$bookId';
+  static String myReview(String bookId)   => '$baseUrl/reviews/my/$bookId';
+  static String reviewHelpful(String bookId) => '$baseUrl/reviews/$bookId/helpful';
+
+  // ── Streaks ────────────────────────────────────────────────────────────────
+  static String get streaks               => '$baseUrl/streaks';
 }

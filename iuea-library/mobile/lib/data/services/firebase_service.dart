@@ -75,7 +75,7 @@ class FirebaseService {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios     = DarwinInitializationSettings();
     _localNotif.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      settings: const InitializationSettings(android: android, iOS: ios),
     );
   }
 
@@ -84,10 +84,10 @@ class FirebaseService {
     if (n == null) return;
 
     _localNotif.show(
-      message.hashCode,
-      n.title,
-      n.body,
-      NotificationDetails(
+      id:   message.hashCode,
+      title: n.title,
+      body:  n.body,
+      notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           'iuea_channel', 'IUEA Library',
           importance: Importance.high,

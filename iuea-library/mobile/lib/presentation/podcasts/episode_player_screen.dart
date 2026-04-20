@@ -1,11 +1,9 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/podcast_provider.dart';
 import '../../data/models/podcast_model.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_text_styles.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 const _speeds   = [0.75, 1.0, 1.25, 1.5, 2.0];
@@ -31,7 +29,6 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
     with SingleTickerProviderStateMixin {
   late AnimationController _waveCtrl;
   bool _detailsExpanded = true;
-  final _rng = math.Random(42); // seeded so bars don't jump on rebuild
 
   @override
   void initState() {
@@ -103,11 +100,6 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                       letterSpacing: 0.6,
                       fontWeight:    FontWeight.w500),
                     textAlign: TextAlign.center),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert_rounded,
-                    color: AppColors.white, size: 22),
-                  onPressed: () {},
                 ),
               ]),
             ),
@@ -295,7 +287,7 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                         border: Border.all(
                           color: active ? AppColors.accent : AppColors.grey700),
                         borderRadius: BorderRadius.circular(20)),
-                      child: Text('${s}×',
+                      child: Text('$s×',
                         style: TextStyle(
                           fontSize:   11,
                           fontWeight: FontWeight.w600,
