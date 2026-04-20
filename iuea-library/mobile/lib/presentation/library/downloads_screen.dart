@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../data/services/download_service.dart';
@@ -56,7 +55,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                 Text('IUEA Library',
                   style: AppTextStyles.h3.copyWith(
                     color: AppColors.primary, fontSize: 15,
-                    fontFamily: GoogleFonts.playfairDisplay().fontFamily)),
+                    fontFamily: 'PlayfairDisplay')),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.notifications_none_rounded,
@@ -204,7 +203,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
               child: Column(children: [
                 Text('POWERED BY GOOGLE',
                   style: TextStyle(
-                    fontFamily: GoogleFonts.inter().fontFamily,
+                    fontFamily: 'Inter',
                     fontSize: 9, letterSpacing: 1.4,
                     color: AppColors.textHint.withOpacity(0.6))),
               ]),
@@ -251,7 +250,7 @@ class _DownloadRow extends StatelessWidget {
               const SizedBox(height: 2),
               Text(book.fileFormat.toUpperCase(),
                 style: TextStyle(
-                  fontFamily: GoogleFonts.inter().fontFamily,
+                  fontFamily: 'Inter',
                   fontSize: 8, fontWeight: FontWeight.w700,
                   color: AppColors.primary, letterSpacing: 0.5)),
             ],

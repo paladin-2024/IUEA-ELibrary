@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 InputDecoration authInputDeco({
   required String hint,
@@ -10,7 +9,7 @@ InputDecoration authInputDeco({
 }) {
   return InputDecoration(
     hintText: hint,
-    hintStyle: GoogleFonts.inter(
+    hintStyle: TextStyle(fontFamily: 'Inter', 
       color:    const Color(0xFFBDBDBD),
       fontSize: 13,
     ),
@@ -72,7 +71,7 @@ class AuthFooterLink extends StatelessWidget {
     return Text(
       label,
       style: TextStyle(
-        fontFamily: GoogleFonts.inter().fontFamily,
+        fontFamily: 'Inter',
         fontSize:   10,
         color:      AppColors.textHint.withOpacity(0.7),
         decoration: TextDecoration.underline,

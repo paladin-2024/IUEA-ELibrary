@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../providers/reader_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const _kFonts = [
   {'id': 'serif',    'label': 'SERIF',    'family': 'Lora',  'sample': 'Aa'},
@@ -404,7 +403,7 @@ class _Lnk extends StatelessWidget {
   const _Lnk(this.t);
   @override
   Widget build(BuildContext context) => Text(t,
-    style: TextStyle(fontFamily: GoogleFonts.inter().fontFamily, fontSize: 10,
+    style: TextStyle(fontFamily: 'Inter', fontSize: 10,
       color: AppColors.textHint.withOpacity(0.7),
       decoration: TextDecoration.underline,
       decorationColor: AppColors.textHint.withOpacity(0.4)));

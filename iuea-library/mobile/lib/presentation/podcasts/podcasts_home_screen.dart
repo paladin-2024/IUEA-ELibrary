@@ -7,7 +7,6 @@ import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../widgets/loading_widget.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class PodcastsHomeScreen extends StatefulWidget {
   const PodcastsHomeScreen({super.key});
@@ -130,7 +129,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
                                       color:        AppColors.accent.withOpacity(0.9),
                                       borderRadius: BorderRadius.circular(6)),
                                     child: Text(featured.category!,
-                                      style: GoogleFonts.inter(
+                                      style: TextStyle(fontFamily: 'Inter', 
                                         fontSize: 9,
                                         fontWeight: FontWeight.w700,
                                         color: AppColors.primaryDark)),
@@ -476,7 +475,7 @@ class _Footer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(children: [
       Text('POWERED BY GOOGLE',
-        style: TextStyle(fontFamily: GoogleFonts.inter().fontFamily, fontSize: 9,
+        style: TextStyle(fontFamily: 'Inter', fontSize: 9,
           letterSpacing: 1.4, color: AppColors.textHint.withOpacity(0.6))),
       const SizedBox(height: 4),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [

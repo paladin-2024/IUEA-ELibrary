@@ -3,43 +3,42 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // ── Page metadata ─────────────────────────────────────────────────────────────
 class _PageData {
   final String  title;
+  final String  subtitle;
   final String  body;
   final String  cta;
-  final String  footer;
   final String? boldPhrase;
   const _PageData({
     required this.title,
+    required this.subtitle,
     required this.body,
     required this.cta,
-    required this.footer,
     this.boldPhrase,
   });
 }
 
 const _kPages = [
   _PageData(
-    title:  'Welcome to your\ndigital library',
-    body:   'Access over 100,000 academic books, research papers, and journals for free.',
-    cta:    'Next',
-    footer: 'A PROJECT BY IUEA FACULTY',
+    title:    'Welcome to your\nDigital Library',
+    subtitle: 'IUEA — International University of East Africa',
+    body:     'Access over 100,000 academic books, research papers, and journals — all in one place.',
+    cta:      'Next',
   ),
   _PageData(
     title:      'Read or Listen',
-    body:       'Switch seamlessly between reading text and high-quality audio narration powered by Google TTS.',
+    subtitle:   'SEAMLESS LEARNING',
+    body:       'Switch seamlessly between reading and high-quality audio narration powered by Google TTS.',
     cta:        'Next',
-    footer:     'A PROJECT BY IUEA FACULTY',
     boldPhrase: 'Google TTS',
   ),
   _PageData(
-    title:  'Your AI Study\nPartner',
-    body:   'Get instant summaries, translations, and explanations from our AI assistant specialized in academic content.',
-    cta:    'Get Started',
-    footer: 'POWERED BY GOOGLE · Beta AI',
+    title:    'Your AI Study\nPartner',
+    subtitle: 'POWERED BY GOOGLE AI',
+    body:     'Get instant summaries, translations, and explanations from our AI assistant specialized in academic content.',
+    cta:      'Get Started',
   ),
 ];
 
@@ -57,10 +56,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     with TickerProviderStateMixin {
   final _pageCtrl = PageController();
 
-  // Drives floating / looping illustration animation
   late final AnimationController _loopCtrl;
-
-  // Drives slide-up + fade for text content on each page change
   late final AnimationController _textCtrl;
   late final Animation<double>   _textFade;
   late final Animation<Offset>   _textSlide;
@@ -81,14 +77,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       duration: const Duration(milliseconds: 400),
     );
 
-    _textFade = CurvedAnimation(
-      parent: _textCtrl, curve: Curves.easeOut);
-
+    _textFade  = CurvedAnimation(parent: _textCtrl, curve: Curves.easeOut);
     _textSlide = Tween<Offset>(
       begin: const Offset(0, 0.18),
       end:   Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _textCtrl, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(parent: _textCtrl, curve: Curves.easeOutCubic));
 
     _textCtrl.forward();
   }
@@ -124,62 +117,94 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final pd = _kPages[_page];
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: const Color(0xFFF7F0EE),
       body: SafeArea(
         child: Column(
           children: [
             // ── Top bar ──────────────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 20, 0),
-              child: Row(children: [
-                // IUEA logo badge
-                Container(
-                  width: 36, height: 36,
-                  decoration: BoxDecoration(
-                    color:        AppColors.primary,
-                    borderRadius: BorderRadius.circular(9),
-                    boxShadow: [BoxShadow(
-                      color:     AppColors.primary.withOpacity(0.30),
-                      blurRadius: 8,
-                      offset:    const Offset(0, 3))],
-                  ),
-                  padding: const EdgeInsets.all(6),
-                  child: Image.asset(
-                    'assets/images/iuea_logo.png',
-                    color: AppColors.white,
-                    errorBuilder: (_, __, ___) => const Icon(
-                      Icons.school_rounded,
-                      color: AppColors.white, size: 18),
-                  ),
-                ),
-                const Spacer(),
-                // Skip — hidden on last page
-                AnimatedOpacity(
-                  opacity:  _page < 2 ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: GestureDetector(
-                    onTap: _page < 2 ? _skip : null,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4, vertical: 8),
-                      child: Text('Skip',
-                        style: AppTextStyles.body.copyWith(
-                          color:      AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                          fontSize:   14)),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Row(
+                children: [
+                  // Logo + wordmark
+                  Row(children: [
+                    Container(
+                      width: 44, height: 44,
+                      decoration: BoxDecoration(
+                        color:        AppColors.primary,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [BoxShadow(
+                          color:      AppColors.primary.withOpacity(0.35),
+                          blurRadius: 12,
+                          offset:     const Offset(0, 4))],
+                      ),
+                      padding: const EdgeInsets.all(7),
+                      child: Image.asset(
+                        'assets/images/iuea_logo.png',
+                        color: AppColors.white,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.school_rounded,
+                          color: AppColors.white, size: 22),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('IUEA',
+                          style: TextStyle(
+                            fontFamily:    'Inter',
+                            fontSize:      13,
+                            fontWeight:    FontWeight.w800,
+                            color:         AppColors.primary,
+                            letterSpacing: 1.4,
+                          )),
+                        Text('Digital Library',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize:   10,
+                            color:      AppColors.textSecondary,
+                            letterSpacing: 0.3,
+                          )),
+                      ],
+                    ),
+                  ]),
+                  const Spacer(),
+                  AnimatedOpacity(
+                    opacity:  _page < 2 ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: GestureDetector(
+                      onTap: _page < 2 ? _skip : null,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 7),
+                        decoration: BoxDecoration(
+                          color:        AppColors.primary.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text('Skip',
+                          style: TextStyle(
+                            fontFamily:  'Inter',
+                            fontSize:    13,
+                            fontWeight:  FontWeight.w600,
+                            color:       AppColors.primary,
+                          )),
+                      ),
                     ),
                   ),
-                ),
-              ]),
+                ],
+              ),
             ),
 
-            // ── Swiping pages (illustration + text) ──────────────────────────
+            const SizedBox(height: 4),
+
+            // ── Swiping pages ─────────────────────────────────────────────────
             Expanded(
               child: PageView(
                 controller:    _pageCtrl,
                 onPageChanged: (i) {
                   setState(() => _page = i);
-                  _textCtrl.forward(from: 0); // re-run entrance on each swipe
+                  _textCtrl.forward(from: 0);
                 },
                 children: [
                   _Page1(loop: _loopCtrl, textAnim: _textFade, slideAnim: _textSlide),
@@ -189,7 +214,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               ),
             ),
 
-            // ── Fixed bottom: dots + CTA ─────────────────────────────────────
+            // ── Fixed bottom ──────────────────────────────────────────────────
             _BottomSection(
               page:     _page,
               pageData: pd,
@@ -206,7 +231,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 }
 
-// ── Fixed bottom ──────────────────────────────────────────────────────────────
+// ── Bottom section ────────────────────────────────────────────────────────────
 class _BottomSection extends StatelessWidget {
   final int       page;
   final _PageData pageData;
@@ -224,116 +249,132 @@ class _BottomSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: fade,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 4, 24, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // ── Dot indicators ─────────────────────────────────────────────
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(3, (i) {
-                final active = i == page;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 280),
-                  curve:    Curves.easeInOut,
-                  margin:   const EdgeInsets.symmetric(horizontal: 3),
-                  width:    active ? 24 : 8,
-                  height:   8,
-                  decoration: BoxDecoration(
-                    color:        active ? AppColors.primary : AppColors.grey300,
-                    borderRadius: BorderRadius.circular(4)),
-                );
-              }),
-            ),
-            const SizedBox(height: 20),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ── Dot indicators ────────────────────────────────────────────────
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(3, (i) {
+              final active = i == page;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 280),
+                curve:    Curves.easeInOut,
+                margin:   const EdgeInsets.symmetric(horizontal: 3),
+                width:    active ? 28 : 8,
+                height:   8,
+                decoration: BoxDecoration(
+                  color:        active ? AppColors.primary : AppColors.grey300,
+                  borderRadius: BorderRadius.circular(4)),
+              );
+            }),
+          ),
+          const SizedBox(height: 22),
 
-            // ── CTA button ─────────────────────────────────────────────────
-            SizedBox(
-              width:  double.infinity,
-              height: 54,
-              child: ElevatedButton(
-                onPressed: onNext,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                  elevation:       0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
-                  splashFactory: InkRipple.splashFactory,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(pageData.cta,
-                      style: const TextStyle(
-                        fontFamily:    'Inter',
-                        fontSize:      16,
-                        fontWeight:    FontWeight.w700,
-                        color:         AppColors.white,
-                        letterSpacing: 0.2)),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward_rounded, size: 18),
-                  ],
-                ),
+          // ── CTA button ────────────────────────────────────────────────────
+          SizedBox(
+            width:  double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: onNext,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.white,
+                elevation:       0,
+                shadowColor:     AppColors.primary.withOpacity(0.40),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+                splashFactory: InkRipple.splashFactory,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(pageData.cta,
+                    style: const TextStyle(
+                      fontFamily:    'Inter',
+                      fontSize:      16,
+                      fontWeight:    FontWeight.w700,
+                      color:         AppColors.white,
+                      letterSpacing: 0.3)),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward_rounded, size: 18),
+                ],
               ),
             ),
+          ),
 
-            // ── "Back to basics" — only on last page ───────────────────────
-            AnimatedCrossFade(
-              duration:    const Duration(milliseconds: 220),
-              firstChild:  const SizedBox(height: 12),
-              secondChild: Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: GestureDetector(
-                  onTap: onBack,
-                  child: Text('Back to basics',
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.textSecondary, fontSize: 14)),
+          AnimatedCrossFade(
+            duration:     const Duration(milliseconds: 220),
+            firstChild:   const SizedBox(height: 12),
+            secondChild:  Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: GestureDetector(
+                onTap: onBack,
+                child: Text('Back to basics',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize:   14,
+                    color:      AppColors.textSecondary)),
+              ),
+            ),
+            crossFadeState: page == 2
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+          ),
+
+          const SizedBox(height: 10),
+
+          // ── Footer ────────────────────────────────────────────────────────
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 16, height: 16,
+                decoration: BoxDecoration(
+                  color:        AppColors.primary,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                padding: const EdgeInsets.all(2.5),
+                child: Image.asset(
+                  'assets/images/iuea_logo.png',
+                  color: AppColors.white,
+                  errorBuilder: (_, __, ___) =>
+                      const Icon(Icons.school_rounded, color: AppColors.white, size: 10),
                 ),
               ),
-              crossFadeState: page == 2
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-            ),
-
-            const SizedBox(height: 10),
-            // ── Footer label ───────────────────────────────────────────────
-            Text(pageData.footer,
-              style: TextStyle(
-                fontFamily:    'Inter',
-                fontSize:      9,
-                letterSpacing: 1.2,
-                color:         AppColors.textHint.withOpacity(0.6))),
-          ],
-        ),
+              const SizedBox(width: 6),
+              Text('IUEA Library · ${page + 1} of 3',
+                style: TextStyle(
+                  fontFamily:    'Inter',
+                  fontSize:      9,
+                  letterSpacing: 1.1,
+                  color:         AppColors.textHint.withOpacity(0.6))),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PAGE 1 — Classic library
+// PAGE 1 — Welcome / Digital Library
 // ─────────────────────────────────────────────────────────────────────────────
 class _Page1 extends StatelessWidget {
   final AnimationController loop;
   final Animation<double>   textAnim;
   final Animation<Offset>   slideAnim;
-  const _Page1({
-    required this.loop,
-    required this.textAnim,
-    required this.slideAnim,
-  });
+  const _Page1({required this.loop, required this.textAnim, required this.slideAnim});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
           // ── Hero card ─────────────────────────────────────────────────────
           Expanded(
@@ -342,12 +383,12 @@ class _Page1 extends StatelessWidget {
               clipBehavior: Clip.none,
               alignment:    Alignment.bottomCenter,
               children: [
-                // Card
+                // Background card
                 Container(
                   width:        double.infinity,
                   clipBehavior: Clip.hardEdge,
                   decoration:   BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(24),
                     gradient: const LinearGradient(
                       begin:  Alignment.topLeft,
                       end:    Alignment.bottomRight,
@@ -359,7 +400,7 @@ class _Page1 extends StatelessWidget {
                     ),
                   ),
                   child: Stack(children: [
-                    // Window light — top-right glow
+                    // Top-right glow
                     Positioned(
                       top: -30, right: -30,
                       child: Container(
@@ -373,7 +414,7 @@ class _Page1 extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Secondary glow — left side
+                    // Left glow
                     Positioned(
                       bottom: 20, left: -40,
                       child: Container(
@@ -388,7 +429,7 @@ class _Page1 extends StatelessWidget {
                       ),
                     ),
 
-                    // Gothic arch shapes (bookcase windows)
+                    // Gothic arch shapes
                     Positioned(
                       left: -12, top: 16,
                       child: _Arch(width: 84, height: 140, opacity: 0.11)),
@@ -400,8 +441,8 @@ class _Page1 extends StatelessWidget {
                       right: -12, top: 16,
                       child: _Arch(width: 84, height: 140, opacity: 0.11)),
 
-                    // Book spine lines on arch walls
-                    ..._buildBookSpines(left: 6,  count: 5, heights: [38, 32, 44, 36, 40]),
+                    // Book spines
+                    ..._buildBookSpines(left: 6,   count: 5, heights: [38, 32, 44, 36, 40]),
                     ..._buildBookSpines(left: 260, count: 4, heights: [36, 42, 30, 38]),
 
                     // Floor vignette
@@ -419,42 +460,101 @@ class _Page1 extends StatelessWidget {
                       ),
                     ),
 
-                    // Stacked books — bottom corners
+                    // Top label inside card
+                    Positioned(
+                      top: 16, left: 0, right: 0,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                          decoration: BoxDecoration(
+                            color:        Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.20), width: 1),
+                          ),
+                          child: const Text('IUEA DIGITAL LIBRARY',
+                            style: TextStyle(
+                              fontFamily:    'Inter',
+                              fontSize:      9,
+                              fontWeight:    FontWeight.w700,
+                              color:         Colors.white,
+                              letterSpacing: 1.8,
+                            )),
+                        ),
+                      ),
+                    ),
+
+                    // ── Central IUEA logo ──────────────────────────────────
+                    Center(child: AnimatedBuilder(
+                      animation: loop,
+                      builder:   (_, __) => Transform.translate(
+                        offset: Offset(0, -5 + 5 * loop.value),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 96, height: 96,
+                              decoration: BoxDecoration(
+                                color:        Colors.white.withOpacity(0.13),
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.25), width: 1.5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:     Colors.black.withOpacity(0.25),
+                                    blurRadius: 24,
+                                    offset:    const Offset(0, 10)),
+                                ],
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              child: Image.asset(
+                                'assets/images/iuea_logo.png',
+                                color: Colors.white,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.school_rounded,
+                                  color: Colors.white, size: 48),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text('IUEA',
+                              style: TextStyle(
+                                fontFamily:    'Inter',
+                                fontSize:      18,
+                                fontWeight:    FontWeight.w900,
+                                color:         Colors.white,
+                                letterSpacing: 4,
+                              )),
+                            const SizedBox(height: 2),
+                            Text('Est. 1994 · Kampala, Uganda',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize:   9,
+                                color:      Colors.white.withOpacity(0.55),
+                                letterSpacing: 1.0,
+                              )),
+                          ],
+                        ),
+                      ),
+                    )),
+
+                    // Corner book stacks
                     Positioned(
                       left: 22, bottom: 36,
                       child: _BookStack(opacity: 0.38, widths: [28, 34, 22])),
                     Positioned(
                       right: 26, bottom: 40,
                       child: _BookStack(opacity: 0.28, widths: [32, 24, 30])),
-
-                    // Floating central book icon
-                    Center(child: AnimatedBuilder(
-                      animation: loop,
-                      builder: (_, __) => Transform.translate(
-                        offset: Offset(0, -4 + 4 * loop.value),
-                        child: Container(
-                          width: 82, height: 82,
-                          decoration: BoxDecoration(
-                            color:        Colors.white.withOpacity(0.11),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.22), width: 1)),
-                          child: const Icon(Icons.auto_stories_rounded,
-                            size: 44, color: Colors.white),
-                        ),
-                      ),
-                    )),
                   ]),
                 ),
 
-                // ── Badge overlapping bottom edge ──────────────────────────
+                // Badge overlapping bottom edge
                 Positioned(
-                  bottom: -22,
+                  bottom: -24,
                   child: Container(
-                    width: 50, height: 50,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color:        AppColors.white,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
                           color:     AppColors.primary.withOpacity(0.22),
@@ -462,23 +562,38 @@ class _Page1 extends StatelessWidget {
                           offset:    const Offset(0, 6)),
                       ],
                     ),
-                    child: const Icon(Icons.auto_stories_rounded,
-                      color: AppColors.primary, size: 28),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.menu_book_rounded,
+                          color: AppColors.primary, size: 18),
+                        const SizedBox(width: 6),
+                        Text('100,000+ resources',
+                          style: TextStyle(
+                            fontFamily:  'Inter',
+                            fontSize:    12,
+                            fontWeight:  FontWeight.w700,
+                            color:       AppColors.primary,
+                          )),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 38),
 
-          // ── Animated text ──────────────────────────────────────────────────
+          const SizedBox(height: 44),
+
+          // ── Text block ────────────────────────────────────────────────────
           FadeTransition(
             opacity: textAnim,
             child: SlideTransition(
               position: slideAnim,
               child: _PageText(
-                title: 'Welcome to your\ndigital library',
-                body:  'Access over 100,000 academic books, research papers, and journals for free.',
+                title:    'Welcome to your\nDigital Library',
+                subtitle: 'IUEA — International University of East Africa',
+                body:     'Access over 100,000 academic books, research papers, and journals — all in one place.',
               ),
             ),
           ),
@@ -513,8 +628,7 @@ class _Page1 extends StatelessWidget {
           margin: const EdgeInsets.only(right: 2),
           decoration: BoxDecoration(
             color:        colors[i % colors.length],
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(2)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(2)),
           ),
         ),
       ));
@@ -531,28 +645,23 @@ class _Page2 extends StatelessWidget {
   final AnimationController loop;
   final Animation<double>   textAnim;
   final Animation<Offset>   slideAnim;
-  const _Page2({
-    required this.loop,
-    required this.textAnim,
-    required this.slideAnim,
-  });
+  const _Page2({required this.loop, required this.textAnim, required this.slideAnim});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
-          // ── Hero card ─────────────────────────────────────────────────────
           Expanded(
             flex: 5,
             child: Container(
               width:        double.infinity,
               clipBehavior: Clip.hardEdge,
               decoration:   BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
                 gradient: const LinearGradient(
                   begin:  Alignment.topLeft,
                   end:    Alignment.bottomRight,
@@ -564,43 +673,41 @@ class _Page2 extends StatelessWidget {
                 ),
               ),
               child: Stack(children: [
-                // Warm spotlight (reading lamp effect)
+                // Warm spotlight
                 Positioned(
                   top: -10, left: 0, right: 0,
                   child: Center(
                     child: AnimatedBuilder(
                       animation: loop,
-                      builder: (_, __) => Container(
+                      builder:   (_, __) => Container(
                         width: 240, height: 240,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              const Color(0xFFC9A84C)
-                                  .withOpacity(0.18 + 0.07 * loop.value),
-                              Colors.transparent,
-                            ],
-                          ),
+                          gradient: RadialGradient(colors: [
+                            const Color(0xFFC9A84C)
+                                .withOpacity(0.18 + 0.07 * loop.value),
+                            Colors.transparent,
+                          ]),
                         ),
                       ),
                     ),
                   ),
                 ),
 
-                // Animated sound-wave rings
+                // Sound wave rings
                 Center(child: AnimatedBuilder(
                   animation: loop,
-                  builder: (_, __) => CustomPaint(
+                  builder:   (_, __) => CustomPaint(
                     size: const Size(300, 300),
                     painter: _WaveRingPainter(progress: loop.value),
                   ),
                 )),
 
-                // Central headphones circle
+                // Central headphones
                 Center(child: AnimatedBuilder(
                   animation: loop,
-                  builder: (_, __) => Transform.translate(
-                    offset: Offset(0, -4 + 4 * loop.value),
+                  builder:   (_, __) => Transform.translate(
+                    offset: Offset(0, -5 + 5 * loop.value),
                     child: Container(
                       width: 94, height: 94,
                       decoration: BoxDecoration(
@@ -614,55 +721,60 @@ class _Page2 extends StatelessWidget {
                   ),
                 )),
 
-                // ── Floating "IU" badge ──────────────────────────────────
+                // IUEA logo badge — top left
                 Positioned(
-                  top: 16, right: 16,
+                  top: 14, left: 14,
                   child: AnimatedBuilder(
                     animation: loop,
-                    builder: (_, __) => Transform.translate(
+                    builder:   (_, __) => Transform.translate(
                       offset: Offset(0, -2 + 2 * loop.value),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 11, vertical: 7),
+                        width: 40, height: 40,
                         decoration: BoxDecoration(
                           color:        AppColors.primary,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(11),
                           boxShadow: [BoxShadow(
-                            color:     AppColors.primary.withOpacity(0.40),
+                            color:      AppColors.primary.withOpacity(0.45),
                             blurRadius: 10,
-                            offset:    const Offset(0, 4))]),
-                        child: Text('IU',
-                          style: GoogleFonts.lora(
-                            color:      AppColors.white,
-                            fontSize:   13,
-                            fontWeight: FontWeight.w700)),
+                            offset:     const Offset(0, 4))]),
+                        padding: const EdgeInsets.all(7),
+                        child: Image.asset(
+                          'assets/images/iuea_logo.png',
+                          color: AppColors.white,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.school_rounded, color: AppColors.white, size: 18),
+                        ),
                       ),
                     ),
                   ),
                 ),
 
-                // ── Bookmark badge ───────────────────────────────────────
+                // Bookmark badge — top right
                 Positioned(
-                  top: 14, left: 16,
+                  top: 14, right: 14,
                   child: AnimatedBuilder(
                     animation: loop,
-                    builder: (_, __) => Transform.translate(
+                    builder:   (_, __) => Transform.translate(
                       offset: Offset(0, -1 + 1 * loop.value),
                       child: Container(
-                        width: 36, height: 36,
+                        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                         decoration: BoxDecoration(
                           color:        Colors.white.withOpacity(0.10),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                             color: Colors.white.withOpacity(0.18))),
-                        child: const Icon(Icons.bookmark_rounded,
-                          color: Colors.white, size: 16),
+                        child: Text('IU',
+                          style: TextStyle(
+                            fontFamily:  'Lora',
+                            color:       AppColors.white,
+                            fontSize:    13,
+                            fontWeight:  FontWeight.w700)),
                       ),
                     ),
                   ),
                 ),
 
-                // Subtle bottom gradient
+                // Bottom gradient
                 Positioned(
                   bottom: 0, left: 0, right: 0,
                   child: Container(
@@ -679,15 +791,15 @@ class _Page2 extends StatelessWidget {
               ]),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
 
-          // ── Animated text ──────────────────────────────────────────────────
           FadeTransition(
             opacity: textAnim,
             child: SlideTransition(
               position: slideAnim,
               child: _PageText(
                 title:      'Read or Listen',
+                subtitle:   'SEAMLESS LEARNING',
                 body:       'Switch seamlessly between reading text and high-quality audio narration powered by Google TTS.',
                 boldPhrase: 'Google TTS',
               ),
@@ -707,111 +819,122 @@ class _Page3 extends StatelessWidget {
   final AnimationController loop;
   final Animation<double>   textAnim;
   final Animation<Offset>   slideAnim;
-  const _Page3({
-    required this.loop,
-    required this.textAnim,
-    required this.slideAnim,
-  });
+  const _Page3({required this.loop, required this.textAnim, required this.slideAnim});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
 
-          // ── Floating illustration ─────────────────────────────────────────
           Expanded(
             flex: 5,
-            child: LayoutBuilder(
-              builder: (_, box) {
-                final cx = box.maxWidth  / 2;
-                final cy = box.maxHeight / 2;
-                return AnimatedBuilder(
-                  animation: loop,
-                  builder: (_, __) {
-                    final float = -6 + 6 * loop.value;
-                    return Stack(
-                      children: [
-                        // Soft glow behind robot
+            child: Container(
+              width:        double.infinity,
+              clipBehavior: Clip.hardEdge,
+              decoration:   BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: const LinearGradient(
+                  begin:  Alignment.topLeft,
+                  end:    Alignment.bottomRight,
+                  colors: [Color(0xFF1A0A1E), Color(0xFF2A0A18), Color(0xFF0E0E1A)],
+                ),
+              ),
+              child: LayoutBuilder(
+                builder: (_, box) {
+                  final cx = box.maxWidth  / 2;
+                  final cy = box.maxHeight / 2;
+                  return AnimatedBuilder(
+                    animation: loop,
+                    builder: (_, __) {
+                      final float = -6 + 6 * loop.value;
+                      return Stack(children: [
+                        // Background glow
                         Positioned(
-                          left:  cx - 70,
-                          top:   cy - 70,
+                          left: cx - 80, top: cy - 80,
                           child: Container(
-                            width: 140, height: 140,
+                            width: 160, height: 160,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(colors: [
-                                AppColors.primary.withOpacity(0.18),
+                                AppColors.primary.withOpacity(0.22),
                                 Colors.transparent,
                               ]),
                             ),
                           ),
                         ),
 
-                        // ── Orbital feature icons ────────────────────────
-                        // Translate — top-right
+                        // IUEA logo — top-left corner
+                        Positioned(
+                          top: 14, left: 14,
+                          child: Transform.translate(
+                            offset: Offset(0, -2 + 2 * loop.value),
+                            child: Container(
+                              width: 40, height: 40,
+                              decoration: BoxDecoration(
+                                color:        AppColors.primary,
+                                borderRadius: BorderRadius.circular(11),
+                                boxShadow: [BoxShadow(
+                                  color:      AppColors.primary.withOpacity(0.45),
+                                  blurRadius: 10,
+                                  offset:     const Offset(0, 4))]),
+                              padding: const EdgeInsets.all(7),
+                              child: Image.asset(
+                                'assets/images/iuea_logo.png',
+                                color: AppColors.white,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.school_rounded, color: AppColors.white, size: 18),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Orbital icons
                         Positioned(
                           left: cx + 44,
                           top:  cy - 88 + float * 0.5,
                           child: _FloatingIcon(
-                            icon:    Icons.translate_rounded,
-                            bg:      AppColors.primary,
-                            iconClr: AppColors.white,
-                            size:    46,
-                            glow:    true,
-                          ),
+                            icon: Icons.translate_rounded,
+                            bg:   AppColors.primary, iconClr: AppColors.white,
+                            size: 46, glow: true),
                         ),
-                        // Share — far left
                         Positioned(
                           left: cx - 116,
                           top:  cy - 20 + float * 0.7,
                           child: _FloatingIcon(
-                            icon:    Icons.share_rounded,
-                            bg:      AppColors.white,
-                            iconClr: AppColors.primary,
-                            size:    52,
-                            shadow:  true,
-                          ),
+                            icon: Icons.share_rounded,
+                            bg:   AppColors.white, iconClr: AppColors.primary,
+                            size: 52, shadow: true),
                         ),
-                        // Book / read — right
                         Positioned(
                           left: cx + 62,
                           top:  cy + 28 - float * 0.4,
                           child: _FloatingIcon(
-                            icon:    Icons.menu_book_rounded,
-                            bg:      AppColors.white,
-                            iconClr: AppColors.primary,
-                            size:    40,
-                            shadow:  true,
-                          ),
+                            icon: Icons.menu_book_rounded,
+                            bg:   AppColors.white, iconClr: AppColors.primary,
+                            size: 40, shadow: true),
                         ),
-                        // Language Aa — bottom-left
                         Positioned(
                           left: cx - 90,
                           top:  cy + 52 - float * 0.6,
                           child: _FloatingIcon(
-                            icon:    Icons.spellcheck_rounded,
-                            bg:      AppColors.accent.withOpacity(0.15),
+                            icon: Icons.spellcheck_rounded,
+                            bg:   AppColors.accent.withOpacity(0.15),
                             iconClr: AppColors.accent,
-                            size:    38,
-                          ),
+                            size: 38),
                         ),
-                        // Mic — top-left
                         Positioned(
                           left: cx - 86,
                           top:  cy - 72 + float * 0.3,
                           child: _FloatingIcon(
-                            icon:    Icons.mic_rounded,
-                            bg:      AppColors.surface,
-                            iconClr: AppColors.textSecondary,
-                            size:    36,
-                            shadow:  true,
-                          ),
+                            icon: Icons.mic_rounded,
+                            bg:   AppColors.surface, iconClr: AppColors.textSecondary,
+                            size: 36, shadow: true),
                         ),
 
-                        // ── Central robot ─────────────────────────────────
+                        // Central robot
                         Positioned(
                           left: cx - 52,
                           top:  cy - 52 + float,
@@ -820,34 +943,32 @@ class _Page3 extends StatelessWidget {
                             decoration: BoxDecoration(
                               color:  AppColors.primary,
                               shape:  BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color:     AppColors.primary.withOpacity(0.38),
-                                  blurRadius: 30,
-                                  offset:    const Offset(0, 12)),
-                              ],
+                              boxShadow: [BoxShadow(
+                                color:     AppColors.primary.withOpacity(0.40),
+                                blurRadius: 32,
+                                offset:    const Offset(0, 12))],
                             ),
                             child: const Icon(Icons.smart_toy_rounded,
                               color: AppColors.white, size: 54),
                           ),
                         ),
-                      ],
-                    );
-                  },
-                );
-              },
+                      ]);
+                    },
+                  );
+                },
+              ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 28),
 
-          // ── Animated text ──────────────────────────────────────────────────
           FadeTransition(
             opacity: textAnim,
             child: SlideTransition(
               position: slideAnim,
               child: _PageText(
-                title: 'Your AI Study\nPartner',
-                body:  'Get instant summaries, translations, and explanations from our AI assistant specialized in academic content.',
+                title:    'Your AI Study\nPartner',
+                subtitle: 'POWERED BY GOOGLE AI',
+                body:     'Get instant summaries, translations, and explanations from our AI assistant specialized in academic content.',
               ),
             ),
           ),
@@ -861,8 +982,6 @@ class _Page3 extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared helpers
 // ─────────────────────────────────────────────────────────────────────────────
-
-/// Gothic arch shape used in Page 1 hero card.
 class _Arch extends StatelessWidget {
   final double width;
   final double height;
@@ -875,7 +994,7 @@ class _Arch extends StatelessWidget {
       width:  width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(opacity),
+        color:        Colors.white.withOpacity(opacity),
         borderRadius: BorderRadius.only(
           topLeft:  Radius.circular(width / 2),
           topRight: Radius.circular(width / 2)),
@@ -884,7 +1003,6 @@ class _Arch extends StatelessWidget {
   }
 }
 
-/// Stacked book-spine tiles in Page 1 bottom corners.
 class _BookStack extends StatelessWidget {
   final double       opacity;
   final List<double> widths;
@@ -910,7 +1028,6 @@ class _BookStack extends StatelessWidget {
   }
 }
 
-/// Animated sound-wave rings for Page 2.
 class _WaveRingPainter extends CustomPainter {
   final double progress;
   const _WaveRingPainter({required this.progress});
@@ -936,7 +1053,6 @@ class _WaveRingPainter extends CustomPainter {
   bool shouldRepaint(_WaveRingPainter old) => old.progress != progress;
 }
 
-/// Circular floating icon used in Page 3.
 class _FloatingIcon extends StatelessWidget {
   final IconData icon;
   final Color    bg;
@@ -980,18 +1096,42 @@ class _FloatingIcon extends StatelessWidget {
   }
 }
 
-/// Shared title + body text block used by all three pages.
 class _PageText extends StatelessWidget {
   final String  title;
+  final String  subtitle;
   final String  body;
   final String? boldPhrase;
-  const _PageText({required this.title, required this.body, this.boldPhrase});
+  const _PageText({
+    required this.title,
+    required this.subtitle,
+    required this.body,
+    this.boldPhrase,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        // Subtitle chip
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color:        AppColors.primary.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(subtitle,
+            style: TextStyle(
+              fontFamily:    'Inter',
+              fontSize:      9,
+              fontWeight:    FontWeight.w700,
+              color:         AppColors.primary,
+              letterSpacing: 1.4,
+            )),
+        ),
+        const SizedBox(height: 10),
+
+        // Title
         Text(title,
           textAlign: TextAlign.center,
           style: AppTextStyles.h1.copyWith(
@@ -999,7 +1139,10 @@ class _PageText extends StatelessWidget {
             height:     1.28,
             color:      AppColors.primary,
             fontWeight: FontWeight.w700)),
+
         const SizedBox(height: 12),
+
+        // Body
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: boldPhrase != null
@@ -1016,7 +1159,6 @@ class _PageText extends StatelessWidget {
   }
 }
 
-/// Renders body text with one phrase bolded in primary colour.
 class _BoldBody extends StatelessWidget {
   final String text;
   final String bold;

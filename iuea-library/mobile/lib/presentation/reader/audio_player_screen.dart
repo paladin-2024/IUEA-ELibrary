@@ -6,7 +6,6 @@ import '../../providers/book_provider.dart';
 import '../../providers/reader_provider.dart';
 import '../../core/constants/app_colors.dart';
 import 'widgets/language_switcher_sheet.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const _kSpeedOptions = [0.75, 1.0, 1.25, 1.5, 2.0];
 
@@ -236,10 +235,10 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                     Text(
                       _fmt(Duration(
                         minutes: (reader.percentComplete * 0.5).toInt())),
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Inter', 
                         fontSize: 11, color: AppColors.grey500)),
                     Text('—',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Inter', 
                         fontSize: 11, color: AppColors.grey700)),
                   ],
                 ),

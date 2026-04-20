@@ -14,7 +14,6 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../widgets/book_card.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final String bookId;
@@ -279,7 +278,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                               color:        AppColors.primary,
                               borderRadius: BorderRadius.circular(20)),
                             child: Text(lang,
-                              style: GoogleFonts.inter(
+                              style: TextStyle(fontFamily: 'Inter', 
                                 color: AppColors.white, fontSize: 10,
                                 fontWeight: FontWeight.w500)))),
                       ],
@@ -438,7 +437,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                 indicatorColor:       AppColors.primary,
                 indicatorWeight:      2,
                 isScrollable:         true,
-                labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600),
+                labelStyle: TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w600),
                 tabs: const [
                   Tab(text: 'About'),
                   Tab(text: 'Reviews'),

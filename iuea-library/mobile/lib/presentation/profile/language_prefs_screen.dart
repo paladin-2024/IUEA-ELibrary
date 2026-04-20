@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const _appLanguages = [
   'English (United Kingdom)',
@@ -230,7 +229,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Column(children: [
                   Text('POWERED BY GOOGLE · TRANSLATE',
-                    style: TextStyle(fontFamily: GoogleFonts.inter().fontFamily, fontSize: 9,
+                    style: TextStyle(fontFamily: 'Inter', fontSize: 9,
                       letterSpacing: 1.4,
                       color: AppColors.textHint.withOpacity(0.6))),
                   const SizedBox(height: 4),

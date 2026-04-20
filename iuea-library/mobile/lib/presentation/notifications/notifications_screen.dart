@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -224,7 +223,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Column(children: [
                   Text('IUEA LIBRARY DIGITAL CURATOR · 2025',
-                    style: TextStyle(fontFamily: GoogleFonts.inter().fontFamily, fontSize: 9,
+                    style: TextStyle(fontFamily: 'Inter', fontSize: 9,
                       letterSpacing: 1.2,
                       color: AppColors.textHint.withOpacity(0.6))),
                 ]),

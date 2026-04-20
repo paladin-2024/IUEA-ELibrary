@@ -63,8 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final res = await api.post(ApiConstants.authGoogle, data: {'idToken': idToken});
       if (!mounted) return;
       context.go(res.data['isNewUser'] == true ? '/onboarding' : '/home');
-    } catch (_) {
-      if (mounted) _showError('Google sign-in failed. Please try again.');
+    } catch (e) {
+      if (mounted) _showError('Google sign-in failed: $e');
     } finally {
       if (mounted) setState(() => _googleLoading = false);
     }

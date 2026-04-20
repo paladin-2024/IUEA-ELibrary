@@ -7,7 +7,6 @@ import '../../data/services/api_service.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../widgets/loading_widget.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const _tabs = ['All', 'Reading', 'Finished'];
 
@@ -141,7 +140,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
             child: Column(children: [
               Text('POWERED BY GOOGLE',
                 style: TextStyle(
-                  fontFamily: GoogleFonts.inter().fontFamily, fontSize: 9, letterSpacing: 1.4,
+                  fontFamily: 'Inter', fontSize: 9, letterSpacing: 1.4,
                   color: AppColors.textHint.withOpacity(0.6))),
               const SizedBox(height: 3),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -167,7 +166,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
   );
 
   Widget _fl(String t) => Text(t, style: TextStyle(
-    fontFamily: GoogleFonts.inter().fontFamily, fontSize: 10,
+    fontFamily: 'Inter', fontSize: 10,
     color: AppColors.textHint.withOpacity(0.6),
     decoration: TextDecoration.underline,
     decorationColor: AppColors.textHint.withOpacity(0.3)));

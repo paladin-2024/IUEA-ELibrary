@@ -5,7 +5,6 @@ import '../../core/constants/app_text_styles.dart';
 import '../../core/constants/api_constants.dart';
 import '../../data/services/api_service.dart';
 import 'auth_widgets.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -80,12 +79,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               child: Column(children: [
                 Text('ACADEMIC PORTAL',
                   style: TextStyle(
-                    fontFamily: GoogleFonts.inter().fontFamily, fontSize: 9, letterSpacing: 1.4,
+                    fontFamily: 'Inter', fontSize: 9, letterSpacing: 1.4,
                     color: AppColors.textHint.withOpacity(0.6))),
                 const SizedBox(height: 3),
                 Text('POWERED BY GOOGLE',
                   style: TextStyle(
-                    fontFamily: GoogleFonts.inter().fontFamily, fontSize: 9, letterSpacing: 1.4,
+                    fontFamily: 'Inter', fontSize: 9, letterSpacing: 1.4,
                     color: AppColors.textHint.withOpacity(0.5))),
               ]),
             ),

@@ -118,10 +118,17 @@ class AuthProvider extends ChangeNotifier {
 
   String _parseError(dynamic e) {
     try {
-      // Dio error with response body
-      final data = (e as dynamic).response?.data;
-      if (data is Map) return data['message'] as String? ?? 'An error occurred.';
-      return (e as dynamic).message as String? ?? 'An error occurred.';
+      final response = (e as dynamic).response;
+      if (response != null) {
+        final data = response.data;
+        if (data is Map) return data['message'] as String? ?? 'Server error (${response.statusCode}).';
+        if (data is String && data.isNotEmpty) return data;
+        return 'Server error (${response.statusCode}).';
+      }
+      // No response — connection issue
+      final msg = (e as dynamic).message as String?;
+      if (msg != null && msg.isNotEmpty) return msg;
+      return e.toString();
     } catch (_) {
       return e.toString();
     }

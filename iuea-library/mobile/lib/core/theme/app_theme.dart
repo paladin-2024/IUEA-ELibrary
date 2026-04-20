@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import '../constants/app_text_styles.dart';
@@ -12,7 +11,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3:            true,
       scaffoldBackgroundColor: AppColors.surface,
-      textTheme:               GoogleFonts.interTextTheme(ThemeData.light().textTheme),
+      textTheme:               ThemeData.light().textTheme.apply(fontFamily: 'Inter'),
       colorScheme: ColorScheme(
         brightness:        Brightness.light,
         primary:           AppColors.primaryContainer,  // #7B0D1E — maroon used in buttons
@@ -44,10 +43,11 @@ class AppTheme {
         foregroundColor: AppColors.onSurface,
         elevation:       0,
         centerTitle:     false,
-        titleTextStyle:  GoogleFonts.inter(
-          fontSize:   17,
-          fontWeight: FontWeight.w600,
-          color:      AppColors.onSurface,
+        titleTextStyle: const TextStyle(
+          fontFamily:  'Inter',
+          fontSize:    17,
+          fontWeight:  FontWeight.w600,
+          color:       AppColors.onSurface,
         ),
         iconTheme: const IconThemeData(color: AppColors.primaryContainer),
       ),
@@ -168,7 +168,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3:            true,
       scaffoldBackgroundColor: AppColors.backgroundDark,
-      textTheme:               GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+      textTheme:               ThemeData.dark().textTheme.apply(fontFamily: 'Inter'),
       colorScheme: ColorScheme.fromSeed(
         seedColor:  AppColors.primaryLight,
         primary:    AppColors.primaryLight,
@@ -186,10 +186,11 @@ class AppTheme {
         foregroundColor: AppColors.white,
         elevation:       0,
         centerTitle:     false,
-        titleTextStyle:  GoogleFonts.inter(
-          fontSize:   18,
-          fontWeight: FontWeight.w600,
-          color:      AppColors.white,
+        titleTextStyle: const TextStyle(
+          fontFamily:  'Inter',
+          fontSize:    18,
+          fontWeight:  FontWeight.w600,
+          color:       AppColors.white,
         ),
       ),
 

@@ -1,47 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 class AppTextStyles {
   AppTextStyles._();
 
   // ── Headings (Lora serif) ──────────────────────────────────────────────────
-  static TextStyle get h1 => GoogleFonts.lora(
-    fontSize:   28,
-    fontWeight: FontWeight.bold,
-    color:      AppColors.textPrimary,
-    height:     1.2,
+  static TextStyle get h1 => const TextStyle(
+    fontFamily:  'Lora',
+    fontSize:    28,
+    fontWeight:  FontWeight.bold,
+    color:       AppColors.textPrimary,
+    height:      1.2,
   );
 
-  static TextStyle get h2 => GoogleFonts.lora(
-    fontSize:   22,
-    fontWeight: FontWeight.bold,
-    color:      AppColors.textPrimary,
-    height:     1.3,
+  static TextStyle get h2 => const TextStyle(
+    fontFamily:  'Lora',
+    fontSize:    22,
+    fontWeight:  FontWeight.bold,
+    color:       AppColors.textPrimary,
+    height:      1.3,
   );
 
-  static TextStyle get h3 => GoogleFonts.inter(
-    fontSize:   18,
-    fontWeight: FontWeight.w600,
-    color:      AppColors.textPrimary,
+  static TextStyle get h3 => const TextStyle(
+    fontFamily:  'Inter',
+    fontSize:    18,
+    fontWeight:  FontWeight.w600,
+    color:       AppColors.textPrimary,
   );
 
   // ── Body (Inter sans) ─────────────────────────────────────────────────────
-  static TextStyle get body => GoogleFonts.inter(
-    fontSize:   15,
-    fontWeight: FontWeight.normal,
-    color:      AppColors.textPrimary,
-    height:     1.6,
+  static TextStyle get body => const TextStyle(
+    fontFamily:  'Inter',
+    fontSize:    15,
+    fontWeight:  FontWeight.normal,
+    color:       AppColors.textPrimary,
+    height:      1.6,
   );
 
-  static TextStyle get bodySmall => GoogleFonts.inter(
-    fontSize: 13,
-    color:    AppColors.textSecondary,
-    height:   1.5,
+  static TextStyle get bodySmall => const TextStyle(
+    fontFamily: 'Inter',
+    fontSize:   13,
+    color:      AppColors.textSecondary,
+    height:     1.5,
   );
 
   // ── Labels / captions ─────────────────────────────────────────────────────
-  static TextStyle get label => GoogleFonts.inter(
+  static TextStyle get label => const TextStyle(
+    fontFamily:    'Inter',
     fontSize:      12,
     fontWeight:    FontWeight.w500,
     color:         AppColors.textSecondary,
@@ -49,7 +54,8 @@ class AppTextStyles {
   );
 
   // ── Button ────────────────────────────────────────────────────────────────
-  static TextStyle get button => GoogleFonts.inter(
+  static TextStyle get button => const TextStyle(
+    fontFamily:    'Inter',
     fontSize:      15,
     fontWeight:    FontWeight.w600,
     color:         Colors.white,
@@ -57,20 +63,22 @@ class AppTextStyles {
   );
 
   // ── Reading body (Lora serif, large leading) ──────────────────────────────
-  static TextStyle get readingBody => GoogleFonts.lora(
-    fontSize: 18,
-    height:   1.8,
-    color:    AppColors.textPrimary,
+  static TextStyle get readingBody => const TextStyle(
+    fontFamily: 'Lora',
+    fontSize:   18,
+    height:     1.8,
+    color:      AppColors.textPrimary,
   );
 
-  // ── Dynamic reader body — varies by size and theme color ──────────────────
-  static TextStyle readerBody(double fontSize, Color color) => GoogleFonts.lora(
-    fontSize: fontSize,
-    height:   1.8,
-    color:    color,
+  // ── Dynamic reader body ───────────────────────────────────────────────────
+  static TextStyle readerBody(double fontSize, Color color) => TextStyle(
+    fontFamily: 'Lora',
+    fontSize:   fontSize,
+    height:     1.8,
+    color:      color,
   );
 
-  // ── Legacy aliases (kept for existing widgets that use these names) ────────
+  // ── Legacy aliases ─────────────────────────────────────────────────────────
   static TextStyle get headline1 => h1;
   static TextStyle get headline2 => h2;
   static TextStyle get headline3 => h3;

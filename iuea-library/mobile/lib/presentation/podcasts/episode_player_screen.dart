@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/podcast_provider.dart';
 import '../../data/models/podcast_model.dart';
 import '../../core/constants/app_colors.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const _speeds   = [0.75, 1.0, 1.25, 1.5, 2.0];
 const _barCount = 22;
@@ -197,10 +196,10 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(_fmt(position),
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Inter', 
                         color: AppColors.grey500, fontSize: 11)),
                     Text(_fmt(duration),
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Inter', 
                         color: AppColors.grey500, fontSize: 11)),
                   ],
                 ),

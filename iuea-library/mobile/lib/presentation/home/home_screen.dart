@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/book_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -87,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(width: 8),
                 Text(
                   'IUEA Library',
-                  style: GoogleFonts.newsreader(
+                  style: TextStyle(fontFamily: 'Newsreader', 
                     color:      AppColors.primaryContainer,
                     fontSize:   17,
                     fontWeight: FontWeight.w700,
@@ -202,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             '$_greeting, $name.',
-                            style: GoogleFonts.newsreader(
+                            style: TextStyle(fontFamily: 'Newsreader', 
                               color:      AppColors.onPrimary,
                               fontSize:   26,
                               fontWeight: FontWeight.w700,
@@ -379,7 +378,7 @@ class _SectionHeader extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.newsreader(
+            style: TextStyle(fontFamily: 'Newsreader', 
               fontSize:   20,
               fontWeight: FontWeight.w700,
               color:      AppColors.primaryContainer,

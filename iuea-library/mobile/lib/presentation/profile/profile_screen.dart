@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -74,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       padding: const EdgeInsets.fromLTRB(20, 12, 16, 0),
                       child: Row(children: [
                         Text('IUEA Library',
-                          style: GoogleFonts.lora(
+                          style: TextStyle(fontFamily: 'Lora', 
                             color: AppColors.primaryContainer, fontSize: 16,
                             fontWeight: FontWeight.w700)),
                         const Spacer(),
@@ -114,7 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ? NetworkImage(user.avatar!) : null,
                             child: user.avatar == null
                                 ? Text(user.initials,
-                                    style: GoogleFonts.lora(
+                                    style: TextStyle(fontFamily: 'Lora', 
                                       color:      AppColors.white,
                                       fontSize:   28,
                                       fontWeight: FontWeight.w700))
@@ -373,7 +372,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       child: Column(children: [
                         Text('POWERED BY GOOGLE',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(fontFamily: 'Inter', 
                             fontSize: 9, letterSpacing: 1.4,
                             color: AppColors.textHint.withOpacity(0.6))),
                         const SizedBox(height: 4),
@@ -517,7 +516,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     color: AppColors.border,
     margin: const EdgeInsets.symmetric(horizontal: 16));
 
-  Widget _footerLink(String t) => Text(t, style: GoogleFonts.inter(
+  Widget _footerLink(String t) => Text(t, style: TextStyle(fontFamily: 'Inter', 
     fontSize: 10,
     color: AppColors.textHint.withOpacity(0.6),
     decoration: TextDecoration.underline,

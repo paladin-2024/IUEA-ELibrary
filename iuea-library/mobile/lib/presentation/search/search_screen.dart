@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../providers/book_provider.dart';
@@ -85,7 +84,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 children: [
                   Text(
                     'IUEA Library',
-                    style: GoogleFonts.lora(
+                    style: TextStyle(fontFamily: 'Lora', 
                       color: AppColors.primaryContainer, fontSize: 16,
                       fontWeight: FontWeight.w700),
                   ),
