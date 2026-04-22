@@ -462,7 +462,7 @@ class _HScrollRow extends StatelessWidget {
     }
 
     return SizedBox(
-      height: cardWidth == 140 ? 220 : 260,
+      height: cardWidth == 140 ? 280 : 320,
       child: ListView.separated(
         scrollDirection:  Axis.horizontal,
         padding: const EdgeInsets.symmetric(
@@ -522,10 +522,9 @@ class _FeatureCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment:  MainAxisAlignment.center,
                 children: [
-                  if ((book.subjects as List?)?.isNotEmpty == true)
+                  if (book.tags.isNotEmpty)
                     Text(
-                      ((book.subjects as List).first as String)
-                          .toUpperCase(),
+                      book.tags.first.toUpperCase(),
                       style: const TextStyle(
                         fontSize:      10,
                         fontWeight:    FontWeight.w700,

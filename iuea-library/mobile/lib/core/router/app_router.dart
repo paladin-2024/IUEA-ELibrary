@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import '../constants/app_colors.dart';
 
 import '../../presentation/splash/splash_screen.dart';
 import '../../presentation/auth/login_screen.dart';
@@ -24,6 +25,7 @@ import '../../presentation/library/my_loans_screen.dart';
 import '../../presentation/notifications/notifications_screen.dart';
 import '../../presentation/book/author_screen.dart';
 import '../../presentation/library/faculty_screen.dart';
+import '../../presentation/reader/widgets/chatbot_sheet.dart';
 
 // ── Auth routes (no shell) ────────────────────────────────────────────────────
 const _authRoutes = {'/login', '/register', '/forgot-password', '/onboarding', '/language-setup', '/splash'};
@@ -166,6 +168,18 @@ class _MainShellState extends State<_MainShell> {
 
     return Scaffold(
       body: widget.child,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showModalBottomSheet(
+          context:            context,
+          isScrollControlled: true,
+          backgroundColor:    Colors.transparent,
+          builder: (_) => const ChatbotSheet(bookId: 'general'),
+        ),
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.white,
+        tooltip: 'Ask AI',
+        child: const Icon(Icons.auto_awesome_rounded),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (i) => context.go(_tabs[i]),
