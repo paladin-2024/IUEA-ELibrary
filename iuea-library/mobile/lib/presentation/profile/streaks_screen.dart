@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../widgets/app_error_state.dart';
 import '../../data/models/streak_model.dart';
 import '../../data/repositories/streak_repository.dart';
 import '../../data/services/api_service.dart';
@@ -17,16 +18,18 @@ class _StreaksScreenState extends State<StreaksScreen> {
   final _repo = StreakRepository(ApiService());
   StreakModel? _data;
   bool         _loading = true;
+  String?      _error;
 
   @override
   void initState() { super.initState(); _load(); }
 
   Future<void> _load() async {
+    setState(() { _loading = true; _error = null; });
     try {
       final data = await _repo.getStreak();
       if (mounted) setState(() { _data = data; _loading = false; });
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
+    } catch (e) {
+      if (mounted) setState(() { _error = e.toString(); _loading = false; });
     }
   }
 
@@ -45,12 +48,16 @@ class _StreaksScreenState extends State<StreaksScreen> {
       ),
       body: _loading
         ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-        : RefreshIndicator(
-            color:     AppColors.primary,
-            onRefresh: _load,
-            child: _data == null
-              ? const Center(child: Text('Could not load streak data.'))
-              : SingleChildScrollView(
+        : _error != null || _data == null
+          ? AppErrorState(
+              icon: Icons.local_fire_department_outlined,
+              message: _error,
+              onRetry: _load,
+            )
+          : RefreshIndicator(
+              color:     AppColors.primary,
+              onRefresh: _load,
+              child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

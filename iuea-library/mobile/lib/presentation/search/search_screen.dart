@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../widgets/app_error_state.dart';
 import '../widgets/book_card.dart';
 
 const _categories = [
@@ -231,12 +232,19 @@ class _SearchScreenState extends State<SearchScreen> {
                 ? _ShimmerGrid()
                 : !_hasSearched
                   ? _emptyState()
-                  : (bp.searchResults.isEmpty && bp.externalResults.isEmpty)
-                    ? _noResults()
-                    : _ResultsGrid(
-                        internal: bp.searchResults,
-                        external: bp.externalResults,
-                      ),
+                  : bp.error != null &&
+                      bp.searchResults.isEmpty &&
+                      bp.externalResults.isEmpty
+                    ? AppErrorState(
+                        message: bp.error,
+                        onRetry: _submitSearch,
+                      )
+                    : (bp.searchResults.isEmpty && bp.externalResults.isEmpty)
+                      ? _noResults()
+                      : _ResultsGrid(
+                          internal: bp.searchResults,
+                          external: bp.externalResults,
+                        ),
             ),
           ],
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../widgets/app_error_state.dart';
 import '../../data/models/borrow_request_model.dart';
 import '../../data/repositories/borrowing_repository.dart';
 import '../../data/services/api_service.dart';
@@ -17,8 +18,9 @@ class _MyLoansScreenState extends State<MyLoansScreen> {
   final _repo = BorrowingRepository(ApiService());
 
   List<BorrowRequestModel> _loans   = [];
-  bool _loading  = true;
-  String _filter = 'all';
+  bool    _loading = true;
+  String? _error;
+  String  _filter  = 'all';
 
   @override
   void initState() {
@@ -27,11 +29,12 @@ class _MyLoansScreenState extends State<MyLoansScreen> {
   }
 
   Future<void> _load() async {
+    setState(() { _loading = true; _error = null; });
     try {
       final loans = await _repo.getMyLoans();
       if (mounted) setState(() { _loans = loans; _loading = false; });
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
+    } catch (e) {
+      if (mounted) setState(() { _error = e.toString(); _loading = false; });
     }
   }
 
@@ -85,7 +88,9 @@ class _MyLoansScreenState extends State<MyLoansScreen> {
       ),
       body: _loading
         ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-        : RefreshIndicator(
+        : _error != null
+          ? AppErrorState(message: _error, onRetry: _load)
+          : RefreshIndicator(
             color:     AppColors.primary,
             onRefresh: _load,
             child: Column(

@@ -11,6 +11,7 @@ import '../../providers/chat_provider.dart';
 import '../../data/services/download_service.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../widgets/app_error_state.dart';
 import '../widgets/loading_widget.dart';
 import 'widgets/reader_toolbar.dart';
 import 'widgets/language_switcher_sheet.dart';
@@ -34,8 +35,9 @@ class ReaderScreen extends StatefulWidget {
 class _ReaderScreenState extends State<ReaderScreen> {
   final _epubController = EpubController();
   Timer? _autoSaveTimer;
-  bool   _initialized   = false;
-  String _mode          = 'read'; // 'read' | 'audio'
+  bool    _initialized   = false;
+  bool    _loadFailed    = false;
+  String  _mode          = 'read'; // 'read' | 'audio'
   String? _localFilePath;         // set when offline copy exists
 
   @override
@@ -47,7 +49,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
       await reader.initTts();
 
       final book = await context.read<BookProvider>().getBook(widget.bookId);
-      if (!mounted || book == null) return;
+      if (!mounted) return;
+      if (book == null) {
+        setState(() => _loadFailed = true);
+        return;
+      }
 
       reader.currentBook = book;
       await reader.loadProgress(widget.bookId);
@@ -142,6 +148,29 @@ class _ReaderScreenState extends State<ReaderScreen> {
   Widget build(BuildContext context) {
     final reader = context.watch<ReaderProvider>();
     final book   = reader.currentBook;
+
+    if (_loadFailed) {
+      return Scaffold(
+        body: AppErrorState(
+          message: context.read<BookProvider>().error,
+          onRetry: () {
+            setState(() { _loadFailed = false; _initialized = false; });
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              final bookProvider = context.read<BookProvider>();
+              final reader = context.read<ReaderProvider>();
+              final b = await bookProvider.getBook(widget.bookId);
+              if (!mounted || b == null) {
+                setState(() => _loadFailed = true);
+                return;
+              }
+              reader.currentBook = b;
+              await reader.loadProgress(widget.bookId);
+              if (mounted) setState(() => _initialized = true);
+            });
+          },
+        ),
+      );
+    }
 
     if (!_initialized || book == null) {
       return const Scaffold(body: LoadingWidget());

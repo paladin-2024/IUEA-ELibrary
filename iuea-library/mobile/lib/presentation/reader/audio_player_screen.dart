@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../providers/book_provider.dart';
 import '../../providers/reader_provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../widgets/app_error_state.dart';
 import 'widgets/language_switcher_sheet.dart';
 
 const _kSpeedOptions = [0.75, 1.0, 1.25, 1.5, 2.0];
@@ -29,6 +30,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
   late AnimationController _waveCtrl;
   String _chapterText   = '';
   bool   _initialized   = false;
+  bool   _loadFailed    = false;
   double _playbackSpeed = 1.0;
 
   @override
@@ -40,7 +42,11 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final book = await context.read<BookProvider>().getBook(widget.bookId);
-      if (!mounted || book == null) return;
+      if (!mounted) return;
+      if (book == null) {
+        setState(() => _loadFailed = true);
+        return;
+      }
       final reader = context.read<ReaderProvider>();
       reader.currentBook = book;
       await reader.loadProgress(widget.bookId);
@@ -83,6 +89,33 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
   @override
   Widget build(BuildContext context) {
     final reader = context.watch<ReaderProvider>();
+
+    if (_loadFailed) {
+      return Scaffold(
+        backgroundColor: AppColors.readerDark,
+        body: AppErrorState(
+          message: context.read<BookProvider>().error,
+          onRetry: () {
+            setState(() { _loadFailed = false; _initialized = false; });
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              final b = await context.read<BookProvider>().getBook(widget.bookId);
+              if (!mounted || b == null) {
+                setState(() => _loadFailed = true);
+                return;
+              }
+              context.read<ReaderProvider>().currentBook = b;
+              await context.read<ReaderProvider>().loadProgress(widget.bookId);
+              if (mounted) {
+                setState(() {
+                  _chapterText = b.description ?? b.title;
+                  _initialized = true;
+                });
+              }
+            });
+          },
+        ),
+      );
+    }
 
     if (!_initialized || reader.currentBook == null) {
       return const Scaffold(

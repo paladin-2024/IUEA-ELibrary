@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../widgets/app_error_state.dart';
 import '../../data/services/download_service.dart';
 
 class DownloadsScreen extends StatefulWidget {
@@ -104,6 +105,13 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                     return const Center(
                       child: CircularProgressIndicator(
                         color: AppColors.primary));
+                  }
+
+                  if (snap.hasError) {
+                    return AppErrorState(
+                      message: snap.error.toString(),
+                      onRetry: _reload,
+                    );
                   }
 
                   final books = snap.data ?? [];

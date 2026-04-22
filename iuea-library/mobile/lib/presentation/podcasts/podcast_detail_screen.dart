@@ -5,6 +5,7 @@ import '../../providers/podcast_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../widgets/app_error_state.dart';
 import '../widgets/loading_widget.dart';
 import 'episode_player_screen.dart';
 
@@ -31,10 +32,30 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
     final auth     = context.watch<AuthProvider>();
     final podcast  = provider.current;
 
-    if (provider.isLoading || podcast == null) {
+    if (provider.isLoading) {
       return const Scaffold(
         backgroundColor: AppColors.surface,
         body: LoadingWidget());
+    }
+
+    if (podcast == null) {
+      return Scaffold(
+        backgroundColor: AppColors.surface,
+        appBar: AppBar(
+          backgroundColor: AppColors.surface,
+          elevation:       0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: AppErrorState(
+          icon: Icons.mic_none_outlined,
+          message: provider.error,
+          onRetry: () =>
+              context.read<PodcastProvider>().getPodcast(widget.podcastId),
+        ),
+      );
     }
 
     final isSubscribed = provider.subscriptions

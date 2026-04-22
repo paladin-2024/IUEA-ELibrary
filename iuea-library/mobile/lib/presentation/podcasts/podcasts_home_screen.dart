@@ -6,6 +6,7 @@ import '../../providers/podcast_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../widgets/app_error_state.dart';
 import '../widgets/loading_widget.dart';
 
 class PodcastsHomeScreen extends StatefulWidget {
@@ -86,6 +87,17 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
 
             if (provider.isLoading)
               const SliverFillRemaining(child: LoadingWidget())
+            else if (provider.error != null && provider.podcasts.isEmpty)
+              SliverFillRemaining(
+                child: AppErrorState(
+                  icon: Icons.mic_none_outlined,
+                  message: provider.error,
+                  onRetry: () {
+                    context.read<PodcastProvider>().loadPodcasts();
+                    context.read<PodcastProvider>().loadSubscriptions();
+                  },
+                ),
+              )
             else ...[
 
               // ── Featured banner ────────────────────────────────────────────

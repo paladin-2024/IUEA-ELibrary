@@ -6,6 +6,7 @@ import '../../data/models/progress_model.dart';
 import '../../data/services/api_service.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../widgets/app_error_state.dart';
 import '../widgets/loading_widget.dart';
 
 const _tabs = ['All', 'Reading', 'Finished'];
@@ -21,6 +22,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
   final _repo         = ProgressRepository(ApiService());
   List<ProgressModel> _all       = [];
   bool                _isLoading = true;
+  String?             _error;
   int                 _tab       = 0;
 
   @override
@@ -30,11 +32,12 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
   }
 
   Future<void> _load() async {
+    setState(() { _isLoading = true; _error = null; });
     try {
       final data = await _repo.getAllProgress();
       if (mounted) setState(() { _all = data; _isLoading = false; });
-    } catch (_) {
-      if (mounted) setState(() => _isLoading = false);
+    } catch (e) {
+      if (mounted) setState(() { _error = e.toString(); _isLoading = false; });
     }
   }
 
@@ -114,7 +117,9 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
           Expanded(
             child: _isLoading
               ? const LoadingWidget()
-              : RefreshIndicator(
+              : _error != null
+                ? AppErrorState(message: _error, onRetry: _load)
+                : RefreshIndicator(
                   color:     AppColors.primary,
                   onRefresh: _load,
                   child: _filtered.isEmpty

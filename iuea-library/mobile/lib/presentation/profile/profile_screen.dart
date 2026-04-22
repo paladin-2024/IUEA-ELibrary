@@ -8,6 +8,7 @@ import '../../data/models/progress_model.dart';
 import '../../data/services/api_service.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../widgets/app_error_state.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,7 +20,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _progressRepo             = ProgressRepository(ApiService());
   List<ProgressModel> _progresses = [];
-  bool  _statsLoading             = true;
+  bool    _statsLoading = true;
+  String? _statsError;
 
   @override
   void initState() {
@@ -28,11 +30,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadStats() async {
+    setState(() { _statsLoading = true; _statsError = null; });
     try {
       final data = await _progressRepo.getAllProgress();
       if (mounted) setState(() { _progresses = data; _statsLoading = false; });
-    } catch (_) {
-      if (mounted) setState(() => _statsLoading = false);
+    } catch (e) {
+      if (mounted) setState(() { _statsError = e.toString(); _statsLoading = false; });
     }
   }
 
@@ -184,16 +187,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // ── Stats row ─────────────────────────────────────────
                   if (!_statsLoading)
                     SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Row(children: [
-                          _StatCell(value: '$finished', label: 'Books'),
-                          _divider(),
-                          _StatCell(value: '$hours',    label: 'Hours'),
-                          _divider(),
-                          _StatCell(value: '$days',     label: 'Days'),
-                        ]),
-                      ),
+                      child: _statsError != null
+                        ? AppErrorState(
+                            icon: Icons.bar_chart_rounded,
+                            message: _statsError,
+                            onRetry: _loadStats,
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Row(children: [
+                              _StatCell(value: '$finished', label: 'Books'),
+                              _divider(),
+                              _StatCell(value: '$hours',    label: 'Hours'),
+                              _divider(),
+                              _StatCell(value: '$days',     label: 'Days'),
+                            ]),
+                          ),
                     ),
                   const SliverToBoxAdapter(child: SizedBox(height: 20)),
 

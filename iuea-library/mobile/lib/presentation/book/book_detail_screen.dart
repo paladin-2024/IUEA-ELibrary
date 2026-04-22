@@ -13,6 +13,7 @@ import '../../data/services/api_service.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../widgets/app_error_state.dart';
 import '../widgets/book_card.dart';
 
 class BookDetailScreen extends StatefulWidget {
@@ -137,20 +138,33 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     final bp   = context.watch<BookProvider>();
     final book = bp.current;
 
-    if (bp.isLoading || book == null) {
+    final backAppBar = AppBar(
+      backgroundColor: Colors.transparent,
+      elevation:       0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded,
+          color: AppColors.textPrimary, size: 18),
+        onPressed: () => context.pop(),
+      ),
+    );
+
+    if (bp.isLoading) {
       return Scaffold(
         backgroundColor: AppColors.surface,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation:       0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppColors.textPrimary, size: 18),
-            onPressed: () => context.pop(),
-          ),
-        ),
+        appBar: backAppBar,
         body: const Center(
           child: CircularProgressIndicator(color: AppColors.primary)),
+      );
+    }
+
+    if (book == null) {
+      return Scaffold(
+        backgroundColor: AppColors.surface,
+        appBar: backAppBar,
+        body: AppErrorState(
+          message: bp.error,
+          onRetry: () => context.read<BookProvider>().getBook(widget.bookId),
+        ),
       );
     }
 

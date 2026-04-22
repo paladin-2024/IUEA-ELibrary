@@ -5,6 +5,7 @@ import '../../providers/book_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
+import '../widgets/app_error_state.dart';
 import '../widgets/book_card.dart';
 import '../widgets/shimmer_card.dart';
 
@@ -33,6 +34,16 @@ class _HomeScreenState extends State<HomeScreen> {
       bp.loadNewest();
       bp.loadPopular();
     });
+  }
+
+  Future<void> _reload() {
+    final bp = context.read<BookProvider>();
+    return Future.wait([
+      bp.loadFeatured(),
+      bp.loadContinueReading(),
+      bp.loadNewest(),
+      bp.loadPopular(),
+    ]);
   }
 
   String get _greeting {
@@ -279,6 +290,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+
+          // ── Error state (all sections failed) ─────────────────────────────
+          if (!bp.isLoading &&
+              bp.error != null &&
+              bp.featured.isEmpty &&
+              bp.newestBooks.isEmpty &&
+              bp.popularBooks.isEmpty)
+            SliverFillRemaining(
+              child: AppErrorState(
+                message: bp.error,
+                onRetry: _reload,
+              ),
+            ),
 
           // ── Continue Reading ────────────────────────────────────────────────
           SliverToBoxAdapter(
