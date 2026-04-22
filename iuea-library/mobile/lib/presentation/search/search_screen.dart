@@ -136,7 +136,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       border:       Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
-                          color:     Colors.black.withOpacity(0.04),
+                          color:     Colors.black.withValues(alpha: 0.04),
                           blurRadius: 8,
                           offset:    const Offset(0, 2),
                         ),
@@ -327,8 +327,8 @@ class _ActiveTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color:        AppColors.primary.withOpacity(0.08),
-        border:       Border.all(color: AppColors.primary.withOpacity(0.3)),
+        color:        AppColors.primary.withValues(alpha: 0.08),
+        border:       Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [

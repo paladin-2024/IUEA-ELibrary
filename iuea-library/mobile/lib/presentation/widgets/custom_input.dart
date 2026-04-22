@@ -114,7 +114,7 @@ class _CustomInputState extends State<CustomInput> {
             focusedBorder: _border(AppColors.primary, width: 2),
             errorBorder:   _border(AppColors.error),
             focusedErrorBorder: _border(AppColors.error, width: 2),
-            disabledBorder: _border(AppColors.border.withOpacity(0.5)),
+            disabledBorder: _border(AppColors.border.withValues(alpha: 0.5)),
 
             // Error style
             errorStyle: AppTextStyles.label.copyWith(

@@ -79,10 +79,10 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10, vertical: 3),
                     decoration: BoxDecoration(
-                      color:        AppColors.primary.withOpacity(0.08),
+                      color:        AppColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.2)),
+                        color: AppColors.primary.withValues(alpha: 0.2)),
                     ),
                     child: Text(
                       'READ WITHOUT INTERNET',
@@ -115,7 +115,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                         children: [
                           Icon(Icons.download_outlined,
                             size: 56,
-                            color: AppColors.textHint.withOpacity(0.4)),
+                            color: AppColors.textHint.withValues(alpha: 0.4)),
                           const SizedBox(height: 12),
                           Text('No offline books yet',
                             style: AppTextStyles.body.copyWith(
@@ -147,7 +147,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                             color:        AppColors.white,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 8, offset: const Offset(0, 2))],
                           ),
                           child: Column(
@@ -205,7 +205,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 9, letterSpacing: 1.4,
-                    color: AppColors.textHint.withOpacity(0.6))),
+                    color: AppColors.textHint.withValues(alpha: 0.6))),
               ]),
             ),
           ],
@@ -228,7 +228,7 @@ class _DownloadRow extends StatelessWidget {
         color:        AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(
-          color: Colors.black.withOpacity(0.04),
+          color: Colors.black.withValues(alpha: 0.04),
           blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Row(children: [
@@ -236,7 +236,7 @@ class _DownloadRow extends StatelessWidget {
         Container(
           width: 44, height: 58,
           decoration: BoxDecoration(
-            color:        AppColors.primary.withOpacity(0.07),
+            color:        AppColors.primary.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(

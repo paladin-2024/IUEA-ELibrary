@@ -63,7 +63,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
                     ? CachedNetworkImage(
                         imageUrl:       podcast.coverUrl,
                         fit:            BoxFit.cover,
-                        color:          AppColors.primaryDark.withOpacity(0.5),
+                        color:          AppColors.primaryDark.withValues(alpha: 0.5),
                         colorBlendMode: BlendMode.darken)
                     : Container(color: AppColors.primary),
                   // Gradient fade
@@ -188,7 +188,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
                       color:        AppColors.white,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [BoxShadow(
-                        color: Colors.black.withOpacity(0.04), blurRadius: 8,
+                        color: Colors.black.withValues(alpha: 0.04), blurRadius: 8,
                         offset: const Offset(0, 2))],
                     ),
                     child: Row(children: [
@@ -196,7 +196,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
                       Container(
                         width: 42, height: 42,
                         decoration: BoxDecoration(
-                          color:  AppColors.primary.withOpacity(0.08),
+                          color:  AppColors.primary.withValues(alpha: 0.08),
                           shape:  BoxShape.circle),
                         child: const Icon(Icons.play_arrow_rounded,
                           color: AppColors.primary, size: 22),

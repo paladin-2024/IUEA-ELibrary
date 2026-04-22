@@ -9,7 +9,7 @@ import '../../core/constants/app_colors.dart';
 /// - subtle top border shadow
 /// - 5 items: Home / Library / Podcasts / Downloads / Profile
 /// - active: AppColors.primaryContainer (#7B0D1E maroon)
-/// - inactive: AppColors.onSurfaceVariant.withOpacity(0.4)
+/// - inactive: AppColors.onSurfaceVariant.withValues(alpha: 0.4)
 class AppBottomNav extends StatelessWidget {
   final int currentIndex;
   final void Function(int) onTap;
@@ -36,16 +36,16 @@ class AppBottomNav extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest.withOpacity(0.85),
+            color: AppColors.surfaceContainerLowest.withValues(alpha: 0.85),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             border: Border(
               top: BorderSide(
-                color: AppColors.outlineVariant.withOpacity(0.15),
+                color: AppColors.outlineVariant.withValues(alpha: 0.15),
               ),
             ),
             boxShadow: [
               BoxShadow(
-                color:  Colors.black.withOpacity(0.06),
+                color:  Colors.black.withValues(alpha: 0.06),
                 blurRadius:  20,
                 offset: const Offset(0, -4),
               ),
@@ -79,7 +79,7 @@ class AppBottomNav extends StatelessWidget {
                                 key:   ValueKey(active),
                                 color: active
                                     ? AppColors.primaryContainer
-                                    : AppColors.onSurfaceVariant.withOpacity(0.45),
+                                    : AppColors.onSurfaceVariant.withValues(alpha: 0.45),
                                 size:  active ? 24 : 22,
                               ),
                             ),
@@ -92,7 +92,7 @@ class AppBottomNav extends StatelessWidget {
                                 fontWeight:    active ? FontWeight.w600 : FontWeight.w400,
                                 color:         active
                                     ? AppColors.primaryContainer
-                                    : AppColors.onSurfaceVariant.withOpacity(0.45),
+                                    : AppColors.onSurfaceVariant.withValues(alpha: 0.45),
                                 letterSpacing: 0.2,
                               ),
                             ),

@@ -73,9 +73,9 @@ class AuthFooterLink extends StatelessWidget {
       style: TextStyle(
         fontFamily: 'Inter',
         fontSize:   10,
-        color:      AppColors.textHint.withOpacity(0.7),
+        color:      AppColors.textHint.withValues(alpha: 0.7),
         decoration: TextDecoration.underline,
-        decorationColor: AppColors.textHint.withOpacity(0.4),
+        decorationColor: AppColors.textHint.withValues(alpha: 0.4),
       ),
     );
   }
@@ -86,7 +86,7 @@ Widget authFooterDot() => Padding(
   child: Text(
     '·',
     style: TextStyle(
-      color:    AppColors.textHint.withOpacity(0.5),
+      color:    AppColors.textHint.withValues(alpha: 0.5),
       fontSize: 10,
     ),
   ),

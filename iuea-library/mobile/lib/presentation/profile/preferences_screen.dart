@@ -93,7 +93,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                   vertical: 14),
                                 decoration: BoxDecoration(
                                   color: sel
-                                      ? AppColors.primary.withOpacity(0.06)
+                                      ? AppColors.primary.withValues(alpha: 0.06)
                                       : Colors.transparent,
                                   border: Border.all(
                                     color: sel ? AppColors.primary : AppColors.border,
@@ -144,7 +144,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                           activeTrackColor:   AppColors.primary,
                           inactiveTrackColor: AppColors.grey300,
                           thumbColor:         AppColors.primary,
-                          overlayColor:       AppColors.primary.withOpacity(0.1),
+                          overlayColor:       AppColors.primary.withValues(alpha: 0.1),
                           trackHeight:        4,
                           thumbShape: const RoundSliderThumbShape(
                             enabledThumbRadius: 7),
@@ -177,7 +177,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                           activeTrackColor:   AppColors.primary,
                           inactiveTrackColor: AppColors.grey300,
                           thumbColor:         AppColors.primary,
-                          overlayColor:       AppColors.primary.withOpacity(0.1),
+                          overlayColor:       AppColors.primary.withValues(alpha: 0.1),
                           trackHeight:        4,
                           thumbShape: const RoundSliderThumbShape(
                             enabledThumbRadius: 7),
@@ -221,7 +221,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                   color: sel ? AppColors.primary : AppColors.border,
                                   width: sel ? 2.5 : 1.5),
                                 boxShadow: [BoxShadow(
-                                  color: Colors.black.withOpacity(0.06),
+                                  color: Colors.black.withValues(alpha: 0.06),
                                   blurRadius: 6, offset: const Offset(0, 2))],
                               ),
                               child: sel
@@ -255,7 +255,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     color:        AppColors.white,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [BoxShadow(
-                      color: Colors.black.withOpacity(0.04), blurRadius: 8,
+                      color: Colors.black.withValues(alpha: 0.04), blurRadius: 8,
                       offset: const Offset(0, 2))],
                   ),
                   child: Column(children: [
@@ -297,7 +297,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     style: TextStyle(
                       fontSize:      9,
                       letterSpacing: 1.4,
-                      color:         AppColors.textHint.withOpacity(0.6))),
+                      color:         AppColors.textHint.withValues(alpha: 0.6))),
                 ]),
               ),
             ),
@@ -324,7 +324,7 @@ class _SectionCard extends StatelessWidget {
         color:        AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(
-          color: Colors.black.withOpacity(0.04), blurRadius: 8,
+          color: Colors.black.withValues(alpha: 0.04), blurRadius: 8,
           offset: const Offset(0, 2))],
       ),
       child: Column(
@@ -334,7 +334,7 @@ class _SectionCard extends StatelessWidget {
             Container(
               width: 32, height: 32,
               decoration: BoxDecoration(
-                color:        AppColors.primary.withOpacity(0.08),
+                color:        AppColors.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8)),
               child: Icon(icon, color: AppColors.primary, size: 16),
             ),
@@ -371,7 +371,7 @@ class _ToggleRow extends StatelessWidget {
         Container(
           width: 32, height: 32,
           decoration: BoxDecoration(
-            color:        AppColors.primary.withOpacity(0.07),
+            color:        AppColors.primary.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(8)),
           child: Icon(icon, color: AppColors.primary, size: 16),
         ),
@@ -404,9 +404,9 @@ class _Lnk extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(t,
     style: TextStyle(fontFamily: 'Inter', fontSize: 10,
-      color: AppColors.textHint.withOpacity(0.7),
+      color: AppColors.textHint.withValues(alpha: 0.7),
       decoration: TextDecoration.underline,
-      decorationColor: AppColors.textHint.withOpacity(0.4)));
+      decorationColor: AppColors.textHint.withValues(alpha: 0.4)));
 }
 
 class _Sep extends StatelessWidget {
@@ -415,5 +415,5 @@ class _Sep extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 5),
     child: Text('·',
       style: TextStyle(fontSize: 10,
-        color: AppColors.textHint.withOpacity(0.5))));
+        color: AppColors.textHint.withValues(alpha: 0.5))));
 }

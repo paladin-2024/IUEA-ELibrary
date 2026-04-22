@@ -37,7 +37,7 @@ class _ReaderToolbarState extends State<ReaderToolbar> {
     final isDark     = widget.reader.theme == 'dark';
     final iconColor  = isDark ? AppColors.white : AppColors.textPrimary;
     final labelColor = isDark
-        ? AppColors.white.withOpacity(0.5)
+        ? AppColors.white.withValues(alpha: 0.5)
         : AppColors.textSecondary;
     final barBg = isDark ? const Color(0xFF0D0D1A) : widget.bgColor;
 
@@ -46,12 +46,12 @@ class _ReaderToolbarState extends State<ReaderToolbar> {
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           decoration: BoxDecoration(
-            color: barBg.withOpacity(isDark ? 0.97 : 0.95),
+            color: barBg.withValues(alpha: isDark ? 0.97 : 0.95),
             border: Border(
               top: BorderSide(
                 color: isDark
-                    ? Colors.white.withOpacity(0.09)
-                    : Colors.black.withOpacity(0.07),
+                    ? Colors.white.withValues(alpha: 0.09)
+                    : Colors.black.withValues(alpha: 0.07),
                 width: 0.5,
               ),
             ),
@@ -64,8 +64,8 @@ class _ReaderToolbarState extends State<ReaderToolbar> {
                 value:           (widget.reader.percentComplete / 100).clamp(0.0, 1.0),
                 color:           AppColors.primary,
                 backgroundColor: isDark
-                    ? Colors.white.withOpacity(0.08)
-                    : Colors.black.withOpacity(0.05),
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.05),
                 minHeight: 2,
               ),
 

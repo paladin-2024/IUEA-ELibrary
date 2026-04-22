@@ -111,7 +111,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
                               child: CachedNetworkImage(
                                 imageUrl:       featured.coverUrl,
                                 fit:            BoxFit.cover,
-                                color:          AppColors.primaryDark.withOpacity(0.72),
+                                color:          AppColors.primaryDark.withValues(alpha: 0.72),
                                 colorBlendMode: BlendMode.darken),
                             ),
                           Padding(
@@ -126,7 +126,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color:        AppColors.accent.withOpacity(0.9),
+                                      color:        AppColors.accent.withValues(alpha: 0.9),
                                       borderRadius: BorderRadius.circular(6)),
                                     child: Text(featured.category!,
                                       style: TextStyle(fontFamily: 'Inter', 
@@ -144,7 +144,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
                                 Text(
                                   '${featured.author} · ${featured.episodes.length} episodes',
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.white.withOpacity(0.7),
+                                    color: AppColors.white.withValues(alpha: 0.7),
                                     fontSize: 11)),
                               ],
                             ),
@@ -251,7 +251,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
                                       width: 62, height: 62, fit: BoxFit.cover)
                                   : Container(
                                       width: 62, height: 62,
-                                      color: AppColors.primary.withOpacity(0.08),
+                                      color: AppColors.primary.withValues(alpha: 0.08),
                                       child: const Icon(Icons.mic_rounded,
                                         color: AppColors.primary, size: 28)),
                               ),
@@ -344,7 +344,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
                             color:        AppColors.white,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 8, offset: const Offset(0, 2))],
                           ),
                           child: Row(children: [
@@ -355,7 +355,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
                                     width: 52, height: 52, fit: BoxFit.cover)
                                 : Container(
                                     width: 52, height: 52,
-                                    color: AppColors.primary.withOpacity(0.08),
+                                    color: AppColors.primary.withValues(alpha: 0.08),
                                     child: const Icon(Icons.mic_rounded,
                                       color: AppColors.primary, size: 24)),
                             ),
@@ -378,7 +378,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
                               icon: Container(
                                 width: 34, height: 34,
                                 decoration: BoxDecoration(
-                                  color:  AppColors.primary.withOpacity(0.08),
+                                  color:  AppColors.primary.withValues(alpha: 0.08),
                                   shape:  BoxShape.circle),
                                 child: const Icon(Icons.play_arrow_rounded,
                                   color: AppColors.primary, size: 18),
@@ -422,7 +422,7 @@ class _PodcastCard extends StatelessWidget {
         color:        AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(
-          color: Colors.black.withOpacity(0.04), blurRadius: 8,
+          color: Colors.black.withValues(alpha: 0.04), blurRadius: 8,
           offset: const Offset(0, 2))],
       ),
       clipBehavior: Clip.antiAlias,
@@ -433,7 +433,7 @@ class _PodcastCard extends StatelessWidget {
                 imageUrl: podcast.coverUrl,
                 fit: BoxFit.cover, width: double.infinity)
             : Container(
-                color: AppColors.primary.withOpacity(0.07),
+                color: AppColors.primary.withValues(alpha: 0.07),
                 child: const Center(child: Icon(Icons.mic_rounded,
                   color: AppColors.primary, size: 40))),
         ),
@@ -454,7 +454,7 @@ class _PodcastCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
-                  color:        AppColors.primary.withOpacity(0.07),
+                  color:        AppColors.primary.withValues(alpha: 0.07),
                   borderRadius: BorderRadius.circular(8)),
                 child: Text(podcast.category!,
                   style: AppTextStyles.label.copyWith(
@@ -476,7 +476,7 @@ class _Footer extends StatelessWidget {
     return Column(children: [
       Text('POWERED BY GOOGLE',
         style: TextStyle(fontFamily: 'Inter', fontSize: 9,
-          letterSpacing: 1.4, color: AppColors.textHint.withOpacity(0.6))),
+          letterSpacing: 1.4, color: AppColors.textHint.withValues(alpha: 0.6))),
       const SizedBox(height: 4),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         _t('Privacy'), _d(), _t('Terms'), _d(), _t('Books API'),
@@ -484,10 +484,10 @@ class _Footer extends StatelessWidget {
     ]);
   }
   Widget _t(String s) => Text(s, style: TextStyle(
-    fontSize: 10, color: AppColors.textHint.withOpacity(0.6),
+    fontSize: 10, color: AppColors.textHint.withValues(alpha: 0.6),
     decoration: TextDecoration.underline,
-    decorationColor: AppColors.textHint.withOpacity(0.3)));
+    decorationColor: AppColors.textHint.withValues(alpha: 0.3)));
   Widget _d() => Padding(padding: const EdgeInsets.symmetric(horizontal: 5),
     child: Text('·', style: TextStyle(fontSize: 10,
-      color: AppColors.textHint.withOpacity(0.5))));
+      color: AppColors.textHint.withValues(alpha: 0.5))));
 }

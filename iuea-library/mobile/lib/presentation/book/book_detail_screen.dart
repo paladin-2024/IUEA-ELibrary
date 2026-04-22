@@ -239,11 +239,11 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                           horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color:        (isAvailable ? AppColors.success : AppColors.warning)
-                              .withOpacity(0.1),
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
                             color: (isAvailable ? AppColors.success : AppColors.warning)
-                                .withOpacity(0.3))),
+                                .withValues(alpha: 0.3))),
                         child: Row(mainAxisSize: MainAxisSize.min, children: [
                           Icon(
                             isAvailable
@@ -676,7 +676,7 @@ class _ReviewCard extends StatelessWidget {
       decoration: BoxDecoration(
         color:        AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0,2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0,2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -684,7 +684,7 @@ class _ReviewCard extends StatelessWidget {
           Row(children: [
             CircleAvatar(
               radius: 16,
-              backgroundColor: AppColors.primary.withOpacity(0.15),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.15),
               backgroundImage: review.userAvatar != null
                 ? NetworkImage(review.userAvatar!) : null,
               child: review.userAvatar == null
@@ -704,7 +704,7 @@ class _ReviewCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                       decoration: BoxDecoration(
-                        color:        AppColors.primary.withOpacity(0.1),
+                        color:        AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4)),
                       child: Text('Verified',
                         style: AppTextStyles.label.copyWith(

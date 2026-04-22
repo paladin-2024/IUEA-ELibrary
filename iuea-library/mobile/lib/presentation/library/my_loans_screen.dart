@@ -202,7 +202,7 @@ class _LoanCard extends StatelessWidget {
       decoration: BoxDecoration(
         color:        AppColors.white,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0,2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0,2))],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,7 +234,7 @@ class _LoanCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color:        _statusColor.withOpacity(0.12),
+                      color:        _statusColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(_statusLabel,
@@ -342,8 +342,8 @@ class _ActionChip extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color:        outlined ? Colors.transparent : color.withOpacity(0.1),
-        border:       Border.all(color: color.withOpacity(0.5)),
+        color:        outlined ? Colors.transparent : color.withValues(alpha: 0.1),
+        border:       Border.all(color: color.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(label,

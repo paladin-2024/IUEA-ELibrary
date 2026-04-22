@@ -161,7 +161,7 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                 'INTERNATIONAL UNIVERSITY OF EAST AFRICA',
                 style: TextStyle(
                   fontFamily: 'Inter', fontSize: 9, letterSpacing: 1.2,
-                  color: AppColors.textHint.withOpacity(0.6)),
+                  color: AppColors.textHint.withValues(alpha: 0.6)),
               ),
             ),
           ],
@@ -192,13 +192,13 @@ class _LanguageCard extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         decoration: BoxDecoration(
           color:        isSelected
-              ? AppColors.primary.withOpacity(0.04) : AppColors.white,
+              ? AppColors.primary.withValues(alpha: 0.04) : AppColors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.border,
             width: isSelected ? 2 : 1),
           boxShadow: [BoxShadow(
-            color:     Colors.black.withOpacity(0.03),
+            color:     Colors.black.withValues(alpha: 0.03),
             blurRadius: 6, offset: const Offset(0, 2))],
         ),
         child: Stack(

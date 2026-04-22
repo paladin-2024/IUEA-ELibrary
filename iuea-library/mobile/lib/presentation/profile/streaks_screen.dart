@@ -148,7 +148,7 @@ class _XpCard extends StatelessWidget {
     decoration: BoxDecoration(
       color:        AppColors.white,
       borderRadius: BorderRadius.circular(14),
-      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0,2))],
+      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0,2))],
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +189,7 @@ class _GoalCard extends StatelessWidget {
       decoration: BoxDecoration(
         color:        AppColors.white,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0,2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0,2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,7 +253,7 @@ class _BadgeTile extends StatelessWidget {
       decoration: BoxDecoration(
         color:        badge.earned ? AppColors.white : AppColors.grey100,
         border:       Border.all(
-          color: badge.earned ? AppColors.primary.withOpacity(0.3) : AppColors.grey300),
+          color: badge.earned ? AppColors.primary.withValues(alpha: 0.3) : AppColors.grey300),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(

@@ -98,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        Colors.white.withOpacity(0.07),
+                        Colors.white.withValues(alpha: 0.07),
                         Colors.transparent,
                       ],
                     ),
@@ -125,7 +125,7 @@ class _SplashScreenState extends State<SplashScreen>
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
+                              color: Colors.black.withValues(alpha: 0.25),
                               blurRadius: 24,
                               offset: const Offset(0, 8),
                             ),
@@ -157,7 +157,7 @@ class _SplashScreenState extends State<SplashScreen>
                         'Your knowledge. Unlimited access.',
                         textAlign: TextAlign.center,
                         style: AppTextStyles.body.copyWith(
-                          color: AppColors.white.withOpacity(0.82),
+                          color: AppColors.white.withValues(alpha: 0.82),
                           fontSize: 15,
                           height: 1.5,
                         ),
@@ -218,14 +218,14 @@ class _SplashScreenState extends State<SplashScreen>
                               TextButton(
                                 onPressed: () => context.go('/login'),
                                 style: TextButton.styleFrom(
-                                  foregroundColor: AppColors.white.withOpacity(0.75),
+                                  foregroundColor: AppColors.white.withValues(alpha: 0.75),
                                 ),
                                 child: Text(
                                   'Already have an account? Sign in',
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.white.withOpacity(0.75),
+                                    color: AppColors.white.withValues(alpha: 0.75),
                                     decoration: TextDecoration.underline,
-                                    decorationColor: AppColors.white.withOpacity(0.4),
+                                    decorationColor: AppColors.white.withValues(alpha: 0.4),
                                   ),
                                 ),
                               ),
@@ -254,7 +254,7 @@ class _SplashScreenState extends State<SplashScreen>
                               Icon(
                                 Icons.language_rounded,
                                 size: 14,
-                                color: AppColors.white.withOpacity(0.55),
+                                color: AppColors.white.withValues(alpha: 0.55),
                               ),
                               const SizedBox(width: 6),
                               DropdownButtonHideUnderline(
@@ -264,10 +264,10 @@ class _SplashScreenState extends State<SplashScreen>
                                   icon: Icon(
                                     Icons.keyboard_arrow_down_rounded,
                                     size: 16,
-                                    color: AppColors.white.withOpacity(0.55),
+                                    color: AppColors.white.withValues(alpha: 0.55),
                                   ),
                                   style: AppTextStyles.label.copyWith(
-                                    color: AppColors.white.withOpacity(0.75),
+                                    color: AppColors.white.withValues(alpha: 0.75),
                                     fontSize: 12,
                                   ),
                                   items: _languages.map((lang) {
@@ -289,7 +289,7 @@ class _SplashScreenState extends State<SplashScreen>
                           Text(
                             'POWERED BY GOOGLE TRANSLATE',
                             style: AppTextStyles.label.copyWith(
-                              color: AppColors.white.withOpacity(0.35),
+                              color: AppColors.white.withValues(alpha: 0.35),
                               fontSize: 9,
                               letterSpacing: 1.4,
                             ),

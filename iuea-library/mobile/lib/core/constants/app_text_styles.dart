@@ -4,21 +4,23 @@ import 'app_colors.dart';
 class AppTextStyles {
   AppTextStyles._();
 
-  // ── Headings (Lora serif) ──────────────────────────────────────────────────
+  // ── Display / Headings (Playfair Display serif) ────────────────────────────
   static TextStyle get h1 => const TextStyle(
-    fontFamily:  'Lora',
+    fontFamily:  'PlayfairDisplay',
     fontSize:    28,
-    fontWeight:  FontWeight.bold,
+    fontWeight:  FontWeight.w700,
     color:       AppColors.textPrimary,
     height:      1.2,
+    letterSpacing: -0.01 * 28,
   );
 
   static TextStyle get h2 => const TextStyle(
-    fontFamily:  'Lora',
+    fontFamily:  'PlayfairDisplay',
     fontSize:    22,
-    fontWeight:  FontWeight.bold,
+    fontWeight:  FontWeight.w700,
     color:       AppColors.textPrimary,
     height:      1.3,
+    letterSpacing: -0.01 * 22,
   );
 
   static TextStyle get h3 => const TextStyle(
@@ -26,25 +28,26 @@ class AppTextStyles {
     fontSize:    18,
     fontWeight:  FontWeight.w600,
     color:       AppColors.textPrimary,
+    height:      1.3,
   );
 
-  // ── Body (Inter sans) ─────────────────────────────────────────────────────
+  // ── Body (Inter sans) ──────────────────────────────────────────────────────
   static TextStyle get body => const TextStyle(
     fontFamily:  'Inter',
     fontSize:    15,
     fontWeight:  FontWeight.normal,
     color:       AppColors.textPrimary,
-    height:      1.6,
+    height:      1.55,
   );
 
   static TextStyle get bodySmall => const TextStyle(
     fontFamily: 'Inter',
     fontSize:   13,
     color:      AppColors.textSecondary,
-    height:     1.5,
+    height:     1.55,
   );
 
-  // ── Labels / captions ─────────────────────────────────────────────────────
+  // ── Labels / captions (overline style) ────────────────────────────────────
   static TextStyle get label => const TextStyle(
     fontFamily:    'Inter',
     fontSize:      12,
@@ -53,7 +56,7 @@ class AppTextStyles {
     letterSpacing: 0.3,
   );
 
-  // ── Button ────────────────────────────────────────────────────────────────
+  // ── Button ─────────────────────────────────────────────────────────────────
   static TextStyle get button => const TextStyle(
     fontFamily:    'Inter',
     fontSize:      15,
@@ -62,17 +65,17 @@ class AppTextStyles {
     letterSpacing: 0.3,
   );
 
-  // ── Reading body (Lora serif, large leading) ──────────────────────────────
+  // ── Reading body (Playfair Display serif, generous leading) ───────────────
   static TextStyle get readingBody => const TextStyle(
-    fontFamily: 'Lora',
+    fontFamily: 'PlayfairDisplay',
     fontSize:   18,
     height:     1.8,
     color:      AppColors.textPrimary,
   );
 
-  // ── Dynamic reader body ───────────────────────────────────────────────────
+  // ── Dynamic reader body ────────────────────────────────────────────────────
   static TextStyle readerBody(double fontSize, Color color) => TextStyle(
-    fontFamily: 'Lora',
+    fontFamily: 'PlayfairDisplay',
     fontSize:   fontSize,
     height:     1.8,
     color:      color,

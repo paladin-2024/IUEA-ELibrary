@@ -200,7 +200,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                         height: h,
                         margin: const EdgeInsets.symmetric(horizontal: 1.5),
                         decoration: BoxDecoration(
-                          color:        AppColors.accent.withOpacity(op),
+                          color:        AppColors.accent.withValues(alpha: op),
                           borderRadius: BorderRadius.circular(2)),
                       );
                     }),
@@ -219,7 +219,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                     activeTrackColor:   AppColors.accent,
                     inactiveTrackColor: AppColors.grey700,
                     thumbColor:         AppColors.accent,
-                    overlayColor:       AppColors.accent.withOpacity(0.15),
+                    overlayColor:       AppColors.accent.withValues(alpha: 0.15),
                     trackHeight:        3,
                     thumbShape: const RoundSliderThumbShape(
                       enabledThumbRadius: 7),
@@ -260,7 +260,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                         horizontal: 12, vertical: 5),
                       decoration: BoxDecoration(
                         color:        sel
-                            ? AppColors.accent.withOpacity(0.15)
+                            ? AppColors.accent.withValues(alpha: 0.15)
                             : Colors.transparent,
                         border: Border.all(
                           color: sel ? AppColors.accent : AppColors.grey700),
@@ -326,10 +326,10 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
               child: Container(
                 margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                 decoration: BoxDecoration(
-                  color:        Colors.white.withOpacity(0.05),
+                  color:        Colors.white.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.08)),
+                    color: Colors.white.withValues(alpha: 0.08)),
                 ),
                 child: Column(children: [
                   Padding(

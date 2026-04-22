@@ -134,7 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         color:        AppColors.primary,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [BoxShadow(
-                          color:      AppColors.primary.withOpacity(0.35),
+                          color:      AppColors.primary.withValues(alpha: 0.35),
                           blurRadius: 12,
                           offset:     const Offset(0, 4))],
                       ),
@@ -179,7 +179,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 7),
                         decoration: BoxDecoration(
-                          color:        AppColors.primary.withOpacity(0.08),
+                          color:        AppColors.primary.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text('Skip',
@@ -283,7 +283,7 @@ class _BottomSection extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.white,
                 elevation:       0,
-                shadowColor:     AppColors.primary.withOpacity(0.40),
+                shadowColor:     AppColors.primary.withValues(alpha: 0.40),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
                 splashFactory: InkRipple.splashFactory,
@@ -350,7 +350,7 @@ class _BottomSection extends StatelessWidget {
                   fontFamily:    'Inter',
                   fontSize:      9,
                   letterSpacing: 1.1,
-                  color:         AppColors.textHint.withOpacity(0.6))),
+                  color:         AppColors.textHint.withValues(alpha: 0.6))),
             ],
           ),
         ],
@@ -408,7 +408,7 @@ class _Page1 extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: RadialGradient(colors: [
-                            const Color(0xFFC9A84C).withOpacity(0.40),
+                            const Color(0xFFC9A84C).withValues(alpha: 0.40),
                             Colors.transparent,
                           ]),
                         ),
@@ -422,7 +422,7 @@ class _Page1 extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: RadialGradient(colors: [
-                            const Color(0xFF9B2D3E).withOpacity(0.30),
+                            const Color(0xFF9B2D3E).withValues(alpha: 0.30),
                             Colors.transparent,
                           ]),
                         ),
@@ -467,10 +467,10 @@ class _Page1 extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                           decoration: BoxDecoration(
-                            color:        Colors.white.withOpacity(0.12),
+                            color:        Colors.white.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.20), width: 1),
+                              color: Colors.white.withValues(alpha: 0.20), width: 1),
                           ),
                           child: const Text('IUEA DIGITAL LIBRARY',
                             style: TextStyle(
@@ -495,13 +495,13 @@ class _Page1 extends StatelessWidget {
                             Container(
                               width: 96, height: 96,
                               decoration: BoxDecoration(
-                                color:        Colors.white.withOpacity(0.13),
+                                color:        Colors.white.withValues(alpha: 0.13),
                                 borderRadius: BorderRadius.circular(24),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.25), width: 1.5),
+                                  color: Colors.white.withValues(alpha: 0.25), width: 1.5),
                                 boxShadow: [
                                   BoxShadow(
-                                    color:     Colors.black.withOpacity(0.25),
+                                    color:     Colors.black.withValues(alpha: 0.25),
                                     blurRadius: 24,
                                     offset:    const Offset(0, 10)),
                                 ],
@@ -529,7 +529,7 @@ class _Page1 extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize:   9,
-                                color:      Colors.white.withOpacity(0.55),
+                                color:      Colors.white.withValues(alpha: 0.55),
                                 letterSpacing: 1.0,
                               )),
                           ],
@@ -557,7 +557,7 @@ class _Page1 extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color:     AppColors.primary.withOpacity(0.22),
+                          color:     AppColors.primary.withValues(alpha: 0.22),
                           blurRadius: 18,
                           offset:    const Offset(0, 6)),
                       ],
@@ -685,7 +685,7 @@ class _Page2 extends StatelessWidget {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(colors: [
                             const Color(0xFFC9A84C)
-                                .withOpacity(0.18 + 0.07 * loop.value),
+                                .withValues(alpha: 0.18 + 0.07 * loop.value),
                             Colors.transparent,
                           ]),
                         ),
@@ -712,9 +712,9 @@ class _Page2 extends StatelessWidget {
                       width: 94, height: 94,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.07),
+                        color: Colors.white.withValues(alpha: 0.07),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.16), width: 1.5)),
+                          color: Colors.white.withValues(alpha: 0.16), width: 1.5)),
                       child: const Icon(Icons.headphones_rounded,
                         size: 48, color: Colors.white),
                     ),
@@ -734,7 +734,7 @@ class _Page2 extends StatelessWidget {
                           color:        AppColors.primary,
                           borderRadius: BorderRadius.circular(11),
                           boxShadow: [BoxShadow(
-                            color:      AppColors.primary.withOpacity(0.45),
+                            color:      AppColors.primary.withValues(alpha: 0.45),
                             blurRadius: 10,
                             offset:     const Offset(0, 4))]),
                         padding: const EdgeInsets.all(7),
@@ -759,10 +759,10 @@ class _Page2 extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                         decoration: BoxDecoration(
-                          color:        Colors.white.withOpacity(0.10),
+                          color:        Colors.white.withValues(alpha: 0.10),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.18))),
+                            color: Colors.white.withValues(alpha: 0.18))),
                         child: Text('IU',
                           style: TextStyle(
                             fontFamily:  'Lora',
@@ -859,7 +859,7 @@ class _Page3 extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(colors: [
-                                AppColors.primary.withOpacity(0.22),
+                                AppColors.primary.withValues(alpha: 0.22),
                                 Colors.transparent,
                               ]),
                             ),
@@ -877,7 +877,7 @@ class _Page3 extends StatelessWidget {
                                 color:        AppColors.primary,
                                 borderRadius: BorderRadius.circular(11),
                                 boxShadow: [BoxShadow(
-                                  color:      AppColors.primary.withOpacity(0.45),
+                                  color:      AppColors.primary.withValues(alpha: 0.45),
                                   blurRadius: 10,
                                   offset:     const Offset(0, 4))]),
                               padding: const EdgeInsets.all(7),
@@ -921,7 +921,7 @@ class _Page3 extends StatelessWidget {
                           top:  cy + 52 - float * 0.6,
                           child: _FloatingIcon(
                             icon: Icons.spellcheck_rounded,
-                            bg:   AppColors.accent.withOpacity(0.15),
+                            bg:   AppColors.accent.withValues(alpha: 0.15),
                             iconClr: AppColors.accent,
                             size: 38),
                         ),
@@ -944,7 +944,7 @@ class _Page3 extends StatelessWidget {
                               color:  AppColors.primary,
                               shape:  BoxShape.circle,
                               boxShadow: [BoxShadow(
-                                color:     AppColors.primary.withOpacity(0.40),
+                                color:     AppColors.primary.withValues(alpha: 0.40),
                                 blurRadius: 32,
                                 offset:    const Offset(0, 12))],
                             ),
@@ -994,7 +994,7 @@ class _Arch extends StatelessWidget {
       width:  width,
       height: height,
       decoration: BoxDecoration(
-        color:        Colors.white.withOpacity(opacity),
+        color:        Colors.white.withValues(alpha: opacity),
         borderRadius: BorderRadius.only(
           topLeft:  Radius.circular(width / 2),
           topRight: Radius.circular(width / 2)),
@@ -1020,7 +1020,7 @@ class _BookStack extends StatelessWidget {
           height: h,
           margin: const EdgeInsets.only(bottom: 2),
           decoration: BoxDecoration(
-            color:        Colors.white.withOpacity(opacity * ratio),
+            color:        Colors.white.withValues(alpha: opacity * ratio),
             borderRadius: BorderRadius.circular(2)),
         );
       }).toList(),
@@ -1044,7 +1044,7 @@ class _WaveRingPainter extends CustomPainter {
       final frac    = (i + 1) / 6;
       final r       = 44.0 + frac * 96;
       final opacity = (1 - frac) * 0.28 * (0.5 + 0.5 * progress);
-      base.color    = const Color(0xFFC9A84C).withOpacity(opacity);
+      base.color    = const Color(0xFFC9A84C).withValues(alpha: opacity);
       canvas.drawCircle(Offset(cx, cy), r, base);
     }
   }
@@ -1081,12 +1081,12 @@ class _FloatingIcon extends StatelessWidget {
         boxShadow: [
           if (shadow)
             BoxShadow(
-              color:     Colors.black.withOpacity(0.10),
+              color:     Colors.black.withValues(alpha: 0.10),
               blurRadius: 14,
               offset:    const Offset(0, 4)),
           if (glow)
             BoxShadow(
-              color:     iconClr.withOpacity(0.35),
+              color:     iconClr.withValues(alpha: 0.35),
               blurRadius: 16,
               offset:    const Offset(0, 4)),
         ],
@@ -1117,7 +1117,7 @@ class _PageText extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color:        AppColors.primary.withOpacity(0.08),
+            color:        AppColors.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(subtitle,

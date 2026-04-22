@@ -154,8 +154,8 @@ class _ReaderScreenState extends State<ReaderScreen> {
     // Top bar colors
     final barBg     = isDark ? const Color(0xFF0D0D1A) : bg;
     final barFg     = isDark ? AppColors.white : AppColors.textPrimary;
-    final barSub    = isDark ? Colors.white.withOpacity(0.5) : AppColors.textHint;
-    final barBorder = isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.07);
+    final barSub    = isDark ? Colors.white.withValues(alpha: 0.5) : AppColors.textHint;
+    final barBorder = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.07);
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -171,7 +171,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: barBg.withOpacity(isDark ? 0.97 : 0.96),
+                      color: barBg.withValues(alpha: isDark ? 0.97 : 0.96),
                       border: Border(
                         bottom: BorderSide(color: barBorder, width: 0.5)),
                     ),
@@ -376,7 +376,7 @@ class _AudioWidget extends StatelessWidget {
           Container(
             width: 180, height: 240,
             decoration: BoxDecoration(
-              color:        AppColors.primary.withOpacity(0.2),
+              color:        AppColors.primary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(16)),
             child: const Icon(Icons.book_outlined,
               size: 64, color: AppColors.primary),
@@ -391,7 +391,7 @@ class _AudioWidget extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(book.author,
-          style: TextStyle(fontSize: 13, color: fg.withOpacity(0.6))),
+          style: TextStyle(fontSize: 13, color: fg.withValues(alpha: 0.6))),
         const SizedBox(height: 32),
         GestureDetector(
           onTap: reader.isPlaying
@@ -459,7 +459,7 @@ class _StyleSheet extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         color: sel
-                            ? AppColors.primary.withOpacity(0.07)
+                            ? AppColors.primary.withValues(alpha: 0.07)
                             : Colors.transparent,
                         border: Border.all(
                           color: sel ? AppColors.primary : AppColors.border,

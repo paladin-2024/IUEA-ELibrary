@@ -76,7 +76,7 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
               child: Container(
                 width: 36, height: 4,
                 decoration: BoxDecoration(
-                  color:        Colors.white.withOpacity(0.2),
+                  color:        Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(2)),
               ),
             ),
@@ -161,7 +161,7 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                       height: h,
                       margin: const EdgeInsets.symmetric(horizontal: 1.5),
                       decoration: BoxDecoration(
-                        color:        AppColors.accent.withOpacity(
+                        color:        AppColors.accent.withValues(alpha: 
                           isPlaying ? 0.85 : 0.3),
                         borderRadius: BorderRadius.circular(2)),
                     );
@@ -180,7 +180,7 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                     activeTrackColor:   AppColors.accent,
                     inactiveTrackColor: AppColors.grey700,
                     thumbColor:         AppColors.accent,
-                    overlayColor:       AppColors.accent.withOpacity(0.15),
+                    overlayColor:       AppColors.accent.withValues(alpha: 0.15),
                     trackHeight:        3,
                     thumbShape: const RoundSliderThumbShape(
                       enabledThumbRadius: 7),
@@ -282,7 +282,7 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                         horizontal: 11, vertical: 4),
                       decoration: BoxDecoration(
                         color: active
-                            ? AppColors.accent.withOpacity(0.12) : null,
+                            ? AppColors.accent.withValues(alpha: 0.12) : null,
                         border: Border.all(
                           color: active ? AppColors.accent : AppColors.grey700),
                         borderRadius: BorderRadius.circular(20)),
@@ -303,10 +303,10 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
               child: Container(
                 padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                 decoration: BoxDecoration(
-                  color:  Colors.white.withOpacity(0.04),
+                  color:  Colors.white.withValues(alpha: 0.04),
                   border: Border(
                     top: BorderSide(
-                      color: Colors.white.withOpacity(0.08)))),
+                      color: Colors.white.withValues(alpha: 0.08)))),
                 child: Row(children: [
                   Text('Episode Details',
                     style: const TextStyle(
@@ -326,7 +326,7 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
               Container(
                 constraints: const BoxConstraints(maxHeight: 90),
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                color: Colors.white.withOpacity(0.04),
+                color: Colors.white.withValues(alpha: 0.04),
                 child: SingleChildScrollView(
                   child: Text(widget.episode.description,
                     style: const TextStyle(

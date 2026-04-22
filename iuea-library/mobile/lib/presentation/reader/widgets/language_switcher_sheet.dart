@@ -61,7 +61,7 @@ class LanguageSwitcherSheet extends StatelessWidget {
                   Container(
                     width: 36, height: 36,
                     decoration: BoxDecoration(
-                      color:        AppColors.primary.withOpacity(0.08),
+                      color:        AppColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(10)),
                     child: const Icon(Icons.translate_rounded,
                       color: AppColors.primary, size: 18),
@@ -157,7 +157,7 @@ class LanguageSwitcherSheet extends StatelessWidget {
                                 horizontal: 16, vertical: 14),
                               decoration: BoxDecoration(
                                 color:        selected
-                                    ? AppColors.primary.withOpacity(0.04)
+                                    ? AppColors.primary.withValues(alpha: 0.04)
                                     : AppColors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(

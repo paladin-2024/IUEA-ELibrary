@@ -437,7 +437,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: TextStyle(
                       fontSize:      9,
                       letterSpacing: 1.4,
-                      color: AppColors.textHint.withOpacity(0.6),
+                      color: AppColors.textHint.withValues(alpha: 0.6),
                     ),
                   ),
                 ],

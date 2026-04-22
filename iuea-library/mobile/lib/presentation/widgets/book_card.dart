@@ -56,8 +56,8 @@ class BookCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                       decoration: BoxDecoration(
                         color:        _isAvailable
-                            ? Colors.green.withOpacity(0.90)
-                            : Colors.amber.withOpacity(0.90),
+                            ? Colors.green.withValues(alpha: 0.90)
+                            : Colors.amber.withValues(alpha: 0.90),
                         borderRadius: BorderRadius.circular(AppSpacing.chipRadius),
                       ),
                       child: Text(
@@ -85,7 +85,7 @@ class BookCard extends StatelessWidget {
                         borderRadius: const BorderRadius.vertical(
                           bottom: Radius.circular(AppSpacing.cardRadius),
                         ),
-                        color: Colors.black.withOpacity(0.35),
+                        color: Colors.black.withValues(alpha: 0.35),
                       ),
                       padding: const EdgeInsets.fromLTRB(6, 4, 6, 6),
                       child: Column(
@@ -94,7 +94,7 @@ class BookCard extends StatelessWidget {
                           LinearProgressIndicator(
                             value:            progress,
                             color:            AppColors.primary,
-                            backgroundColor:  AppColors.white.withOpacity(0.3),
+                            backgroundColor:  AppColors.white.withValues(alpha: 0.3),
                             minHeight:        3,
                             borderRadius:     BorderRadius.circular(2),
                           ),
@@ -141,7 +141,7 @@ class BookCard extends StatelessWidget {
                   children: book.languages.take(2).map((lang) => Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color:        AppColors.primaryContainer.withOpacity(0.12),
+                      color:        AppColors.primaryContainer.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(AppRadius.full),
                     ),
                     child: Text(
@@ -166,7 +166,7 @@ class BookCard extends StatelessWidget {
       (book.availability?['available'] as int? ?? 0) > 0;
 
   Widget _placeholder() => Container(
-    color: AppColors.primary.withOpacity(0.08),
+    color: AppColors.primary.withValues(alpha: 0.08),
     child: const Center(
       child: Icon(Icons.book_outlined, color: AppColors.primary, size: 28),
     ),

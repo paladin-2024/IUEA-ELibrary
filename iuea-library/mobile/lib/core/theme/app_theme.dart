@@ -11,10 +11,17 @@ class AppTheme {
     return ThemeData(
       useMaterial3:            true,
       scaffoldBackgroundColor: AppColors.surface,
-      textTheme:               ThemeData.light().textTheme.apply(fontFamily: 'Inter'),
+      textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Inter').copyWith(
+        displayLarge:  const TextStyle(fontFamily: 'PlayfairDisplay', fontWeight: FontWeight.w700),
+        displayMedium: const TextStyle(fontFamily: 'PlayfairDisplay', fontWeight: FontWeight.w700),
+        displaySmall:  const TextStyle(fontFamily: 'PlayfairDisplay', fontWeight: FontWeight.w700),
+        headlineLarge: const TextStyle(fontFamily: 'PlayfairDisplay', fontWeight: FontWeight.w700),
+        headlineMedium:const TextStyle(fontFamily: 'PlayfairDisplay', fontWeight: FontWeight.w700),
+        headlineSmall: const TextStyle(fontFamily: 'PlayfairDisplay', fontWeight: FontWeight.w700),
+      ),
       colorScheme: ColorScheme(
         brightness:        Brightness.light,
-        primary:           AppColors.primaryContainer,  // #7B0D1E — maroon used in buttons
+        primary:           AppColors.primary,  // #8A1228 — IUEA brand maroon
         onPrimary:         AppColors.onPrimary,
         primaryContainer:  AppColors.primaryContainer,
         onPrimaryContainer: AppColors.onPrimaryContainer,
@@ -139,7 +146,7 @@ class AppTheme {
 
       // Chips
       chipTheme: ChipThemeData(
-        backgroundColor: AppColors.primary.withOpacity(0.08),
+        backgroundColor: AppColors.surfaceContainerLow,
         selectedColor:   AppColors.primary,
         labelStyle:      AppTextStyles.label.copyWith(color: AppColors.primary),
         padding:         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -219,8 +226,8 @@ class AppTheme {
           borderSide:   const BorderSide(color: AppColors.accent, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        hintStyle:      TextStyle(color: AppColors.white.withOpacity(0.4)),
-        labelStyle:     TextStyle(color: AppColors.white.withOpacity(0.7)),
+        hintStyle:      TextStyle(color: AppColors.white.withAlpha(102)),
+        labelStyle:     TextStyle(color: AppColors.white.withAlpha(179)),
       ),
 
       cardTheme: CardThemeData(

@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.onPrimary.withOpacity(0.05),
+                            color: AppColors.onPrimary.withValues(alpha: 0.05),
                             width: 12,
                           ),
                         ),
@@ -186,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.onPrimary.withOpacity(0.04),
+                            color: AppColors.onPrimary.withValues(alpha: 0.04),
                             width: 8,
                           ),
                         ),
@@ -212,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(
                             'What will you read today?',
                             style: TextStyle(
-                              color:      AppColors.primaryFixed.withOpacity(0.9),
+                              color:      AppColors.primaryFixed.withValues(alpha: 0.9),
                               fontSize:   15,
                               fontWeight: FontWeight.w500,
                             ),
@@ -257,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(AppRadius.full),
                           boxShadow: active ? [
                             BoxShadow(
-                              color: AppColors.tertiaryContainer.withOpacity(0.3),
+                              color: AppColors.tertiaryContainer.withValues(alpha: 0.3),
                               blurRadius: 8, offset: const Offset(0, 2),
                             ),
                           ] : null,
@@ -569,7 +569,7 @@ class _Footer extends StatelessWidget {
         style: TextStyle(
           fontSize:       9,
           letterSpacing:  1.4,
-          color:          AppColors.outline.withOpacity(0.5),
+          color:          AppColors.outline.withValues(alpha: 0.5),
         ),
       ),
       const SizedBox(height: 6),
@@ -585,14 +585,14 @@ class _Footer extends StatelessWidget {
 
   Widget _link(String t) => Text(t, style: TextStyle(
     fontSize:    10,
-    color:       AppColors.outline.withOpacity(0.5),
+    color:       AppColors.outline.withValues(alpha: 0.5),
     decoration:  TextDecoration.underline,
-    decorationColor: AppColors.outline.withOpacity(0.3),
+    decorationColor: AppColors.outline.withValues(alpha: 0.3),
   ));
 
   Widget _dot() => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 6),
     child: Text('·',
-      style: TextStyle(fontSize: 10, color: AppColors.outline.withOpacity(0.4))),
+      style: TextStyle(fontSize: 10, color: AppColors.outline.withValues(alpha: 0.4))),
   );
 }

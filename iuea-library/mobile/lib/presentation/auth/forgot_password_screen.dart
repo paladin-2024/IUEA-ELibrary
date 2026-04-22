@@ -80,12 +80,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 Text('ACADEMIC PORTAL',
                   style: TextStyle(
                     fontFamily: 'Inter', fontSize: 9, letterSpacing: 1.4,
-                    color: AppColors.textHint.withOpacity(0.6))),
+                    color: AppColors.textHint.withValues(alpha: 0.6))),
                 const SizedBox(height: 3),
                 Text('POWERED BY GOOGLE',
                   style: TextStyle(
                     fontFamily: 'Inter', fontSize: 9, letterSpacing: 1.4,
-                    color: AppColors.textHint.withOpacity(0.5))),
+                    color: AppColors.textHint.withValues(alpha: 0.5))),
               ]),
             ),
           ],
@@ -110,7 +110,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 color:        AppColors.white,
                 shape:        BoxShape.circle,
                 boxShadow: [BoxShadow(
-                  color:     AppColors.primary.withOpacity(0.12),
+                  color:     AppColors.primary.withValues(alpha: 0.12),
                   blurRadius: 20,
                   offset:    const Offset(0, 6))],
               ),
@@ -157,9 +157,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color:        AppColors.error.withOpacity(0.08),
+                color:        AppColors.error.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
-                border:       Border.all(color: AppColors.error.withOpacity(0.2)),
+                border:       Border.all(color: AppColors.error.withValues(alpha: 0.2)),
               ),
               child: Row(children: [
                 const Icon(Icons.error_outline_rounded,
@@ -230,7 +230,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         Container(
           width: 80, height: 80,
           decoration: BoxDecoration(
-            color:  AppColors.success.withOpacity(0.1),
+            color:  AppColors.success.withValues(alpha: 0.1),
             shape:  BoxShape.circle,
           ),
           child: const Icon(Icons.mark_email_read_rounded,

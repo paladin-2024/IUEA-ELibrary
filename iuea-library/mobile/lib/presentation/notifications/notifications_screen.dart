@@ -77,15 +77,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color:        _silenced
-                            ? AppColors.warning.withOpacity(0.07)
+                            ? AppColors.warning.withValues(alpha: 0.07)
                             : AppColors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: _silenced
-                              ? AppColors.warning.withOpacity(0.4)
+                              ? AppColors.warning.withValues(alpha: 0.4)
                               : AppColors.border),
                         boxShadow: [BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black.withValues(alpha: 0.04),
                           blurRadius: 8, offset: const Offset(0, 2))],
                       ),
                       child: Row(children: [
@@ -93,7 +93,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           width: 36, height: 36,
                           decoration: BoxDecoration(
                             color: (_silenced ? AppColors.warning : AppColors.grey300)
-                                .withOpacity(0.15),
+                                .withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10)),
                           child: Icon(
                             _silenced
@@ -187,7 +187,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       color:        AppColors.white,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [BoxShadow(
-                        color: Colors.black.withOpacity(0.04), blurRadius: 8,
+                        color: Colors.black.withValues(alpha: 0.04), blurRadius: 8,
                         offset: const Offset(0, 2))],
                     ),
                     child: Row(children: [
@@ -225,7 +225,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   Text('IUEA LIBRARY DIGITAL CURATOR · 2025',
                     style: TextStyle(fontFamily: 'Inter', fontSize: 9,
                       letterSpacing: 1.2,
-                      color: AppColors.textHint.withOpacity(0.6))),
+                      color: AppColors.textHint.withValues(alpha: 0.6))),
                 ]),
               ),
             ),
@@ -259,14 +259,14 @@ class _AlertTile extends StatelessWidget {
         color:        AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(
-          color: Colors.black.withOpacity(0.04), blurRadius: 8,
+          color: Colors.black.withValues(alpha: 0.04), blurRadius: 8,
           offset: const Offset(0, 2))],
       ),
       child: Row(children: [
         Container(
           width: 36, height: 36,
           decoration: BoxDecoration(
-            color:        AppColors.primary.withOpacity(0.07),
+            color:        AppColors.primary.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(10)),
           child: Icon(icon, color: AppColors.primary, size: 18),
         ),

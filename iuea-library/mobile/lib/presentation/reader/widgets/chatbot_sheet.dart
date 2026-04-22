@@ -111,7 +111,7 @@ class _ChatbotSheetState extends State<ChatbotSheet> {
                         Container(
                           width: 40, height: 40,
                           decoration: BoxDecoration(
-                            color:        AppColors.primary.withOpacity(0.1),
+                            color:        AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12)),
                           child: const Icon(Icons.smart_toy_rounded,
                             color: AppColors.primary, size: 20),
@@ -217,7 +217,7 @@ class _ChatbotSheetState extends State<ChatbotSheet> {
                         fontFamily:    'Inter',
                         fontSize:      8,
                         letterSpacing: 1.0,
-                        color:         AppColors.textHint.withOpacity(0.7)),
+                        color:         AppColors.textHint.withValues(alpha: 0.7)),
                     ),
                   ),
 
@@ -310,7 +310,7 @@ class _MessageBubble extends StatelessWidget {
             Container(
               width: 28, height: 28,
               decoration: BoxDecoration(
-                color:        AppColors.primary.withOpacity(0.1),
+                color:        AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: const Icon(Icons.smart_toy_outlined,
@@ -367,7 +367,7 @@ class _StreamingBubble extends StatelessWidget {
           Container(
             width: 28, height: 28,
             decoration: BoxDecoration(
-              color:        AppColors.primary.withOpacity(0.1),
+              color:        AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.smart_toy_outlined,
@@ -442,7 +442,7 @@ class _LoadingBubbleState extends State<_LoadingBubble>
           Container(
             width: 28, height: 28,
             decoration: BoxDecoration(
-              color:        AppColors.primary.withOpacity(0.1),
+              color:        AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.smart_toy_outlined,
@@ -562,7 +562,7 @@ class _SendButton extends StatelessWidget {
         width: 40, height: 40,
         decoration: BoxDecoration(
           color:        isLoading
-              ? AppColors.primary.withOpacity(0.4)
+              ? AppColors.primary.withValues(alpha: 0.4)
               : AppColors.primary,
           borderRadius: BorderRadius.circular(AppSpacing.btnRadius),
         ),

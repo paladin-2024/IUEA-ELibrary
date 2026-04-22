@@ -141,10 +141,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.1),
+                                color: AppColors.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.3)),
+                                  color: AppColors.primary.withValues(alpha: 0.3)),
                               ),
                               child: Text(
                                 'FACULTY OF ${user.faculty!.toUpperCase()}',
@@ -267,7 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             imageUrl: current.book!.coverUrl!,
                                             fit: BoxFit.cover)
                                         : Container(
-                                            color: AppColors.primary.withOpacity(0.1),
+                                            color: AppColors.primary.withValues(alpha: 0.1),
                                             child: const Icon(Icons.book,
                                               color: AppColors.primary, size: 22)),
                                   ),
@@ -342,10 +342,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
-                              color:        AppColors.error.withOpacity(0.06),
+                              color:        AppColors.error.withValues(alpha: 0.06),
                               borderRadius: BorderRadius.circular(12),
                               border:       Border.all(
-                                color: AppColors.error.withOpacity(0.2)),
+                                color: AppColors.error.withValues(alpha: 0.2)),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -374,7 +374,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Text('POWERED BY GOOGLE',
                           style: TextStyle(fontFamily: 'Inter', 
                             fontSize: 9, letterSpacing: 1.4,
-                            color: AppColors.textHint.withOpacity(0.6))),
+                            color: AppColors.textHint.withValues(alpha: 0.6))),
                         const SizedBox(height: 4),
                         Row(mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -518,14 +518,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _footerLink(String t) => Text(t, style: TextStyle(fontFamily: 'Inter', 
     fontSize: 10,
-    color: AppColors.textHint.withOpacity(0.6),
+    color: AppColors.textHint.withValues(alpha: 0.6),
     decoration: TextDecoration.underline,
-    decorationColor: AppColors.textHint.withOpacity(0.3)));
+    decorationColor: AppColors.textHint.withValues(alpha: 0.3)));
 
   Widget _footerDot() => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 6),
     child: Text('·', style: TextStyle(
-      fontSize: 10, color: AppColors.textHint.withOpacity(0.5))));
+      fontSize: 10, color: AppColors.textHint.withValues(alpha: 0.5))));
 }
 
 // ── Sub-widgets ───────────────────────────────────────────────────────────────
@@ -561,7 +561,7 @@ class _Card extends StatelessWidget {
         color:        AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(
-          color:      Colors.black.withOpacity(0.04),
+          color:      Colors.black.withValues(alpha: 0.04),
           blurRadius: 8,
           offset:     const Offset(0, 2))],
       ),
@@ -584,7 +584,7 @@ class _SettingsTile extends StatelessWidget {
         color:        AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(
-          color: Colors.black.withOpacity(0.04), blurRadius: 8,
+          color: Colors.black.withValues(alpha: 0.04), blurRadius: 8,
           offset: const Offset(0, 2))],
       ),
       child: ListTile(
@@ -592,7 +592,7 @@ class _SettingsTile extends StatelessWidget {
         leading: Container(
           width: 36, height: 36,
           decoration: BoxDecoration(
-            color:        AppColors.primary.withOpacity(0.08),
+            color:        AppColors.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10)),
           child: Icon(icon, color: AppColors.primary, size: 18),
         ),

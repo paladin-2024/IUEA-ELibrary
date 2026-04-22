@@ -116,14 +116,14 @@ class TableOfContentsSheet extends StatelessWidget {
                     color:        AppColors.white,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [BoxShadow(
-                      color: Colors.black.withOpacity(0.04), blurRadius: 8,
+                      color: Colors.black.withValues(alpha: 0.04), blurRadius: 8,
                       offset: const Offset(0, 2))],
                   ),
                   child: Row(children: [
                     Container(
                       width: 36, height: 36,
                       decoration: BoxDecoration(
-                        color:        AppColors.primary.withOpacity(0.08),
+                        color:        AppColors.primary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(10)),
                       child: const Icon(Icons.menu_book_rounded,
                         color: AppColors.primary, size: 18),
@@ -170,10 +170,10 @@ class TableOfContentsSheet extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color:        AppColors.primary.withOpacity(0.06),
+                      color:        AppColors.primary.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.2)),
+                        color: AppColors.primary.withValues(alpha: 0.2)),
                     ),
                     child: Row(children: [
                       const Icon(Icons.translate_rounded,

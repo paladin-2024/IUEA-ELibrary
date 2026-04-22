@@ -231,7 +231,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
                   Text('POWERED BY GOOGLE · TRANSLATE',
                     style: TextStyle(fontFamily: 'Inter', fontSize: 9,
                       letterSpacing: 1.4,
-                      color: AppColors.textHint.withOpacity(0.6))),
+                      color: AppColors.textHint.withValues(alpha: 0.6))),
                   const SizedBox(height: 4),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     _fl('Privacy'), _fd(), _fl('Terms'), _fd(), _fl('Koha ILS'),
@@ -246,12 +246,12 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
   }
 
   Widget _fl(String t) => Text(t, style: TextStyle(
-    fontSize: 10, color: AppColors.textHint.withOpacity(0.6),
+    fontSize: 10, color: AppColors.textHint.withValues(alpha: 0.6),
     decoration: TextDecoration.underline,
-    decorationColor: AppColors.textHint.withOpacity(0.3)));
+    decorationColor: AppColors.textHint.withValues(alpha: 0.3)));
   Widget _fd() => Padding(padding: const EdgeInsets.symmetric(horizontal: 5),
     child: Text('·', style: TextStyle(fontSize: 10,
-      color: AppColors.textHint.withOpacity(0.5))));
+      color: AppColors.textHint.withValues(alpha: 0.5))));
 }
 
 // ── Sub-widgets ───────────────────────────────────────────────────────────────
@@ -275,7 +275,7 @@ class _Section extends StatelessWidget {
         color:        AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(
-          color: Colors.black.withOpacity(0.04), blurRadius: 8,
+          color: Colors.black.withValues(alpha: 0.04), blurRadius: 8,
           offset: const Offset(0, 2))],
       ),
       child: Column(
@@ -285,7 +285,7 @@ class _Section extends StatelessWidget {
             Container(
               width: 32, height: 32,
               decoration: BoxDecoration(
-                color:        AppColors.primary.withOpacity(0.08),
+                color:        AppColors.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8)),
               child: Icon(icon, color: AppColors.primary, size: 16),
             ),
