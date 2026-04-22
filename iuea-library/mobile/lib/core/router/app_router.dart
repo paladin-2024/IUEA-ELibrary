@@ -26,6 +26,7 @@ import '../../presentation/notifications/notifications_screen.dart';
 import '../../presentation/book/author_screen.dart';
 import '../../presentation/library/faculty_screen.dart';
 import '../../presentation/reader/widgets/chatbot_sheet.dart';
+import '../../presentation/widgets/mini_player.dart';
 
 // ── Auth routes (no shell) ────────────────────────────────────────────────────
 const _authRoutes = {'/login', '/register', '/forgot-password', '/onboarding', '/language-setup', '/splash'};
@@ -167,13 +168,18 @@ class _MainShellState extends State<_MainShell> {
     final currentIndex = _indexForLocation(location);
 
     return Scaffold(
-      body: widget.child,
+      body: Column(
+        children: [
+          Expanded(child: widget.child),
+          const MiniPlayer(),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showModalBottomSheet(
           context:            context,
           isScrollControlled: true,
           backgroundColor:    Colors.transparent,
-          builder: (_) => const ChatbotSheet(bookId: 'general'),
+          builder: (_) => const ChatbotSheet(bookId: '__general__'),
         ),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.white,

@@ -52,7 +52,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _googleSignInTap() async {
     setState(() => _googleLoading = true);
     try {
-      await _googleSignIn.signOut();
+      // disconnect() clears cached credentials — required when changing devices
+      try { await _googleSignIn.disconnect(); } catch (_) {}
+      try { await _googleSignIn.signOut(); } catch (_) {}
       final account = await _googleSignIn.signIn();
       if (account == null) { setState(() => _googleLoading = false); return; }
       final gAuth   = await account.authentication;
@@ -70,7 +72,18 @@ class _LoginScreenState extends State<LoginScreen> {
         _showError(auth.error ?? 'Google sign-in failed.');
       }
     } catch (e) {
-      if (mounted) _showError('Google sign-in failed: $e');
+      if (!mounted) return;
+      final msg = e.toString();
+      if (msg.contains('ApiException: 10') || msg.contains('DEVELOPER_ERROR')) {
+        _showError(
+          'Google sign-in not configured for this device. '
+          'Add the SHA-1 fingerprint of this phone to Firebase Console, '
+          'or sign in with email and password.');
+      } else if (msg.contains('network_error') || msg.contains('SocketException')) {
+        _showError('No internet connection. Please check your network and try again.');
+      } else {
+        _showError('Google sign-in failed. Please try email sign-in instead.');
+      }
     } finally {
       if (mounted) setState(() => _googleLoading = false);
     }

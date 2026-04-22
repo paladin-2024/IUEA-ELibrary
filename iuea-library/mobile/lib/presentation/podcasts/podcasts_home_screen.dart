@@ -16,16 +16,45 @@ class PodcastsHomeScreen extends StatefulWidget {
   State<PodcastsHomeScreen> createState() => _PodcastsHomeScreenState();
 }
 
-class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
-  String _category = 'All';
+class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
+    with WidgetsBindingObserver {
+  String  _category    = 'All';
+  bool    _searching   = false;
+  String  _searchQuery = '';
+  final   _searchCtrl  = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final p = context.read<PodcastProvider>();
       p.loadPodcasts();
       p.loadSubscriptions();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      context.read<PodcastProvider>().loadPodcasts();
+    }
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _searching = !_searching;
+      if (!_searching) {
+        _searchQuery = '';
+        _searchCtrl.clear();
+      }
     });
   }
 
@@ -39,9 +68,20 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
   Widget build(BuildContext context) {
     final provider  = context.watch<PodcastProvider>();
     final user      = context.watch<AuthProvider>().user;
-    final featured  = provider.podcasts.isNotEmpty ? provider.podcasts.first : null;
-    final popular   = provider.podcasts.length > 1
-        ? provider.podcasts.sublist(1) : <dynamic>[];
+
+    // When searching, filter the full list; otherwise use normal layout data
+    final allPodcasts = provider.podcasts;
+    final filtered    = _searchQuery.isEmpty
+        ? allPodcasts
+        : allPodcasts.where((p) {
+            final q = _searchQuery.toLowerCase();
+            return p.title.toLowerCase().contains(q) ||
+                   p.author.toLowerCase().contains(q);
+          }).toList();
+
+    final featured       = !_searching && allPodcasts.isNotEmpty ? allPodcasts.first : null;
+    final popular        = !_searching && allPodcasts.length > 1
+        ? allPodcasts.sublist(1) : <dynamic>[];
     final recentlyPlayed = provider.subscriptions;
 
     return Scaffold(
@@ -51,38 +91,90 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
           slivers: [
             // ── App bar ─────────────────────────────────────────────────────
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 16, 0),
-                child: Row(children: [
-                  Text('Podcasts',
-                    style: AppTextStyles.h2.copyWith(
-                      fontSize: 20, color: AppColors.textPrimary)),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.search_rounded,
-                      color: AppColors.textPrimary, size: 22),
-                    onPressed: () => context.go('/search'),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.notifications_none_rounded,
-                      color: AppColors.textPrimary, size: 22),
-                    onPressed: () => context.push('/notifications'),
-                  ),
-                  CircleAvatar(
-                    radius:          16,
-                    backgroundColor: AppColors.primaryContainer,
-                    backgroundImage: user?.avatar != null
-                        ? NetworkImage(user!.avatar!) : null,
-                    child: user?.avatar == null
-                        ? Text(user?.initials ?? '?',
-                            style: const TextStyle(
-                              color: AppColors.white, fontSize: 11,
-                              fontWeight: FontWeight.w700))
-                        : null,
-                  ),
-                  const SizedBox(width: 4),
-                ]),
-              ),
+              child: Column(children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 16, 0),
+                  child: Row(children: [
+                    Text('Podcasts',
+                      style: AppTextStyles.h2.copyWith(
+                        fontSize: 20, color: AppColors.textPrimary)),
+                    const Spacer(),
+                    IconButton(
+                      icon: Icon(
+                        _searching ? Icons.close_rounded : Icons.search_rounded,
+                        color: _searching ? AppColors.primary : AppColors.textPrimary,
+                        size: 22),
+                      onPressed: _toggleSearch,
+                      tooltip: _searching ? 'Close search' : 'Search podcasts',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.notifications_none_rounded,
+                        color: AppColors.textPrimary, size: 22),
+                      onPressed: () => context.push('/notifications'),
+                    ),
+                    CircleAvatar(
+                      radius:          16,
+                      backgroundColor: AppColors.primaryContainer,
+                      backgroundImage: user?.avatar != null
+                          ? NetworkImage(user!.avatar!) : null,
+                      child: user?.avatar == null
+                          ? Text(user?.initials ?? '?',
+                              style: const TextStyle(
+                                color: AppColors.white, fontSize: 11,
+                                fontWeight: FontWeight.w700))
+                          : null,
+                    ),
+                    const SizedBox(width: 4),
+                  ]),
+                ),
+                // ── Inline search bar (slides in/out) ──────────────────────
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 200),
+                  curve:    Curves.easeInOut,
+                  child: _searching
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                        child: TextField(
+                          controller:  _searchCtrl,
+                          autofocus:   true,
+                          onChanged:   (v) => setState(() => _searchQuery = v),
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 14, color: AppColors.textPrimary),
+                          decoration: InputDecoration(
+                            hintText:  'Search podcasts & shows…',
+                            hintStyle: AppTextStyles.label.copyWith(
+                              color: AppColors.textHint),
+                            prefixIcon: const Icon(Icons.search_rounded,
+                              color: AppColors.textHint, size: 20),
+                            suffixIcon: _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear_rounded,
+                                    size: 18, color: AppColors.textHint),
+                                  onPressed: () => setState(() {
+                                    _searchQuery = '';
+                                    _searchCtrl.clear();
+                                  }),
+                                )
+                              : null,
+                            filled:      true,
+                            fillColor:   AppColors.white,
+                            isDense:     true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: AppColors.border)),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary, width: 1.5)),
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+                ),
+              ]),
             ),
 
             if (provider.isLoading)
@@ -98,6 +190,88 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen> {
                   },
                 ),
               )
+
+            // ── Search results ───────────────────────────────────────────
+            else if (_searching) ...[
+              if (filtered.isEmpty)
+                SliverFillRemaining(
+                  child: Center(child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.search_off_rounded,
+                        size: 52, color: AppColors.grey300),
+                      const SizedBox(height: 8),
+                      Text('No results for "$_searchQuery"',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.grey500)),
+                    ],
+                  )),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (_, i) {
+                        final p = filtered[i];
+                        return GestureDetector(
+                          onTap: () => context.push('/podcasts/${p.id}'),
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color:        AppColors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 8, offset: const Offset(0, 2))],
+                            ),
+                            child: Row(children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: p.coverUrl.isNotEmpty
+                                  ? CachedNetworkImage(imageUrl: p.coverUrl,
+                                      width: 56, height: 56, fit: BoxFit.cover)
+                                  : Container(
+                                      width: 56, height: 56,
+                                      color: AppColors.primary.withValues(alpha: 0.08),
+                                      child: const Icon(Icons.mic_rounded,
+                                        color: AppColors.primary, size: 24)),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(p.title,
+                                    style: AppTextStyles.body.copyWith(
+                                      fontSize: 13, fontWeight: FontWeight.w600),
+                                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  const SizedBox(height: 2),
+                                  Text(p.author,
+                                    style: AppTextStyles.label.copyWith(
+                                      color: AppColors.textHint, fontSize: 11),
+                                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  if (p.category != null) ...[
+                                    const SizedBox(height: 4),
+                                    Text(p.category!,
+                                      style: AppTextStyles.label.copyWith(
+                                        fontSize: 10, color: AppColors.primary,
+                                        fontWeight: FontWeight.w600)),
+                                  ],
+                                ],
+                              )),
+                              const Icon(Icons.chevron_right_rounded,
+                                color: AppColors.grey300, size: 18),
+                            ]),
+                          ),
+                        );
+                      },
+                      childCount: filtered.length,
+                    ),
+                  ),
+                ),
+            ]
+
             else ...[
 
               // ── Featured banner ────────────────────────────────────────────

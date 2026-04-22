@@ -50,8 +50,10 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
       final reader = context.read<ReaderProvider>();
       reader.currentBook = book;
       await reader.loadProgress(widget.bookId);
+      final text = book.description ?? book.title;
+      reader.setCurrentChapterText(text);
       setState(() {
-        _chapterText = book.description ?? book.title;
+        _chapterText = text;
         _initialized = true;
       });
     });
@@ -103,11 +105,14 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                 setState(() => _loadFailed = true);
                 return;
               }
-              context.read<ReaderProvider>().currentBook = b;
-              await context.read<ReaderProvider>().loadProgress(widget.bookId);
+              final r = context.read<ReaderProvider>();
+              r.currentBook = b;
+              await r.loadProgress(widget.bookId);
+              final text = b.description ?? b.title;
+              r.setCurrentChapterText(text);
               if (mounted) {
                 setState(() {
-                  _chapterText = b.description ?? b.title;
+                  _chapterText = text;
                   _initialized = true;
                 });
               }
