@@ -11,8 +11,7 @@ class IUEALibraryApp extends StatelessWidget {
       title:                    'IUEA Library',
       debugShowCheckedModeBanner: false,
       theme:                    AppTheme.lightTheme,
-      darkTheme:                AppTheme.darkTheme,
-      themeMode:                ThemeMode.system,
+      themeMode:                ThemeMode.light,
       routerConfig:             AppRouter.router,
       supportedLocales: const [
         Locale('en'),
