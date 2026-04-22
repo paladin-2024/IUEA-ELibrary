@@ -21,7 +21,10 @@ const bookSchema = new mongoose.Schema(
       type: String, // Open Library URL
     },
     fileUrl: {
-      type: String, // R2 path — EPUB or PDF
+      type: String,
+    },
+    fileKey: {
+      type: String, // R2 object key, e.g. books/{id}.epub — used to generate signed URLs
     },
     archiveId: {
       type:   String,

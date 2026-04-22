@@ -98,8 +98,10 @@ const uploadBook = async (req, res, next) => {
 
     const updates = {};
     if (bookFile) {
+      const ext          = bookFile.originalname.split('.').pop().toLowerCase();
       updates.fileUrl    = await uploadBookFile(bookFile, book.id);
-      updates.fileFormat = bookFile.originalname.split('.').pop().toLowerCase();
+      updates.fileKey    = `books/${book.id}.${ext}`;
+      updates.fileFormat = ext;
     }
     if (coverFile) {
       updates.coverUrl = await uploadCover(coverFile.buffer, book.id);

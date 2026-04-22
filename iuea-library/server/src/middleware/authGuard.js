@@ -1,5 +1,5 @@
-const jwt  = require('jsonwebtoken');
-const User = require('../models/User');
+const jwt   = require('jsonwebtoken');
+const prisma = require('../config/prisma');
 
 const authGuard = async (req, res, next) => {
   const auth = req.headers.authorization;
@@ -9,13 +9,16 @@ const authGuard = async (req, res, next) => {
   const token = auth.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user    = await User
-      .findById(decoded.id)
-      .select('-passwordHash -passwordResetToken -passwordResetExpiresAt')
-      .lean();
+    const user    = await prisma.user.findUnique({
+      where:  { id: decoded.id },
+      select: {
+        id: true, name: true, email: true, role: true, isActive: true,
+        faculty: true, avatar: true, preferredLanguages: true,
+        readingGoal: true, fcmToken: true, fcmTokenMobile: true, fcmTokenWeb: true,
+      },
+    });
     if (!user || !user.isActive)
       return res.status(401).json({ message: 'User not found or inactive.' });
-    user.id  = user._id.toString();
     req.user = user;
     next();
   } catch {

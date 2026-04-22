@@ -3,6 +3,10 @@
 jest.mock('../config/prisma',  () => require('./mocks/prisma.mock'));
 jest.mock('../config/firebase', () => ({ initFirebase: jest.fn(), getMessaging: jest.fn() }));
 jest.mock('../services/podcast.service', () => ({ syncPodcast: jest.fn().mockResolvedValue(undefined) }));
+jest.mock('../services/firebase.service', () => ({
+  sendNewBookNotification: jest.fn().mockResolvedValue(undefined),
+  sendMulticast:           jest.fn().mockResolvedValue(undefined),
+}));
 jest.mock('../services/r2.service', () => ({
   uploadBookFile: jest.fn().mockResolvedValue('http://localhost/uploads/book.epub'),
   uploadCover:    jest.fn().mockResolvedValue('http://localhost/uploads/cover.jpg'),
@@ -34,11 +38,7 @@ const USERS = [
 // ── GET /api/admin/stats ──────────────────────────────────────────────────────
 describe('GET /api/admin/stats', () => {
   beforeEach(() => {
-    prisma.user.findUnique.mockImplementation(({ where }) => {
-      if (where?.id === 'admin-1')  return Promise.resolve(MOCK_ADMIN);
-      if (where?.id === 'user-1')   return Promise.resolve(MOCK_STUDENT);
-      return Promise.resolve(null);
-    });
+    prisma.user.findUnique.mockResolvedValue(MOCK_ADMIN);
     prisma.user.count.mockResolvedValue(42);
     prisma.book.count.mockResolvedValue(1000);
     prisma.chatSession.count.mockResolvedValue(5);
@@ -59,6 +59,7 @@ describe('GET /api/admin/stats', () => {
   });
 
   it('returns 403 for non-admin users', async () => {
+    prisma.user.findUnique.mockResolvedValue(MOCK_STUDENT);
     const res = await request(app)
       .get('/api/admin/stats')
       .set('Authorization', `Bearer ${STUDENT_TOKEN}`);
@@ -181,6 +182,45 @@ describe('PATCH /api/admin/users/:id/suspend', () => {
       .set('Authorization', `Bearer ${ADMIN_TOKEN}`);
 
     expect(res.status).toBe(404);
+  });
+});
+
+// ── POST /api/admin/books ─────────────────────────────────────────────────────
+describe('POST /api/admin/books', () => {
+  beforeEach(() => {
+    prisma.user.findUnique.mockResolvedValue(MOCK_ADMIN);
+    prisma.book.create.mockResolvedValue({ ...BOOKS[0], id: 'b-new' });
+    prisma.book.update.mockResolvedValue({ ...BOOKS[0], id: 'b-new', fileUrl: 'http://localhost/uploads/book.epub', fileKey: 'books/b-new.epub' });
+  });
+
+  it('stores fileKey alongside fileUrl when a book file is uploaded', async () => {
+    const res = await request(app)
+      .post('/api/admin/books')
+      .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+      .field('title',    'Test Book')
+      .field('author',   'Test Author')
+      .field('category', 'Law')
+      .attach('bookFile', Buffer.from('fake epub content'), { filename: 'test.epub', contentType: 'application/epub+zip' });
+
+    expect(res.status).toBe(201);
+    const updateCall = prisma.book.update.mock.calls[0]?.[0];
+    expect(updateCall).toBeDefined();
+    expect(updateCall.data).toHaveProperty('fileKey', 'books/b-new.epub');
+    expect(updateCall.data).toHaveProperty('fileUrl');
+  });
+
+  it('creates book without fileKey when no file is uploaded', async () => {
+    prisma.book.update.mockResolvedValue(BOOKS[0]);
+
+    const res = await request(app)
+      .post('/api/admin/books')
+      .set('Authorization', `Bearer ${ADMIN_TOKEN}`)
+      .field('title',    'Text-Only Book')
+      .field('author',   'Author X')
+      .field('category', 'Science');
+
+    expect(res.status).toBe(201);
+    expect(prisma.book.update.mock.calls.length).toBe(0);
   });
 });
 

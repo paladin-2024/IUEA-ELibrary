@@ -112,6 +112,38 @@ describe('GET /api/books/:id', () => {
 
     expect(res.status).toBe(404);
   });
+
+  it('generates signed fileUrl from fileKey when book has a fileKey', async () => {
+    const bookWithKey = {
+      ...BOOKS[0],
+      fileKey: 'books/b1.epub',
+      fileUrl:  null,
+    };
+    prisma.book.findUnique.mockResolvedValue(bookWithKey);
+
+    const res = await request(app)
+      .get('/api/books/b1')
+      .set('Authorization', `Bearer ${TOKEN}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.book.fileUrl).toBe('http://localhost/signed/book.epub');
+  });
+
+  it('returns stored fileUrl directly when book has no fileKey', async () => {
+    const bookWithUrl = {
+      ...BOOKS[0],
+      fileKey: null,
+      fileUrl: 'https://public.r2.dev/books/b1.epub',
+    };
+    prisma.book.findUnique.mockResolvedValue(bookWithUrl);
+
+    const res = await request(app)
+      .get('/api/books/b1')
+      .set('Authorization', `Bearer ${TOKEN}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.book.fileUrl).toBe('https://public.r2.dev/books/b1.epub');
+  });
 });
 
 // ── GET /api/books/continue ───────────────────────────────────────────────────

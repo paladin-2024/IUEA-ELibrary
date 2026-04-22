@@ -178,8 +178,8 @@ const getPodcast = async (req, res, next) => {
 // POST /api/podcasts/subscribe/:id
 const subscribe = async (req, res, next) => {
   try {
-    const userId    = req.user.id;
-    const podcastId = req.params.id;
+    const { id: userId } = req.user;
+    const podcastId      = req.params.id;
 
     const podcast = await PodcastModel.findByIdAndUpdate(
       podcastId,
@@ -189,8 +189,7 @@ const subscribe = async (req, res, next) => {
     if (!podcast) return res.status(404).json({ message: 'Podcast not found.' });
 
     const count = podcast.subscribers.length;
-    podcast.subscriberCount = count;
-    await podcast.save();
+    await PodcastModel.findByIdAndUpdate(podcastId, { subscriberCount: count });
 
     res.json({ subscribed: true, subscriberCount: count });
   } catch (err) { next(err); }
@@ -199,8 +198,8 @@ const subscribe = async (req, res, next) => {
 // DELETE /api/podcasts/subscribe/:id
 const unsubscribe = async (req, res, next) => {
   try {
-    const userId    = req.user.id;
-    const podcastId = req.params.id;
+    const { id: userId } = req.user;
+    const podcastId      = req.params.id;
 
     const podcast = await PodcastModel.findByIdAndUpdate(
       podcastId,
@@ -210,8 +209,7 @@ const unsubscribe = async (req, res, next) => {
     if (!podcast) return res.status(404).json({ message: 'Podcast not found.' });
 
     const count = podcast.subscribers.length;
-    podcast.subscriberCount = count;
-    await podcast.save();
+    await PodcastModel.findByIdAndUpdate(podcastId, { subscriberCount: count });
 
     res.json({ subscribed: false, subscriberCount: count });
   } catch (err) { next(err); }
@@ -220,8 +218,7 @@ const unsubscribe = async (req, res, next) => {
 // GET /api/podcasts/subscriptions
 const getSubscriptions = async (req, res, next) => {
   try {
-    const userId   = req.user.id;
-    const podcasts = await PodcastModel.find({ subscribers: userId, isActive: true }).lean();
+    const podcasts = await PodcastModel.find({ subscribers: req.user.id, isActive: true }).lean();
     res.json({ podcasts: podcasts.map(toResponse) });
   } catch (err) { next(err); }
 };

@@ -1,4 +1,5 @@
-const User = require('../models/User');
+const User         = require('../models/User');
+const UserProgress = require('../models/UserProgress');
 
 const BADGES = {
   first_book:    { id: 'first_book',    label: 'First Chapter',   desc: 'Completed your first book',         xp: 50  },
@@ -72,6 +73,13 @@ const updateStreak = async (userId, { minutesRead = 0, isCompleted = false, read
     if (newStreak >= 7)  earnedBadges.add('streak_7');
     if (newStreak >= 30) earnedBadges.add('streak_30');
     if (hour >= 22 || hour <= 2) earnedBadges.add('night_owl');
+
+    if (isCompleted) {
+      earnedBadges.add('first_book');
+      const completedCount = await UserProgress.countDocuments({ userId, isCompleted: true });
+      if (completedCount >= 10) earnedBadges.add('book_worm');
+      if (completedCount >= 25) earnedBadges.add('scholar');
+    }
 
     // Track total reading minutes on user doc for leaderboard
     const newTotalMinutes = (user.totalReadingMinutes ?? 0) + minutesRead;
