@@ -7,8 +7,6 @@ import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
-import '../../data/services/api_service.dart';
-import '../../core/constants/api_constants.dart';
 import 'auth_widgets.dart';
 
 final _googleSignIn = GoogleSignIn(
@@ -56,13 +54,20 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final account = await _googleSignIn.signIn();
       if (account == null) { setState(() => _googleLoading = false); return; }
-      final auth    = await account.authentication;
-      final idToken = auth.idToken;
+      final gAuth   = await account.authentication;
+      final idToken = gAuth.idToken;
       if (idToken == null) throw Exception('No ID token from Google.');
-      final api = ApiService();
-      final res = await api.post(ApiConstants.authGoogle, data: {'idToken': idToken});
+
       if (!mounted) return;
-      context.go(res.data['isNewUser'] == true ? '/onboarding' : '/home');
+      final auth   = context.read<AuthProvider>();
+      final result = await auth.googleLogin(idToken);
+      if (!mounted) return;
+
+      if (result.success) {
+        context.go(result.isNewUser ? '/onboarding' : '/home');
+      } else {
+        _showError(auth.error ?? 'Google sign-in failed.');
+      }
     } catch (e) {
       if (mounted) _showError('Google sign-in failed: $e');
     } finally {
@@ -358,7 +363,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontFamily:    'Inter',
                       fontSize:      9,
                       letterSpacing: 1.4,
-                      color: AppColors.textHint.withOpacity(0.6),
+                      color: AppColors.textHint.withAlpha(153),
                     ),
                   ),
                   const SizedBox(height: 4),

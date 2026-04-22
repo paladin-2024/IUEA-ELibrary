@@ -57,6 +57,28 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // ── googleLogin ───────────────────────────────────────────────────────────
+  /// Exchanges a Google ID token for a JWT, persists it, and returns
+  /// whether this is a new user (to decide onboarding vs home navigation).
+  Future<({bool success, bool isNewUser})> googleLogin(String idToken) async {
+    _setLoading(true);
+    try {
+      final res = await _api.post(
+        ApiConstants.authGoogle,
+        data: {'idToken': idToken},
+      );
+      _token = res.data['token'] as String;
+      _user  = UserModel.fromJson(res.data['user'] as Map<String, dynamic>);
+      await _storage.write(key: 'jwt_token', value: _token);
+      _setLoading(false);
+      return (success: true, isNewUser: res.data['isNewUser'] == true);
+    } catch (e) {
+      _error = _parseError(e);
+      _setLoading(false);
+      return (success: false, isNewUser: false);
+    }
+  }
+
   // ── loadUser ───────────────────────────────────────────────────────────────
   /// Called on app startup to restore session from secure storage.
   Future<void> loadUser() async {
