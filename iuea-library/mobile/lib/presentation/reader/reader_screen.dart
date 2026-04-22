@@ -325,11 +325,13 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                     );
                                   },
                                 )
-                              : Center(
-                                  child: Text(
-                                    'No readable file available.',
-                                    style: TextStyle(color: fg),
-                                  ),
+                              : _NoFileState(
+                                  fg: fg,
+                                  bg: bg,
+                                  onSwitchToAudio: () => setState(() {
+                                    _mode = 'audio';
+                                    reader.setReadingMode('audio');
+                                  }),
                                 ),
                     ),
 
@@ -436,6 +438,68 @@ class _AudioWidget extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── No-file empty state ───────────────────────────────────────────────────────
+class _NoFileState extends StatelessWidget {
+  final Color    fg;
+  final Color    bg;
+  final VoidCallback onSwitchToAudio;
+  const _NoFileState({
+    required this.fg, required this.bg, required this.onSwitchToAudio});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: bg,
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.menu_book_outlined,
+            size: 64, color: fg.withValues(alpha: 0.25)),
+          const SizedBox(height: 20),
+          Text(
+            'No digital copy available',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'PlayfairDisplay',
+              fontSize:   20,
+              fontWeight: FontWeight.w700,
+              color:      fg,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'This book doesn\'t have an online readable file yet. '
+            'Visit the IUEA Library to borrow a physical copy, '
+            'or listen to an audio summary.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize:   14,
+              height:     1.6,
+              color:      fg.withValues(alpha: 0.55),
+            ),
+          ),
+          const SizedBox(height: 28),
+          ElevatedButton.icon(
+            onPressed: onSwitchToAudio,
+            icon:  const Icon(Icons.headphones_rounded, size: 18),
+            label: const Text('Switch to Audio Mode'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

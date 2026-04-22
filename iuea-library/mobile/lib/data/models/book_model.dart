@@ -53,8 +53,8 @@ class BookModel {
         : (rawAuthor as String? ?? 'Unknown');
 
     return BookModel(
-      id:           json['_id']          as String? ?? json['id'] as String,
-      title:        json['title']        as String,
+      id:           json['_id']  as String? ?? json['id'] as String? ?? '',
+      title:        json['title'] as String? ?? 'Unknown',
       author:       authorStr,
       kohaId:       json['kohaId']       as String?,
       isbn:         json['isbn']         as String?,

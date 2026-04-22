@@ -47,7 +47,7 @@ class ProgressModel {
         : null;
 
     return ProgressModel(
-      id:     json['_id']    as String? ?? json['id'] as String,
+      id:     json['_id']    as String? ?? json['id'] as String? ?? '',
       userId: json['userId'] as String? ??
               (json['userId'] is Map
                   ? (json['userId'] as Map)['_id'] as String

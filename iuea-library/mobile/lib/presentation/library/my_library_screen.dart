@@ -57,16 +57,25 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // ── Header ─────────────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 16, 0),
+            padding: const EdgeInsets.fromLTRB(20, 16, 8, 0),
             child: Row(children: [
               Text('My Library',
                 style: AppTextStyles.h2.copyWith(
                   fontSize: 22, color: AppColors.textPrimary)),
               const Spacer(),
               TextButton.icon(
+                onPressed: () => context.push('/library/downloads'),
+                icon: const Icon(Icons.download_done_rounded, size: 16),
+                label: const Text('Downloads'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  textStyle: AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ),
+              TextButton.icon(
                 onPressed: () => context.push('/library/loans'),
                 icon: const Icon(Icons.local_library_outlined, size: 16),
-                label: const Text('My Loans'),
+                label: const Text('Loans'),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   textStyle: AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),

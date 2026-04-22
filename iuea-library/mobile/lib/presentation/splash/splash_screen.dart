@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_text_styles.dart';
 import '../../data/services/firebase_service.dart';
 import '../../data/services/api_service.dart';
 
@@ -15,27 +14,43 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   bool _showWelcome = false;
-  String _selectedLanguage = 'English';
-  late final AnimationController _fadeCtrl;
-  late final Animation<double> _fadeAnim;
 
-  static const _languages = ['English', 'French', 'Arabic', 'Swahili'];
+  late final AnimationController _logoCtrl;
+  late final AnimationController _contentCtrl;
+  late final Animation<double>   _logoFade;
+  late final Animation<double>   _logoScale;
+  late final Animation<double>   _contentFade;
+  late final Animation<Offset>   _contentSlide;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
+      statusBarColor:            Colors.transparent,
+      statusBarIconBrightness:   Brightness.light,
+      systemNavigationBarColor:  AppColors.primary,
     ));
-    _fadeCtrl = AnimationController(
-      vsync: this,
+
+    _logoCtrl = AnimationController(
+      vsync:    this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _contentCtrl = AnimationController(
+      vsync:    this,
       duration: const Duration(milliseconds: 600),
     );
-    _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut);
-    // Init Firebase notifications (needs BuildContext, so post-frame)
+
+    _logoFade  = CurvedAnimation(parent: _logoCtrl,    curve: Curves.easeOut);
+    _logoScale = Tween<double>(begin: 0.75, end: 1.0).animate(
+      CurvedAnimation(parent: _logoCtrl, curve: Curves.easeOutBack));
+
+    _contentFade  = CurvedAnimation(parent: _contentCtrl, curve: Curves.easeOut);
+    _contentSlide = Tween<Offset>(
+      begin: const Offset(0, 0.12), end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _contentCtrl, curve: Curves.easeOut));
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FirebaseService(ApiService()).init(context);
     });
@@ -43,13 +58,15 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _init() async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 200));
+    _logoCtrl.forward();
+
     const storage = FlutterSecureStorage();
     final token   = await storage.read(key: 'jwt_token');
     if (!mounted) return;
 
     if (token != null) {
-      await Future.delayed(const Duration(milliseconds: 800));
+      await Future.delayed(const Duration(milliseconds: 900));
       if (!mounted) return;
       context.go('/home');
       return;
@@ -59,253 +76,244 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
 
     if (onboardingSeen != 'true') {
-      // First-time user — send directly to onboarding
-      await Future.delayed(const Duration(milliseconds: 600));
+      await Future.delayed(const Duration(milliseconds: 700));
       if (!mounted) return;
       context.go('/onboarding');
     } else {
-      // Returning user, not logged in — show welcome CTA
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (!mounted) return;
       setState(() => _showWelcome = true);
-      _fadeCtrl.forward();
+      _contentCtrl.forward();
     }
   }
 
   @override
   void dispose() {
-    _fadeCtrl.dispose();
+    _logoCtrl.dispose();
+    _contentCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final size   = MediaQuery.of(context).size;
     final bottom = MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
       backgroundColor: AppColors.primary,
-      body: SafeArea(
-        top: false,
-        child: Stack(
-          children: [
-            // Subtle radial glow behind logo
-            Positioned(
-              top: -60,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  width: 340,
-                  height: 340,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        Colors.white.withValues(alpha: 0.07),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+      body: Stack(
+        children: [
+          // ── Decorative background circles ──────────────────────────────────
+          Positioned(
+            top:   -size.width * 0.35,
+            right: -size.width * 0.25,
+            child: _DecorCircle(
+              diameter: size.width * 0.85,
+              color: AppColors.white.withValues(alpha: 0.04),
             ),
+          ),
+          Positioned(
+            bottom: -size.width * 0.20,
+            left:   -size.width * 0.30,
+            child: _DecorCircle(
+              diameter: size.width * 0.75,
+              color: AppColors.accent.withValues(alpha: 0.07),
+            ),
+          ),
+          Positioned(
+            top:  size.height * 0.55,
+            right: size.width * 0.05,
+            child: _DecorCircle(
+              diameter: size.width * 0.18,
+              color: AppColors.gold300.withValues(alpha: 0.12),
+            ),
+          ),
 
-            Column(
+          // ── Main content ──────────────────────────────────────────────────
+          SafeArea(
+            top: false,
+            child: Column(
               children: [
-                // ── Logo area ───────────────────────────────────────────────
+                // Logo + brand (upper ~60%)
                 Expanded(
-                  flex: 5,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 40),
-                      // White circle with IUEA logo
-                      Container(
-                        width: 110,
-                        height: 110,
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.25),
-                              blurRadius: 24,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Image.asset(
-                              'assets/images/iuea_logo.png',
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      // App name
-                      Text(
-                        'IUEA Library',
-                        style: AppTextStyles.h1.copyWith(
-                          color: AppColors.white,
-                          fontSize: 32,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      // Tagline
-                      Text(
-                        'Your knowledge. Unlimited access.',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.white.withValues(alpha: 0.82),
-                          fontSize: 15,
-                          height: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // ── Welcome CTA (shown only when no token) ──────────────────
-                Expanded(
-                  flex: 3,
-                  child: _showWelcome
-                      ? FadeTransition(
-                          opacity: _fadeAnim,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Get Started button
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 40),
-                                child: SizedBox(
-                                  width: double.infinity,
-                                  height: 52,
-                                  child: ElevatedButton(
-                                    onPressed: () => context.go('/login'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.white,
-                                      foregroundColor: AppColors.primary,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Get Started',
-                                          style: AppTextStyles.button.copyWith(
-                                            color: AppColors.primary,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        const Icon(
-                                          Icons.arrow_forward_rounded,
-                                          size: 18,
-                                          color: AppColors.primary,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              // Already have account
-                              TextButton(
-                                onPressed: () => context.go('/login'),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: AppColors.white.withValues(alpha: 0.75),
-                                ),
-                                child: Text(
-                                  'Already have an account? Sign in',
-                                  style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.white.withValues(alpha: 0.75),
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColors.white.withValues(alpha: 0.4),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-
-                // ── Language selector ────────────────────────────────────────
-                if (_showWelcome)
-                  FadeTransition(
-                    opacity: _fadeAnim,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        bottom: bottom + 20,
-                        left: 24,
-                        right: 24,
-                      ),
+                  flex: 6,
+                  child: FadeTransition(
+                    opacity: _logoFade,
+                    child: ScaleTransition(
+                      scale: _logoScale,
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Language picker row
+                          const SizedBox(height: 48),
+
+                          // Logo badge
+                          Container(
+                            width:  120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color:     Colors.black.withValues(alpha: 0.22),
+                                  blurRadius: 32,
+                                  offset:    const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: ClipOval(
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Image.asset(
+                                  'assets/images/iuea_logo.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+
+                          // App name
+                          Text(
+                            'IUEA Library',
+                            style: const TextStyle(
+                              fontFamily:  'PlayfairDisplay',
+                              fontSize:    36,
+                              fontWeight:  FontWeight.w700,
+                              color:       AppColors.white,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Gold rule + tagline
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.language_rounded,
-                                size: 14,
-                                color: AppColors.white.withValues(alpha: 0.55),
+                              Container(
+                                width: 28, height: 1,
+                                color: AppColors.gold500.withValues(alpha: 0.70),
                               ),
-                              const SizedBox(width: 6),
-                              DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  value: _selectedLanguage,
-                                  dropdownColor: AppColors.primaryDark,
-                                  icon: Icon(
-                                    Icons.keyboard_arrow_down_rounded,
-                                    size: 16,
-                                    color: AppColors.white.withValues(alpha: 0.55),
-                                  ),
-                                  style: AppTextStyles.label.copyWith(
-                                    color: AppColors.white.withValues(alpha: 0.75),
-                                    fontSize: 12,
-                                  ),
-                                  items: _languages.map((lang) {
-                                    return DropdownMenuItem(
-                                      value: lang,
-                                      child: Text(lang),
-                                    );
-                                  }).toList(),
-                                  onChanged: (val) {
-                                    if (val != null) {
-                                      setState(() => _selectedLanguage = val);
-                                    }
-                                  },
+                              const SizedBox(width: 10),
+                              Text(
+                                'DIGITAL CURATOR',
+                                style: TextStyle(
+                                  fontFamily:    'Inter',
+                                  fontSize:      11,
+                                  fontWeight:    FontWeight.w600,
+                                  color:         AppColors.gold300,
+                                  letterSpacing: 2.4,
                                 ),
+                              ),
+                              const SizedBox(width: 10),
+                              Container(
+                                width: 28, height: 1,
+                                color: AppColors.gold500.withValues(alpha: 0.70),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 20),
+
                           Text(
-                            'POWERED BY GOOGLE TRANSLATE',
-                            style: AppTextStyles.label.copyWith(
-                              color: AppColors.white.withValues(alpha: 0.35),
-                              fontSize: 9,
-                              letterSpacing: 1.4,
+                            'Your knowledge.\nUnlimited access.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize:   16,
+                              height:     1.6,
+                              color:      AppColors.white.withValues(alpha: 0.75),
+                              fontWeight: FontWeight.w300,
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
+                ),
 
-                if (!_showWelcome)
-                  SizedBox(height: bottom + 20),
+                // CTA area (lower ~40%)
+                Expanded(
+                  flex: 4,
+                  child: _showWelcome
+                      ? FadeTransition(
+                          opacity: _contentFade,
+                          child: SlideTransition(
+                            position: _contentSlide,
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(32, 0, 32, bottom + 32),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  // Get Started
+                                  SizedBox(
+                                    width:  double.infinity,
+                                    height: 54,
+                                    child: ElevatedButton(
+                                      onPressed: () => context.go('/login'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.white,
+                                        foregroundColor: AppColors.primary,
+                                        elevation:    0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16)),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: const [
+                                          Text(
+                                            'Get Started',
+                                            style: TextStyle(
+                                              fontFamily:  'Inter',
+                                              fontSize:    16,
+                                              fontWeight:  FontWeight.w700,
+                                            ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.arrow_forward_rounded, size: 18),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // Sign in link
+                                  GestureDetector(
+                                    onTap: () => context.go('/login'),
+                                    child: Text(
+                                      'Already have an account?  Sign in',
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize:   13,
+                                        color:      AppColors.white.withValues(alpha: 0.60),
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: AppColors.white.withValues(alpha: 0.30),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      : SizedBox(height: bottom + 32),
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
+
+class _DecorCircle extends StatelessWidget {
+  final double diameter;
+  final Color  color;
+  const _DecorCircle({required this.diameter, required this.color});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: diameter, height: diameter,
+    decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+  );
 }

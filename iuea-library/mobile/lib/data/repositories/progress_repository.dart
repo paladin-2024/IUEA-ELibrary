@@ -43,7 +43,7 @@ class ProgressRepository {
 
   Future<List<ProgressModel>> getAllProgress() async {
     final response = await _api.get(ApiConstants.allProgress);
-    return (response.data['progresses'] as List<dynamic>)
+    return ((response.data['progresses'] as List<dynamic>?) ?? [])
         .map((p) => ProgressModel.fromJson(p as Map<String, dynamic>))
         .toList();
   }
