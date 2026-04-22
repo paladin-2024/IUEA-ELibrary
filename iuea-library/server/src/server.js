@@ -9,6 +9,7 @@ const cron             = require('node-cron');
 const { syncAllFeeds }                       = require('./services/podcast.service');
 const { sendReadingReminder, sendWeeklyDigest: fcmDigest } = require('./services/firebase.service');
 const { sendWeeklyDigest: emailDigest }      = require('./services/email.service');
+const { markOverdueLoans }                   = require('./jobs/overdue.job');
 
 const PORT = process.env.PORT || 5000;
 
@@ -50,6 +51,16 @@ const start = async () => {
       }
     } catch (err) {
       console.error('[cron] Reading reminder error:', err.message);
+    }
+  });
+
+  // Daily 1 am — mark active loans past dueDate as overdue
+  cron.schedule('0 1 * * *', async () => {
+    try {
+      const count = await markOverdueLoans();
+      if (count > 0) console.log(`[cron] Marked ${count} loan(s) as overdue`);
+    } catch (err) {
+      console.error('[cron] Overdue loans error:', err.message);
     }
   });
 

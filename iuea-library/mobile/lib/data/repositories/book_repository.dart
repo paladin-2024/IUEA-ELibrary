@@ -151,4 +151,22 @@ class BookRepository {
         .map((b) => BookModel.fromJson(b as Map<String, dynamic>))
         .toList();
   }
+
+  // ── getBooksByAuthor ────────────────────────────────────────────────────────
+  Future<List<BookModel>> getBooksByAuthor(String authorName) async {
+    final response = await _api.get(ApiConstants.books,
+        params: {'q': authorName, 'limit': 40});
+    return (response.data['books'] as List<dynamic>)
+        .map((b) => BookModel.fromJson(b as Map<String, dynamic>))
+        .toList();
+  }
+
+  // ── getBooksByFaculty ───────────────────────────────────────────────────────
+  Future<List<BookModel>> getBooksByFaculty(String facultyName) async {
+    final response = await _api.get(ApiConstants.books,
+        params: {'faculty': facultyName, 'limit': 40});
+    return (response.data['books'] as List<dynamic>)
+        .map((b) => BookModel.fromJson(b as Map<String, dynamic>))
+        .toList();
+  }
 }

@@ -22,6 +22,8 @@ import '../../presentation/profile/preferences_screen.dart';
 import '../../presentation/profile/streaks_screen.dart';
 import '../../presentation/library/my_loans_screen.dart';
 import '../../presentation/notifications/notifications_screen.dart';
+import '../../presentation/book/author_screen.dart';
+import '../../presentation/library/faculty_screen.dart';
 
 // ── Auth routes (no shell) ────────────────────────────────────────────────────
 const _authRoutes = {'/login', '/register', '/forgot-password', '/onboarding', '/language-setup', '/splash'};
@@ -121,6 +123,18 @@ class AppRouter {
       GoRoute(
         path:    '/notifications',
         builder: (_, __) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path:    '/author/:name',
+        builder: (_, state) => AuthorScreen(
+          authorName: Uri.decodeComponent(state.pathParameters['name']!),
+        ),
+      ),
+      GoRoute(
+        path:    '/faculty/:name',
+        builder: (_, state) => FacultyScreen(
+          facultyName: state.pathParameters['name']!,
+        ),
       ),
     ],
   );

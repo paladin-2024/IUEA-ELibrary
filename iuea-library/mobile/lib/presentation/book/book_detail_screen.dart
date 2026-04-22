@@ -204,7 +204,8 @@ class _BookDetailScreenState extends State<BookDetailScreen>
 
                   // Author
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () => context.push(
+                        '/author/${Uri.encodeComponent(book.author)}'),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       const Icon(Icons.person_outline_rounded,
                         size: 14, color: AppColors.primary),

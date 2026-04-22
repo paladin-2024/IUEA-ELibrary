@@ -244,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     return GestureDetector(
                       onTap: () {
                         setState(() => _activeFaculty = i);
-                        context.push('/search?faculty=$f');
+                        context.push('/faculty/$f');
                       },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
