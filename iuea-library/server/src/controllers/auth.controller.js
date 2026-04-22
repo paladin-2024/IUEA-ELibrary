@@ -73,7 +73,11 @@ const googleAuth = async (req, res, next) => {
     const { idToken } = req.body;
     if (!idToken) return res.status(400).json({ message: 'Google ID token required.' });
 
-    const ticket  = await googleClient.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID });
+    const validAudiences = [
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_ANDROID_CLIENT_ID,
+    ].filter(Boolean);
+    const ticket  = await googleClient.verifyIdToken({ idToken, audience: validAudiences });
     const payload = ticket.getPayload();
 
     let isNewUser = false;

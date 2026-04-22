@@ -1,11 +1,10 @@
 'use strict';
 
 /**
- * Seed script — populates the database with real books from:
- *   - Open Library  (metadata + covers)
- *   - Project Gutenberg via Gutendex  (free EPUBs)
- *   - Internet Archive  (academic texts)
- * and real podcasts from public RSS feeds.
+ * Seed script — populates the database with:
+ *   1. Admin user + test student
+ *   2. Books from Open Library, Project Gutenberg, Internet Archive
+ *   3. Podcasts from public RSS feeds
  *
  * Usage:
  *   node scripts/seed.js
@@ -14,8 +13,10 @@
 
 require('dotenv').config();
 
-const axios  = require('axios');
-const prisma = require('../src/config/prisma');
+const mongoose = require('mongoose');
+const bcrypt   = require('bcryptjs');
+const axios    = require('axios');
+const prisma   = require('../src/config/prisma');
 
 const CLEAR  = process.argv.includes('--clear');
 const OL     = 'https://openlibrary.org';
@@ -195,80 +196,53 @@ async function fetchArchive() {
   return books;
 }
 
-// ── Podcasts ──────────────────────────────────────────────────────────────────
+// ── Users ─────────────────────────────────────────────────────────────────────
 
-const PODCASTS = [
-  {
-    title:       'Africa Health Agenda',
-    description: 'Public health research and policy discussions from across Africa.',
-    hostName:    'Africa CDC',
-    rssUrl:      'https://feeds.buzzsprout.com/1906177.rss',
-    category:    'Medicine',
-    language:    'English',
-    coverUrl:    'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&q=80',
-  },
-  {
-    title:       'The Africa Business Podcast',
-    description: 'Entrepreneurship, markets, and investment across the African continent.',
-    hostName:    'Africa Business Radio',
-    rssUrl:      'https://feeds.feedburner.com/AfricaBusinessPodcast',
-    category:    'Business',
-    language:    'English',
-    coverUrl:    'https://images.unsplash.com/photo-1542744094-24638eff58bb?w=400&q=80',
-  },
-  {
-    title:       'Tech in Africa',
-    description: 'Technology innovation, startups, and digital transformation in Africa.',
-    hostName:    'Techpoint Africa',
-    rssUrl:      'https://anchor.fm/s/tech-in-africa/podcast/rss',
-    category:    'IT',
-    language:    'English',
-    coverUrl:    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80',
-  },
-  {
-    title:       'East Africa Law Review',
-    description: 'Legal analysis, court decisions, and legislative updates from East Africa.',
-    hostName:    'EALR Editorial',
-    rssUrl:      'https://feeds.buzzsprout.com/eastafricalaw.rss',
-    category:    'Law',
-    language:    'English',
-    coverUrl:    'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&q=80',
-  },
-  {
-    title:       'Science Africa',
-    description: 'Scientific discoveries, research, and STEM education across Africa.',
-    hostName:    'AfricanScientist.com',
-    rssUrl:      'https://feeds.feedburner.com/ScienceAfrica',
-    category:    'Science',
-    language:    'English',
-    coverUrl:    'https://images.unsplash.com/photo-1532094349884-543559c79d8a?w=400&q=80',
-  },
-  {
-    title:       'Higher Education Africa',
-    description: 'University policy, student life, and academic excellence in African institutions.',
-    hostName:    'AAU Podcasts',
-    rssUrl:      'https://feeds.buzzsprout.com/higheredafrica.rss',
-    category:    'Education',
-    language:    'English',
-    coverUrl:    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&q=80',
-  },
-];
+async function seedUsers() {
+  const adminEmail   = process.env.ADMIN_EMAIL        || 'cnzabb@gmail.com';
+  const adminPass    = process.env.ADMIN_PASSWORD     || 'Admin@IUEA2025!';
+  const studentEmail = process.env.SEED_STUDENT_EMAIL || 'student@iuea.ac.ug';
+
+  const adminHash = await bcrypt.hash(adminPass, 12);
+  const stuHash   = await bcrypt.hash('Student@2025!', 12);
+
+  await prisma.user.upsert({
+    where:  { email: adminEmail },
+    update: { passwordHash: adminHash },
+    create: { email: adminEmail, name: 'IUEA Admin', passwordHash: adminHash, role: 'admin', faculty: 'Administration' },
+  });
+  console.log(`   Admin:   ${adminEmail} / ${adminPass}`);
+
+  await prisma.user.upsert({
+    where:  { email: studentEmail },
+    update: {},
+    create: { email: studentEmail, name: 'Test Student', passwordHash: stuHash, role: 'student', faculty: 'Science', studentId: 'STU-2025-001' },
+  });
+  console.log(`   Student: ${studentEmail} / Student@2025!`);
+}
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
+  const uri = process.env.MONGODB_URI || process.env.DATABASE_URI;
+  if (!uri) { console.error('MONGODB_URI not set in .env'); process.exit(1); }
+
+  await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 });
   console.log('\n📚 IUEA Library — Database Seeder\n');
 
+  // ── Users ──────────────────────────────────────────────────────────────────
+  console.log('👤 Seeding users…');
+  await seedUsers();
+
   if (CLEAR) {
-    console.log('🗑️  Clearing existing books and podcasts…');
+    console.log('\n🗑️  Clearing existing books…');
     await prisma.book.deleteMany({});
-    await prisma.podcast.deleteMany({});
-    console.log('   Done.\n');
+    console.log('   Done.');
   }
 
   // ── Books ──────────────────────────────────────────────────────────────────
-  console.log('📖 Fetching books from Open Library…');
-  const olBooks   = await fetchOpenLibrary();
+  console.log('\n📖 Fetching books from Open Library…');
+  const olBooks    = await fetchOpenLibrary();
 
   console.log('\n📖 Fetching books from Project Gutenberg…');
   const gutenBooks = await fetchGutenberg();
@@ -279,8 +253,7 @@ async function main() {
   const allBooks = [...olBooks, ...gutenBooks, ...archBooks];
   console.log(`\n✅ Total fetched: ${allBooks.length} books`);
 
-  // Deduplicate by title+author
-  const seen = new Set();
+  const seen   = new Set();
   const unique = allBooks.filter(b => {
     const key = `${b.title}|${b.author}`.toLowerCase();
     if (seen.has(key)) return false;
@@ -293,39 +266,20 @@ async function main() {
   let inserted = 0, skipped = 0;
   for (const book of unique) {
     try {
-      // Skip if title already exists
       const [existing] = await prisma.book.findMany({ where: { title: book.title }, take: 1 }).catch(() => []);
       if (existing) { skipped++; continue; }
       await prisma.book.create({ data: book });
       inserted++;
       process.stdout.write(`\r   ${inserted} inserted, ${skipped} skipped…`);
-    } catch (err) {
-      // Skip duplicates / constraint errors silently
+    } catch {
       skipped++;
     }
   }
   console.log(`\n   Done — ${inserted} books inserted, ${skipped} skipped.\n`);
 
-  // ── Podcasts ───────────────────────────────────────────────────────────────
-  console.log('🎙️  Inserting podcasts…');
-  let pInserted = 0;
-  for (const pod of PODCASTS) {
-    try {
-      const existing = await prisma.podcast.findUnique({ where: { rssUrl: pod.rssUrl } }).catch(() => null);
-      if (existing) { console.log(`   Skipping "${pod.title}" (exists)`); continue; }
-      await prisma.podcast.create({ data: pod });
-      pInserted++;
-      console.log(`   ✓ ${pod.title}`);
-    } catch (err) {
-      console.warn(`   ✗ ${pod.title}: ${err.message}`);
-    }
-  }
-  console.log(`\n   ${pInserted} podcasts inserted.\n`);
-
   console.log('🎉 Seeding complete!\n');
 }
 
-main().catch(err => {
-  console.error('Seed failed:', err);
-  process.exit(1);
-});
+main()
+  .catch(err => { console.error('Seed failed:', err); process.exit(1); })
+  .finally(() => mongoose.disconnect());

@@ -52,6 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _googleSignInTap() async {
     setState(() => _googleLoading = true);
     try {
+      await _googleSignIn.signOut();
       final account = await _googleSignIn.signIn();
       if (account == null) { setState(() => _googleLoading = false); return; }
       final gAuth   = await account.authentication;
