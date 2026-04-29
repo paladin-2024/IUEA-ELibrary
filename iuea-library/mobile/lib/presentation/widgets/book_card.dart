@@ -35,8 +35,9 @@ class BookCard extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                  child: AspectRatio(
-                    aspectRatio: 2 / 3,
+                  child: SizedBox(
+                    width:  width,
+                    height: (width * 1.5).clamp(0.0, 210.0),
                     child: book.hasCover
                         ? CachedNetworkImage(
                             imageUrl:    book.coverUrl!,

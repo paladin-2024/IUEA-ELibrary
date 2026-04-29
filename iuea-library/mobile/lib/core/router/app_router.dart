@@ -27,6 +27,9 @@ import '../../presentation/book/author_screen.dart';
 import '../../presentation/library/faculty_screen.dart';
 import '../../presentation/reader/widgets/chatbot_sheet.dart';
 import '../../presentation/widgets/mini_player.dart';
+import 'package:provider/provider.dart';
+import '../../providers/chat_provider.dart';
+import '../../providers/reader_provider.dart';
 
 // ── Auth routes (no shell) ────────────────────────────────────────────────────
 const _authRoutes = {'/login', '/register', '/forgot-password', '/onboarding', '/language-setup', '/splash'};
@@ -175,12 +178,22 @@ class _MainShellState extends State<_MainShell> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showModalBottomSheet(
-          context:            context,
-          isScrollControlled: true,
-          backgroundColor:    Colors.transparent,
-          builder: (_) => const ChatbotSheet(bookId: '__general__'),
-        ),
+        onPressed: () {
+          final chat   = context.read<ChatProvider>();
+          final reader = context.read<ReaderProvider>();
+          showModalBottomSheet(
+            context:            context,
+            isScrollControlled: true,
+            backgroundColor:    Colors.transparent,
+            builder: (_) => MultiProvider(
+              providers: [
+                ChangeNotifierProvider.value(value: chat),
+                ChangeNotifierProvider.value(value: reader),
+              ],
+              child: const ChatbotSheet(bookId: '__general__'),
+            ),
+          );
+        },
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.white,
         tooltip: 'Ask AI',

@@ -169,20 +169,31 @@ class _FacultyScreenState extends State<FacultyScreen> {
     }
 
     if (_isGrid) {
-      return RefreshIndicator(
-        onRefresh: _load,
-        color:     AppColors.primary,
-        child: GridView.builder(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount:   2,
-            mainAxisSpacing:  AppSpacing.md,
-            crossAxisSpacing: AppSpacing.md,
-            childAspectRatio: 0.52,
-          ),
-          itemCount:   books.length,
-          itemBuilder: (_, i) => BookCard(book: books[i]),
-        ),
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          const cols  = 2;
+          const pad   = AppSpacing.md;   // 16 left + 16 right
+          const gap   = AppSpacing.md;   // gap between columns
+          final cellW = (constraints.maxWidth - pad * 2 - gap * (cols - 1)) / cols;
+          final coverH = (cellW * 1.5).clamp(0.0, 210.0);
+          // title (2 lines ≈ 28px) + gap (6px) + author (16px) + badge row (26px)
+          final cellH = coverH + 76.0;
+          return RefreshIndicator(
+            onRefresh: _load,
+            color:     AppColors.primary,
+            child: GridView.builder(
+              padding: const EdgeInsets.all(pad),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount:   cols,
+                mainAxisSpacing:  gap,
+                crossAxisSpacing: gap,
+                childAspectRatio: cellW / cellH,
+              ),
+              itemCount:   books.length,
+              itemBuilder: (_, i) => BookCard(book: books[i], width: cellW),
+            ),
+          );
+        },
       );
     }
 
@@ -199,36 +210,45 @@ class _FacultyScreenState extends State<FacultyScreen> {
   }
 
   Widget _buildShimmer() {
-    return Shimmer.fromColors(
-      baseColor:      AppColors.grey300,
-      highlightColor: AppColors.grey100,
-      child: GridView.builder(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount:   2,
-          mainAxisSpacing:  AppSpacing.md,
-          crossAxisSpacing: AppSpacing.md,
-          childAspectRatio: 0.52,
-        ),
-        itemCount:   6,
-        itemBuilder: (_, __) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color:        AppColors.grey300,
-                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                ),
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const cols  = 2;
+        const pad   = AppSpacing.md;
+        const gap   = AppSpacing.md;
+        final cellW = (constraints.maxWidth - pad * 2 - gap * (cols - 1)) / cols;
+        final coverH = (cellW * 1.5).clamp(0.0, 210.0);
+        final cellH  = coverH + 76.0;
+        return Shimmer.fromColors(
+          baseColor:      AppColors.grey300,
+          highlightColor: AppColors.grey100,
+          child: GridView.builder(
+            padding: const EdgeInsets.all(pad),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount:   cols,
+              mainAxisSpacing:  gap,
+              crossAxisSpacing: gap,
+              childAspectRatio: cellW / cellH,
             ),
-            const SizedBox(height: 6),
-            Container(width: double.infinity, height: 12, color: AppColors.grey300),
-            const SizedBox(height: 4),
-            Container(width: 80, height: 10, color: AppColors.grey300),
-          ],
-        ),
-      ),
+            itemCount:   6,
+            itemBuilder: (_, __) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height:      coverH,
+                  decoration: BoxDecoration(
+                    color:        AppColors.grey300,
+                    borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(width: double.infinity, height: 12, color: AppColors.grey300),
+                const SizedBox(height: 4),
+                Container(width: 80, height: 10, color: AppColors.grey300),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/book_provider.dart';
+import '../../data/models/book_model.dart';
 import '../../providers/reader_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../widgets/app_error_state.dart';
@@ -41,6 +42,9 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
       duration: const Duration(milliseconds: 700),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final reader0 = context.read<ReaderProvider>();
+      await reader0.initTts();
+      if (!mounted) return;
       final book = await context.read<BookProvider>().getBook(widget.bookId);
       if (!mounted) return;
       if (book == null) {
@@ -50,7 +54,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
       final reader = context.read<ReaderProvider>();
       reader.currentBook = book;
       await reader.loadProgress(widget.bookId);
-      final text = book.description ?? book.title;
+      final text = _buildNarrationText(book);
       reader.setCurrentChapterText(text);
       setState(() {
         _chapterText = text;
@@ -108,7 +112,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
               final r = context.read<ReaderProvider>();
               r.currentBook = b;
               await r.loadProgress(widget.bookId);
-              final text = b.description ?? b.title;
+              final text = _buildNarrationText(b);
               r.setCurrentChapterText(text);
               if (mounted) {
                 setState(() {
@@ -422,6 +426,20 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
         ),
       ),
     );
+  }
+
+  String _buildNarrationText(BookModel b) {
+    final parts = <String>[];
+    parts.add(b.title);
+    if (b.author.isNotEmpty) parts.add('By ${b.author}.');
+    if (b.publishedYear != null) parts.add('Published in ${b.publishedYear}.');
+    if (b.description != null && b.description!.isNotEmpty) {
+      final desc = b.description!.trim();
+      parts.add(desc.length > 1400 ? '${desc.substring(0, 1400)}…' : desc);
+    } else if (b.tags.isNotEmpty) {
+      parts.add('Topics include: ${b.tags.take(5).join(', ')}.');
+    }
+    return parts.join(' ');
   }
 
   String _chapterTitle(ReaderProvider reader) {

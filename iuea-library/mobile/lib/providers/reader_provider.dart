@@ -49,6 +49,10 @@ class ReaderProvider extends ChangeNotifier {
   // ── TTS init ─────────────────────────────────────────────────────────────────
   Future<void> initTts() async {
     await _tts.init();
+    _tts.onCompleted = () {
+      isPlaying = false;
+      notifyListeners();
+    };
   }
 
   // ── Load/save reading prefs from/to API ──────────────────────────────────────

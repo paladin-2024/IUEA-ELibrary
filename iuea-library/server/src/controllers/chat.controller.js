@@ -141,6 +141,7 @@ const streamChat = async (req, res, next) => {
 
 // GET /api/chat/:bookId/history
 const getHistory = async (req, res, next) => {
+  if (req.params.bookId === GENERAL_BOOK_ID) return res.json({ messages: [] });
   try {
     const session  = await prisma.chatSession.findUnique({
       where: { userId_bookId: { userId: req.user.id, bookId: req.params.bookId } },
@@ -151,6 +152,7 @@ const getHistory = async (req, res, next) => {
 
 // DELETE /api/chat/:bookId
 const clearHistory = async (req, res, next) => {
+  if (req.params.bookId === GENERAL_BOOK_ID) return res.json({ message: 'Done.' });
   try {
     const session = await prisma.chatSession.findUnique({
       where: { userId_bookId: { userId: req.user.id, bookId: req.params.bookId } },

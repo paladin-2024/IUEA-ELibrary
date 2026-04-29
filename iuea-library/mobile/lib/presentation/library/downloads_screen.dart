@@ -22,7 +22,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     _reload();
   }
 
-  void _reload() => setState(() => _future = _service.getDownloads());
+  void _reload() => setState(() { _future = _service.getDownloads(); });
 
   Future<void> _delete(DownloadedBook book) async {
     await _service.deleteDownload(book.id);

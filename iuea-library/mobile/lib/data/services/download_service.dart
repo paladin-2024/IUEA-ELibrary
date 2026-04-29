@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/book_model.dart';
@@ -115,9 +116,13 @@ class DownloadService {
     _progress[book.id] = 0.0;
     onProgress?.call(0.0);
 
+    final token = await const FlutterSecureStorage().read(key: 'jwt_token');
     await _dio.download(
       url,
       filePath,
+      options: Options(
+        headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+      ),
       onReceiveProgress: (received, total) {
         if (total > 0) {
           final pct = received / total;

@@ -35,10 +35,12 @@ class ReaderScreen extends StatefulWidget {
 class _ReaderScreenState extends State<ReaderScreen> {
   final _epubController = EpubController();
   Timer? _autoSaveTimer;
-  bool    _initialized   = false;
-  bool    _loadFailed    = false;
-  String  _mode          = 'read'; // 'read' | 'audio'
-  String? _localFilePath;         // set when offline copy exists
+  Timer? _epubBlankTimer;
+  bool    _initialized      = false;
+  bool    _loadFailed        = false;
+  bool    _epubBlank         = false; // true when EPUB viewer loaded but no content
+  String  _mode              = 'read';
+  String? _localFilePath;
 
   @override
   void initState() {
@@ -64,6 +66,12 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
       setState(() => _initialized = true);
 
+      // Start blank-content watchdog only when we actually have a source to load
+      if (localPath != null ||
+          (book.fileUrl != null && book.fileUrl!.isNotEmpty)) {
+        _startEpubBlankTimer();
+      }
+
       _autoSaveTimer = Timer.periodic(
         const Duration(seconds: 30),
         (_) => reader.saveProgress(widget.bookId),
@@ -74,7 +82,25 @@ class _ReaderScreenState extends State<ReaderScreen> {
   @override
   void dispose() {
     _autoSaveTimer?.cancel();
+    _epubBlankTimer?.cancel();
     super.dispose();
+  }
+
+  void _startEpubBlankTimer() {
+    _epubBlankTimer?.cancel();
+    _epubBlank = false;
+    _epubBlankTimer = Timer(const Duration(seconds: 7), () {
+      if (mounted && !_epubBlank) {
+        setState(() => _epubBlank = true);
+      }
+    });
+  }
+
+  void _onEpubChaptersLoaded(List<EpubChapter> chapters) {
+    if (chapters.isNotEmpty) {
+      _epubBlankTimer?.cancel();
+      if (mounted && _epubBlank) setState(() => _epubBlank = false);
+    }
   }
 
   Future<bool> _onWillPop() async {
@@ -309,30 +335,37 @@ class _ReaderScreenState extends State<ReaderScreen> {
                     Positioned.fill(
                       child: _mode == 'audio'
                           ? _AudioWidget(reader: reader, book: book, fg: fg)
-                          : (_localFilePath != null || (book.fileUrl != null && book.fileUrl!.isNotEmpty))
-                              ? EpubViewer(
-                                  epubSource: _localFilePath != null
-                                      ? EpubSource.fromFile(File(_localFilePath!))
-                                      : EpubSource.fromUrl(book.fileUrl!),
-                                  epubController: _epubController,
-                                  onChaptersLoaded: (_) {},
-                                  onEpubLoaded:     () {},
-                                  onRelocated: (value) {
-                                    reader.setCurrentCfi(value.startCfi);
-                                    reader.setPage(
-                                      reader.currentPage,
-                                      value.progress * 100,
-                                    );
-                                  },
-                                )
-                              : _NoFileState(
-                                  fg: fg,
-                                  bg: bg,
+                          : _epubBlank
+                              ? _NoFileState(
+                                  fg: fg, bg: bg,
                                   onSwitchToAudio: () => setState(() {
                                     _mode = 'audio';
                                     reader.setReadingMode('audio');
                                   }),
-                                ),
+                                )
+                              : (_localFilePath != null || (book.fileUrl != null && book.fileUrl!.isNotEmpty))
+                                  ? EpubViewer(
+                                      epubSource: _localFilePath != null
+                                          ? EpubSource.fromFile(File(_localFilePath!))
+                                          : EpubSource.fromUrl(book.fileUrl!),
+                                      epubController:   _epubController,
+                                      onChaptersLoaded: _onEpubChaptersLoaded,
+                                      onEpubLoaded:     () {},
+                                      onRelocated: (value) {
+                                        reader.setCurrentCfi(value.startCfi);
+                                        reader.setPage(
+                                          reader.currentPage,
+                                          value.progress * 100,
+                                        );
+                                      },
+                                    )
+                                  : _NoFileState(
+                                      fg: fg, bg: bg,
+                                      onSwitchToAudio: () => setState(() {
+                                        _mode = 'audio';
+                                        reader.setReadingMode('audio');
+                                      }),
+                                    ),
                     ),
 
                     // Translated text overlay

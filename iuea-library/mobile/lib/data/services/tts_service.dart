@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 typedef TTSProgressCallback = void Function(
@@ -8,6 +9,7 @@ class TTSService {
   bool isPlaying = false;
 
   TTSProgressCallback? onProgress;
+  VoidCallback?        onCompleted;
 
   // ── init ────────────────────────────────────────────────────────────────────
   Future<void> init() async {
@@ -23,10 +25,12 @@ class TTSService {
 
     _tts.setCompletionHandler(() {
       isPlaying = false;
+      onCompleted?.call();
     });
 
     _tts.setErrorHandler((dynamic msg) {
       isPlaying = false;
+      onCompleted?.call();
     });
 
     _tts.setProgressHandler((String text, int start, int end, String word) {
