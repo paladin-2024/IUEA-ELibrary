@@ -6,7 +6,6 @@ import useAuthStore                  from './store/authStore';
 import AdminLayout from './components/layout/AdminLayout';
 
 // ── Auth pages (load eagerly) ─────────────────────────────────────────────────
-import SplashPage         from './pages/SplashPage';
 import LoginPage          from './pages/Auth/LoginPage';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
 import ResetPasswordPage  from './pages/Auth/ResetPasswordPage';
@@ -57,10 +56,8 @@ export default function App() {
   return (
     <Suspense fallback={<PageFallback />}>
       <Routes>
-        {/* ── Landing ────────────────────────────────────────────────────── */}
-        <Route path="/" element={<SplashPage />} />
-
         {/* ── Auth ───────────────────────────────────────────────────────── */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login"           element={<LoginPage />}          />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password"  element={<ResetPasswordPage />}  />
@@ -75,7 +72,7 @@ export default function App() {
         </Route>
 
         {/* ── Catch-all ───────────────────────────────────────────────────── */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Suspense>
   );
