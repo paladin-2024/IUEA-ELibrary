@@ -1,0 +1,39 @@
+name: Server CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'iuea-library/server/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'iuea-library/server/**'
+
+jobs:
+  test:
+    name: Run Jest Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: iuea-library/server/package-lock.json
+
+      - name: Install dependencies
+        working-directory: iuea-library/server
+        run: npm ci
+
+      - name: Generate Prisma client
+        working-directory: iuea-library/server
+        run: npx prisma generate
+
+      - name: Run tests
+        working-directory: iuea-library/server
+        run: npm test

@@ -1,0 +1,46 @@
+name: Mobile CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'iuea-library/mobile/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'iuea-library/mobile/**'
+
+jobs:
+  analyze:
+    name: Flutter Analyze
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Create .env file
+        working-directory: iuea-library/mobile
+        run: |
+          echo "API_BASE_URL=http://localhost:5000/api" > .env
+          echo "GOOGLE_CLIENT_ID=placeholder" >> .env
+          echo "FIREBASE_PROJECT_ID=placeholder" >> .env
+
+      - name: Install dependencies
+        working-directory: iuea-library/mobile
+        run: flutter pub get
+
+      - name: Analyze code
+        working-directory: iuea-library/mobile
+        run: flutter analyze --no-fatal-infos
+
+      - name: Check formatting
+        working-directory: iuea-library/mobile
+        run: dart format --output=none --set-exit-if-changed lib/

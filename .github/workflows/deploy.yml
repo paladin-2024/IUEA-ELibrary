@@ -1,0 +1,24 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend to Render
+    runs-on: ubuntu-latest
+    # Only run if server files changed
+    if: |
+      contains(github.event.head_commit.modified, 'iuea-library/server') ||
+      contains(github.event.head_commit.added, 'iuea-library/server')
+
+    steps:
+      - name: Trigger Render Deploy
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            --request POST \
+            "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
+  # Vercel handles web deployment automatically via its GitHub integration.
+  # No action needed here — every push to main auto-deploys iuea-library/web.
