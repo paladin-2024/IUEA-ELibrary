@@ -7,20 +7,24 @@ typedef TTSProgressCallback = void Function(
 class TTSService {
   final FlutterTts _tts = FlutterTts();
   bool isPlaying = false;
+  String? lastError;
 
   TTSProgressCallback? onProgress;
   VoidCallback?        onCompleted;
+  void Function(String)?  onError;
 
   // ── init ────────────────────────────────────────────────────────────────────
   Future<void> init() async {
     await _tts.setLanguage('en-US');
-    await _tts.setSpeechRate(1.0);
+    await _tts.setSpeechRate(0.5); // 0.5 ≈ natural conversational pace on Android
     await _tts.setVolume(1.0);
     await _tts.setPitch(1.0);
-    await _tts.setSharedInstance(true);
+    // awaitSpeakCompletion makes speak() properly async so completion fires
+    await _tts.awaitSpeakCompletion(true);
 
     _tts.setStartHandler(() {
-      isPlaying = true;
+      isPlaying  = true;
+      lastError  = null;
     });
 
     _tts.setCompletionHandler(() {
@@ -30,7 +34,8 @@ class TTSService {
 
     _tts.setErrorHandler((dynamic msg) {
       isPlaying = false;
-      onCompleted?.call();
+      lastError = msg?.toString() ?? 'TTS error';
+      onError?.call(lastError!);
     });
 
     _tts.setProgressHandler((String text, int start, int end, String word) {
@@ -59,7 +64,7 @@ class TTSService {
 
   // ── setRate ─────────────────────────────────────────────────────────────────
   Future<void> setRate(double rate) async {
-    await _tts.setSpeechRate(rate.clamp(0.5, 2.0));
+    await _tts.setSpeechRate(rate.clamp(0.25, 1.0));
   }
 
   // ── getAvailableVoices ───────────────────────────────────────────────────────

@@ -14,17 +14,10 @@ jest.mock('axios', () => ({
   get: jest.fn().mockResolvedValue({ data: { results: [] } }),
 }));
 
-// Mock PodcastModel used directly by subscribe/unsubscribe/getSubscriptions
-jest.mock('../models/Podcast', () => ({
-  findByIdAndUpdate: jest.fn(),
-  find:              jest.fn(),
-}));
-
-const request      = require('supertest');
-const jwt          = require('jsonwebtoken');
-const app          = require('../app');
-const prisma       = require('../config/prisma');
-const PodcastModel = require('../models/Podcast');
+const request = require('supertest');
+const jwt     = require('jsonwebtoken');
+const app     = require('../app');
+const prisma  = require('../config/prisma');
 
 const TOKEN     = jwt.sign({ id: 'user-1', role: 'student' }, process.env.JWT_SECRET, { expiresIn: '1h' });
 const MOCK_USER = { id: 'user-1', name: 'Alice', email: 'alice@iuea.ac.ug', role: 'student', isActive: true };
@@ -75,7 +68,6 @@ describe('GET /api/podcasts/:id', () => {
       ...PODCASTS[0],
       episodes: [{ title: 'Episode 1', audioUrl: 'http://x.mp3', duration: 1200 }],
     });
-    prisma.podcastSubscriber.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .get('/api/podcasts/p1')
@@ -100,7 +92,9 @@ describe('GET /api/podcasts/:id', () => {
 // ── POST /api/podcasts/subscribe/:id ─────────────────────────────────────────
 describe('POST /api/podcasts/subscribe/:id', () => {
   it('subscribes the user to a podcast', async () => {
-    PodcastModel.findByIdAndUpdate.mockResolvedValue({ ...PODCASTS[0], subscribers: ['user-1'] });
+    const base = { ...PODCASTS[0], subscribers: [] };
+    prisma.podcast.findUnique.mockResolvedValue(base);
+    prisma.podcast.update.mockResolvedValue({ ...base, subscribers: ['user-1'], subscriberCount: 1 });
 
     const res = await request(app)
       .post('/api/podcasts/subscribe/p1')
@@ -112,7 +106,7 @@ describe('POST /api/podcasts/subscribe/:id', () => {
   });
 
   it('returns 404 when podcast not found', async () => {
-    PodcastModel.findByIdAndUpdate.mockResolvedValue(null);
+    prisma.podcast.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/podcasts/subscribe/ghost')
@@ -125,7 +119,9 @@ describe('POST /api/podcasts/subscribe/:id', () => {
 // ── DELETE /api/podcasts/subscribe/:id ───────────────────────────────────────
 describe('DELETE /api/podcasts/subscribe/:id', () => {
   it('unsubscribes the user', async () => {
-    PodcastModel.findByIdAndUpdate.mockResolvedValue({ ...PODCASTS[0], subscribers: [] });
+    const base = { ...PODCASTS[0], subscribers: ['user-1'] };
+    prisma.podcast.findUnique.mockResolvedValue(base);
+    prisma.podcast.update.mockResolvedValue({ ...base, subscribers: [], subscriberCount: 0 });
 
     const res = await request(app)
       .delete('/api/podcasts/subscribe/p1')
@@ -140,7 +136,7 @@ describe('DELETE /api/podcasts/subscribe/:id', () => {
 // ── GET /api/podcasts/subscriptions ──────────────────────────────────────────
 describe('GET /api/podcasts/subscriptions', () => {
   it('returns user podcast subscriptions', async () => {
-    PodcastModel.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([PODCASTS[0]]) });
+    prisma.podcast.findMany.mockResolvedValue([PODCASTS[0]]);
 
     const res = await request(app)
       .get('/api/podcasts/subscriptions')

@@ -1,6 +1,5 @@
-const prisma        = require('../config/prisma');
-const PodcastModel  = require('../models/Podcast');
-const axios         = require('axios');
+const prisma = require('../config/prisma');
+const axios  = require('axios');
 
 const toResponse = (p) => ({ ...p, author: p.hostName ?? '' });
 
@@ -178,47 +177,48 @@ const getPodcast = async (req, res, next) => {
 // POST /api/podcasts/subscribe/:id
 const subscribe = async (req, res, next) => {
   try {
-    const { id: userId } = req.user;
-    const podcastId      = req.params.id;
+    const userId    = req.user.id;
+    const podcastId = req.params.id;
 
-    const podcast = await PodcastModel.findByIdAndUpdate(
-      podcastId,
-      { $addToSet: { subscribers: userId } },
-      { new: true },
-    );
-    if (!podcast) return res.status(404).json({ message: 'Podcast not found.' });
+    const existing = await prisma.podcast.findUnique({ where: { id: podcastId } });
+    if (!existing) return res.status(404).json({ message: 'Podcast not found.' });
 
-    const count = podcast.subscribers.length;
-    await PodcastModel.findByIdAndUpdate(podcastId, { subscriberCount: count });
+    const newSubs = existing.subscribers.includes(userId)
+      ? existing.subscribers
+      : [...existing.subscribers, userId];
 
-    res.json({ subscribed: true, subscriberCount: count });
+    const podcast = await prisma.podcast.update({
+      where: { id: podcastId },
+      data:  { subscribers: newSubs, subscriberCount: newSubs.length },
+    });
+    res.json({ subscribed: true, subscriberCount: podcast.subscriberCount });
   } catch (err) { next(err); }
 };
 
 // DELETE /api/podcasts/subscribe/:id
 const unsubscribe = async (req, res, next) => {
   try {
-    const { id: userId } = req.user;
-    const podcastId      = req.params.id;
+    const userId    = req.user.id;
+    const podcastId = req.params.id;
 
-    const podcast = await PodcastModel.findByIdAndUpdate(
-      podcastId,
-      { $pull: { subscribers: userId } },
-      { new: true },
-    );
-    if (!podcast) return res.status(404).json({ message: 'Podcast not found.' });
+    const existing = await prisma.podcast.findUnique({ where: { id: podcastId } });
+    if (!existing) return res.status(404).json({ message: 'Podcast not found.' });
 
-    const count = podcast.subscribers.length;
-    await PodcastModel.findByIdAndUpdate(podcastId, { subscriberCount: count });
-
-    res.json({ subscribed: false, subscriberCount: count });
+    const newSubs = existing.subscribers.filter((s) => s !== userId);
+    const podcast = await prisma.podcast.update({
+      where: { id: podcastId },
+      data:  { subscribers: newSubs, subscriberCount: newSubs.length },
+    });
+    res.json({ subscribed: false, subscriberCount: podcast.subscriberCount });
   } catch (err) { next(err); }
 };
 
 // GET /api/podcasts/subscriptions
 const getSubscriptions = async (req, res, next) => {
   try {
-    const podcasts = await PodcastModel.find({ subscribers: req.user.id, isActive: true }).lean();
+    const podcasts = await prisma.podcast.findMany({
+      where: { subscribers: { has: req.user.id }, isActive: true },
+    });
     res.json({ podcasts: podcasts.map(toResponse) });
   } catch (err) { next(err); }
 };

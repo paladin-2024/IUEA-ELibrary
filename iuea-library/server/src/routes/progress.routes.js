@@ -1,12 +1,13 @@
 const router    = require('express').Router();
 const authGuard = require('../middleware/authGuard');
+const validate  = require('../middleware/validate');
 const ctrl      = require('../controllers/progress.controller');
+const s         = require('../schemas/progress.schemas');
 
-// All progress routes require authentication
 router.use(authGuard);
 
-router.get('/',        ctrl.getAllProgress);  // GET  /api/progress
-router.get('/:bookId', ctrl.loadProgress);   // GET  /api/progress/:bookId
-router.put('/:bookId', ctrl.saveProgress);   // PUT  /api/progress/:bookId
+router.get('/',        ctrl.getAllProgress);
+router.get('/:bookId', ctrl.loadProgress);
+router.put('/:bookId', validate(s.saveProgress), ctrl.saveProgress);
 
 module.exports = router;

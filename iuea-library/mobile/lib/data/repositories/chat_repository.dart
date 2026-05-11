@@ -88,7 +88,12 @@ class ChatRepository {
 
             try {
               final decoded = json.decode(raw) as Map<String, dynamic>;
-              final chunk   = decoded['chunk'] as String?;
+              if (decoded.containsKey('error')) {
+                controller.addError(decoded['error'] as String? ?? 'Stream error');
+                await controller.close();
+                return;
+              }
+              final chunk = decoded['chunk'] as String?;
               if (chunk != null && chunk.isNotEmpty) {
                 controller.add(chunk);
               }

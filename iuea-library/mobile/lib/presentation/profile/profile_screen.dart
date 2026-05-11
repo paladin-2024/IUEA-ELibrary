@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -81,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.w700)),
                         const Spacer(),
                         IconButton(
-                          icon: const Icon(Icons.notifications_none_rounded,
+                          icon: const Icon(AppIcons.notification,
                             color: AppColors.textPrimary, size: 22),
                           onPressed: () => context.push('/notifications'),
                         ),
@@ -150,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   color: AppColors.primary.withValues(alpha: 0.3)),
                               ),
                               child: Text(
-                                'FACULTY OF ${user.faculty!.toUpperCase()}',
+                                'FACULTY OF ${(user.faculty ?? 'IUEA').toUpperCase()}',
                                 style: AppTextStyles.label.copyWith(
                                   color:         AppColors.primary,
                                   fontWeight:    FontWeight.w600,
@@ -164,7 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           // Edit profile button
                           OutlinedButton.icon(
                             onPressed: () => _showEditProfile(context),
-                            icon:  const Icon(Icons.edit_outlined,
+                            icon:  const Icon(AppIcons.edit,
                               size: 14, color: AppColors.primary),
                             label: const Text('Edit profile'),
                             style: OutlinedButton.styleFrom(
@@ -189,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SliverToBoxAdapter(
                       child: _statsError != null
                         ? AppErrorState(
-                            icon: Icons.bar_chart_rounded,
+                            icon: AppIcons.grid,
                             message: _statsError,
                             onRetry: _loadStats,
                           )
@@ -273,11 +274,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     width: 44, height: 62,
                                     child: (current.book!.coverUrl?.isNotEmpty ?? false)
                                         ? CachedNetworkImage(
-                                            imageUrl: current.book!.coverUrl!,
+                                            imageUrl: current.book?.coverUrl ?? '',
                                             fit: BoxFit.cover)
                                         : Container(
                                             color: AppColors.primary.withValues(alpha: 0.1),
-                                            child: const Icon(Icons.book,
+                                            child: const Icon(AppIcons.book,
                                               color: AppColors.primary, size: 22)),
                                   ),
                                 ),
@@ -321,22 +322,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(children: [
                         _SettingsTile(
-                          icon:  Icons.local_library_outlined,
+                          icon:  AppIcons.library,
                           label: 'My Loans',
                           onTap: () => context.push('/library/loans'),
                         ),
                         _SettingsTile(
-                          icon:  Icons.local_fire_department_outlined,
+                          icon:  AppIcons.fire,
                           label: 'Streaks & Badges',
                           onTap: () => context.push('/profile/streaks'),
                         ),
                         _SettingsTile(
-                          icon:  Icons.settings_outlined,
+                          icon:  AppIcons.settings,
                           label: 'Reading Preferences',
                           onTap: () => context.push('/profile/preferences'),
                         ),
                         _SettingsTile(
-                          icon:  Icons.support_agent_outlined,
+                          icon:  AppIcons.translate,
+                          label: 'Language & Audio',
+                          onTap: () => context.push('/profile/language'),
+                        ),
+                        _SettingsTile(
+                          icon:  AppIcons.supportAgent,
                           label: 'Library Support',
                           onTap: () => _showSupportDialog(context),
                         ),
@@ -359,7 +365,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.logout_rounded,
+                                const Icon(AppIcons.logout,
                                   size: 16, color: AppColors.error),
                                 const SizedBox(width: 8),
                                 Text('Sign Out',
@@ -390,8 +396,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _footerLink('Privacy'),
                             _footerDot(),
                             _footerLink('Terms'),
-                            _footerDot(),
-                            _footerLink('Koha ILS'),
                           ],
                         ),
                       ]),
@@ -500,13 +504,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SupportRow(Icons.location_on_outlined, 'Kampala, Uganda — IUEA Campus'),
+            _SupportRow(AppIcons.location, 'Kampala, Uganda — IUEA Campus'),
             const SizedBox(height: 10),
-            _SupportRow(Icons.email_outlined, 'library@iuea.ac.ug'),
+            _SupportRow(AppIcons.email, 'library@iuea.ac.ug'),
             const SizedBox(height: 10),
-            _SupportRow(Icons.access_time_outlined, 'Mon – Fri, 8 AM – 6 PM'),
+            _SupportRow(AppIcons.clock, 'Mon – Fri, 8 AM – 6 PM'),
             const SizedBox(height: 10),
-            _SupportRow(Icons.phone_outlined, '+256 700 000 000'),
+            _SupportRow(AppIcons.phone, '+256 700 000 000'),
           ],
         ),
         actions: [
@@ -607,7 +611,7 @@ class _SettingsTile extends StatelessWidget {
         ),
         title: Text(label, style: AppTextStyles.body.copyWith(
           fontSize: 14, fontWeight: FontWeight.w500)),
-        trailing: const Icon(Icons.chevron_right_rounded,
+        trailing: const Icon(AppIcons.chevronRight,
           color: AppColors.grey500, size: 20),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

@@ -41,15 +41,32 @@ class ReaderProvider extends ChangeNotifier {
   bool   isPlaying          = false;
   bool   showTOC            = false;
   bool   showChatbot        = false;
+  double playbackSpeed      = 0.5;
+  String? ttsError;
 
   final _api = ApiService();
   final _tts = TTSService();
   Timer? _saveTimer;
+  VoidCallback? _chunkCompletionCallback;
+
+  void setChunkCompletionCallback(VoidCallback cb) {
+    _chunkCompletionCallback = cb;
+  }
+
+  void clearChunkCompletionCallback() {
+    _chunkCompletionCallback = null;
+  }
 
   // ── TTS init ─────────────────────────────────────────────────────────────────
   Future<void> initTts() async {
     await _tts.init();
     _tts.onCompleted = () {
+      isPlaying = false;
+      notifyListeners();
+      _chunkCompletionCallback?.call();
+    };
+    _tts.onError = (msg) {
+      ttsError  = msg;
       isPlaying = false;
       notifyListeners();
     };
@@ -60,8 +77,7 @@ class ReaderProvider extends ChangeNotifier {
     try {
       final response = await _api.get(ApiConstants.authMe);
       final data = response.data as Map<String, dynamic>?;
-      final user = data?['user'] as Map<String, dynamic>?;
-      final prefs = user?['readingPrefs'] as Map<String, dynamic>?;
+      final prefs = data?['readingPrefs'] as Map<String, dynamic>?;
       if (prefs == null) return;
       if (prefs['fontSize'] != null)    fontSize      = (prefs['fontSize']    as num).toDouble();
       if (prefs['lineHeight'] != null)  lineHeight     = (prefs['lineHeight']  as num).toDouble();
@@ -169,9 +185,20 @@ class ReaderProvider extends ChangeNotifier {
     final langCode = _getLangCode(readingLanguage);
     if (text.isEmpty) return;
 
-    await _tts.setRate(1.0);
-    await _tts.speak(text, langCode);
+    ttsError  = null;
     isPlaying = true;
+    notifyListeners();
+
+    await _tts.setRate(playbackSpeed);
+    await _tts.speak(text, langCode);
+    // After awaitSpeakCompletion speak() returns only when TTS finishes/errors;
+    // the completion handler above already set isPlaying=false via onCompleted.
+  }
+
+  // ── setPlaybackSpeed ──────────────────────────────────────────────────────────
+  Future<void> setPlaybackSpeed(double speed) async {
+    playbackSpeed = speed.clamp(0.25, 1.0);
+    await _tts.setRate(playbackSpeed);
     notifyListeners();
   }
 
@@ -229,9 +256,21 @@ class ReaderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setCurrentChapter(int chapter) {
+    if (currentChapter == chapter) return;
+    currentChapter = chapter;
+    notifyListeners();
+  }
+
   void setCurrentChapterText(String text) {
     currentChapterText = text;
     translatedContent  = null; // clear stale translation on chapter change
+    notifyListeners();
+  }
+
+  void setReadingLanguage(String lang) {
+    readingLanguage   = lang;
+    translatedContent = null;
     notifyListeners();
   }
 

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:flutter/material.dart';
 import '../../../providers/reader_provider.dart';
 import '../../../core/constants/app_colors.dart';
@@ -79,7 +80,7 @@ class _ReaderToolbarState extends State<ReaderToolbar> {
                     children: [
                       // INDEX
                       _ToolBtn(
-                        icon:    Icons.format_list_bulleted_rounded,
+                        icon:    AppIcons.list,
                         label:   'Index',
                         color:   widget.reader.showTOC ? AppColors.primary : iconColor,
                         lblClr:  widget.reader.showTOC ? AppColors.primary : labelColor,
@@ -87,7 +88,7 @@ class _ReaderToolbarState extends State<ReaderToolbar> {
                       ),
                       // STYLE
                       _ToolBtn(
-                        icon:    Icons.text_fields_rounded,
+                        icon:    AppIcons.textSize,
                         label:   'Style',
                         color:   iconColor,
                         lblClr:  labelColor,
@@ -96,8 +97,8 @@ class _ReaderToolbarState extends State<ReaderToolbar> {
                       // BOOKMARK
                       _ToolBtn(
                         icon:    _bookmarked
-                            ? Icons.bookmark_rounded
-                            : Icons.bookmark_border_rounded,
+                            ? AppIcons.bookarkFilled
+                            : AppIcons.bookark,
                         label:   'Bookmark',
                         color:   _bookmarked ? AppColors.primary : iconColor,
                         lblClr:  _bookmarked ? AppColors.primary : labelColor,
@@ -105,7 +106,7 @@ class _ReaderToolbarState extends State<ReaderToolbar> {
                       ),
                       // FIND
                       _ToolBtn(
-                        icon:    Icons.search_rounded,
+                        icon:    AppIcons.search,
                         label:   'Find',
                         color:   iconColor,
                         lblClr:  labelColor,
@@ -114,8 +115,8 @@ class _ReaderToolbarState extends State<ReaderToolbar> {
                       // AUDIO
                       _ToolBtn(
                         icon:    widget.reader.isPlaying
-                            ? Icons.headphones_rounded
-                            : Icons.headphones_outlined,
+                            ? AppIcons.headphones
+                            : AppIcons.headphones,
                         label:   'Audio',
                         color:   widget.reader.isPlaying ? AppColors.primary : iconColor,
                         lblClr:  widget.reader.isPlaying ? AppColors.primary : labelColor,

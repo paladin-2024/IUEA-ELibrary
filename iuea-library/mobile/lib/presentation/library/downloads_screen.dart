@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
@@ -49,7 +50,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                   'assets/images/iuea_logo.png',
                   width: 26, height: 26,
                   errorBuilder: (_, __, ___) =>
-                    const Icon(Icons.school_rounded,
+                    const Icon(AppIcons.school,
                       color: AppColors.primary, size: 22),
                 ),
                 const SizedBox(width: 8),
@@ -59,7 +60,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                     fontFamily: 'PlayfairDisplay')),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.notifications_none_rounded,
+                  icon: const Icon(AppIcons.notification,
                     color: AppColors.textPrimary, size: 22),
                   onPressed: () => context.push('/notifications'),
                 ),
@@ -121,7 +122,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.download_outlined,
+                          Icon(AppIcons.download,
                             size: 56,
                             color: AppColors.textHint.withValues(alpha: 0.4)),
                           const SizedBox(height: 12),
@@ -196,6 +197,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                           itemBuilder: (_, i) => _DownloadRow(
                             book:     books[i],
                             onDelete: () => _delete(books[i]),
+                            onRead:   () => context.push('/reader/${books[i].id}'),
                           ),
                         ),
                       ),
@@ -226,94 +228,111 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
 class _DownloadRow extends StatelessWidget {
   final DownloadedBook book;
   final VoidCallback   onDelete;
-  const _DownloadRow({required this.book, required this.onDelete});
+  final VoidCallback   onRead;
+  const _DownloadRow({required this.book, required this.onDelete, required this.onRead});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color:        AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
-          blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      child: Row(children: [
-        // Format icon
-        Container(
-          width: 44, height: 58,
-          decoration: BoxDecoration(
-            color:        AppColors.primary.withValues(alpha: 0.07),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                book.fileFormat == 'pdf'
-                  ? Icons.picture_as_pdf_rounded
-                  : Icons.book_rounded,
-                color: AppColors.primary, size: 22),
-              const SizedBox(height: 2),
-              Text(book.fileFormat.toUpperCase(),
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 8, fontWeight: FontWeight.w700,
-                  color: AppColors.primary, letterSpacing: 0.5)),
-            ],
-          ),
+    return GestureDetector(
+      onTap: onRead,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color:        AppColors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8, offset: const Offset(0, 2))],
         ),
-        const SizedBox(width: 12),
-
-        // Info
-        Expanded(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(book.title,
-              style: AppTextStyles.body.copyWith(
-                fontWeight: FontWeight.w600, fontSize: 13),
-              maxLines: 2, overflow: TextOverflow.ellipsis),
-            const SizedBox(height: 4),
-            Text(book.author,
-              style: AppTextStyles.label.copyWith(
-                color: AppColors.textSecondary, fontSize: 11),
-              maxLines: 1, overflow: TextOverflow.ellipsis),
-            const SizedBox(height: 4),
-            Row(children: [
-              const Icon(Icons.check_circle_rounded,
-                color: AppColors.success, size: 13),
-              const SizedBox(width: 4),
-              Text(book.sizeLabel,
-                style: AppTextStyles.label.copyWith(
-                  fontSize: 10, color: AppColors.textHint)),
-            ]),
-          ],
-        )),
-
-        // Delete
-        IconButton(
-          icon: const Icon(Icons.close_rounded,
-            size: 18, color: AppColors.textHint),
-          onPressed: () => showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-              title: const Text('Remove offline copy?'),
-              content: Text(
-                '"${book.title}" will be removed from your device.'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel')),
-                TextButton(
-                  onPressed: () { Navigator.pop(context); onDelete(); },
-                  child: const Text('Remove',
-                    style: TextStyle(color: AppColors.primary))),
+        child: Row(children: [
+          // Format icon
+          Container(
+            width: 44, height: 58,
+            decoration: BoxDecoration(
+              color:        AppColors.primary.withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  book.fileFormat == 'pdf'
+                    ? AppIcons.pdf
+                    : AppIcons.book,
+                  color: AppColors.primary, size: 22),
+                const SizedBox(height: 2),
+                Text(book.fileFormat.toUpperCase(),
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 8, fontWeight: FontWeight.w700,
+                    color: AppColors.primary, letterSpacing: 0.5)),
               ],
             ),
           ),
-        ),
-      ]),
+          const SizedBox(width: 12),
+
+          // Info
+          Expanded(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(book.title,
+                style: AppTextStyles.body.copyWith(
+                  fontWeight: FontWeight.w600, fontSize: 13),
+                maxLines: 2, overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 4),
+              Text(book.author,
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.textSecondary, fontSize: 11),
+                maxLines: 1, overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 6),
+              Row(children: [
+                const Icon(AppIcons.checkCircle,
+                  color: AppColors.success, size: 13),
+                const SizedBox(width: 4),
+                Text(book.sizeLabel,
+                  style: AppTextStyles.label.copyWith(
+                    fontSize: 10, color: AppColors.textHint)),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color:        AppColors.primary,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text('Read',
+                    style: AppTextStyles.label.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11)),
+                ),
+              ]),
+            ],
+          )),
+
+          // Delete
+          IconButton(
+            icon: const Icon(AppIcons.close,
+              size: 18, color: AppColors.textHint),
+            onPressed: () => showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: const Text('Remove offline copy?'),
+                content: Text(
+                  '"${book.title}" will be removed from your device.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel')),
+                  TextButton(
+                    onPressed: () { Navigator.pop(context); onDelete(); },
+                    child: const Text('Remove',
+                      style: TextStyle(color: AppColors.primary))),
+                ],
+              ),
+            ),
+          ),
+        ]),
+      ),
     );
   }
 }

@@ -16,6 +16,8 @@ const AdminBooksPage     = lazy(() => import('./pages/Admin/AdminBooksPage'));
 const AdminUsersPage     = lazy(() => import('./pages/Admin/AdminUsersPage'));
 const AdminAnalyticsPage = lazy(() => import('./pages/Admin/AdminAnalyticsPage'));
 const AdminLoansPage     = lazy(() => import('./pages/Admin/AdminLoansPage'));
+const AdminPodcastsPage  = lazy(() => import('./pages/Admin/AdminPodcastsPage'));
+const AdminSettingsPage  = lazy(() => import('./pages/Admin/AdminSettingsPage'));
 
 // ── Route guard ───────────────────────────────────────────────────────────────
 const _getToken = () => {
@@ -69,6 +71,8 @@ export default function App() {
           <Route path="users"     element={<AdminUsersPage />}     />
           <Route path="analytics" element={<AdminAnalyticsPage />} />
           <Route path="loans"     element={<AdminLoansPage />}     />
+          <Route path="podcasts"  element={<AdminPodcastsPage />}  />
+          <Route path="settings"  element={<AdminSettingsPage />}  />
         </Route>
 
         {/* ── Catch-all ───────────────────────────────────────────────────── */}

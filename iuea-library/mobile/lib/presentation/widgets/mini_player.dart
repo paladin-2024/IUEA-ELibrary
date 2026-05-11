@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -60,7 +61,7 @@ class _PodcastBar extends StatelessWidget {
             value: provider,
             child: EpisodePlayerSheet(
               episode:      episode,
-              podcastTitle: provider.current!.title,
+              podcastTitle: provider.current?.title ?? '',
               coverUrl:     cover,
             ),
           ),
@@ -88,7 +89,7 @@ class _PodcastBar extends StatelessWidget {
               : Container(
                   width: 68, height: 68,
                   color: AppColors.primary,
-                  child: const Icon(Icons.mic_rounded,
+                  child: const Icon(AppIcons.mic,
                     color: AppColors.accent, size: 28)),
           ),
           const SizedBox(width: 10),
@@ -124,7 +125,7 @@ class _PodcastBar extends StatelessWidget {
 
           // Controls
           _IconBtn(
-            icon:    Icons.replay_30_rounded,
+            icon:    AppIcons.rewind,
             onTap:   () => provider.seekDelta(-30),
           ),
           _PlayPauseBtn(
@@ -132,11 +133,11 @@ class _PodcastBar extends StatelessWidget {
             onTap:     provider.togglePlay,
           ),
           _IconBtn(
-            icon:  Icons.forward_30_rounded,
+            icon:  AppIcons.skipForward,
             onTap: () => provider.seekDelta(30),
           ),
           _IconBtn(
-            icon:    Icons.close_rounded,
+            icon:    AppIcons.close,
             size:    18,
             opacity: 0.45,
             onTap:   provider.stopAndClear,
@@ -185,7 +186,7 @@ class _BookBar extends StatelessWidget {
               : Container(
                   width: 68, height: 68,
                   color: AppColors.primaryDark,
-                  child: const Icon(Icons.book_outlined,
+                  child: const Icon(AppIcons.book,
                     color: AppColors.accent, size: 28)),
           ),
           const SizedBox(width: 10),
@@ -226,7 +227,7 @@ class _BookBar extends StatelessWidget {
             size: 28,
           ),
           _IconBtn(
-            icon:    Icons.close_rounded,
+            icon:    AppIcons.close,
             size:    18,
             opacity: 0.45,
             onTap:   reader.stopSpeaking,
@@ -253,7 +254,7 @@ class _PlayPauseBtn extends StatelessWidget {
       width: 40, height: 40,
       alignment: Alignment.center,
       child: Icon(
-        isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+        isPlaying ? AppIcons.pause : AppIcons.play,
         color: AppColors.white, size: size),
     ),
   );

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -91,7 +92,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.notifications_none_rounded,
+                    icon: const Icon(AppIcons.notification,
                       color: AppColors.textPrimary, size: 22),
                     onPressed: () => context.push('/notifications'),
                   ),
@@ -158,11 +159,11 @@ class _SearchScreenState extends State<SearchScreen> {
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 14),
                         prefixIcon: const Icon(
-                          Icons.search_rounded,
+                          AppIcons.search,
                           color: AppColors.textHint, size: 20),
                         suffixIcon: _hasSearched
                           ? IconButton(
-                              icon: const Icon(Icons.close_rounded,
+                              icon: const Icon(AppIcons.close,
                                 color: AppColors.textHint, size: 18),
                               onPressed: () {
                                 _searchCtrl.clear();
@@ -270,27 +271,117 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _emptyState() => Center(
-    child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Icon(Icons.search_rounded, size: 60,
-        color: AppColors.grey300),
-      const SizedBox(height: 12),
-      Text('Search for books, authors or topics',
-        style: AppTextStyles.bodySmall.copyWith(color: AppColors.grey500)),
-      const SizedBox(height: 4),
-      Text('Powered by IUEA Catalogue',
-        style: AppTextStyles.label.copyWith(color: AppColors.textHint)),
-    ]),
-  );
+  Widget _emptyState() {
+    const suggestions = [
+      'International Law', 'Clinical Medicine', 'Business Ethics',
+      'Computer Science', 'African Literature',
+    ];
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Container(
+          width: 88, height: 88,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF3D0810), Color(0xFF8A1228)],
+              begin:  Alignment.topLeft,
+              end:    Alignment.bottomRight,
+            ),
+            shape:     BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color:      const Color(0x448A1228),
+                blurRadius: 20,
+                offset:     const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: const Icon(AppIcons.search,
+              size: 40, color: Colors.white),
+        ),
+        const SizedBox(height: 16),
+        const Text('Explore the IUEA Collection',
+          style: TextStyle(
+            fontFamily: 'Newsreader',
+            fontSize:   20,
+            fontWeight: FontWeight.w700,
+            color:      Color(0xFF1C0A0C),
+          )),
+        const SizedBox(height: 6),
+        Text('Search titles, authors, ISBN or topics',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize:   13,
+            color:      AppColors.textHint,
+          )),
+        const SizedBox(height: 24),
+        // Quick-search suggestions
+        Wrap(
+          spacing:    8,
+          runSpacing: 8,
+          alignment:  WrapAlignment.center,
+          children:   suggestions.map((s) => GestureDetector(
+            onTap: () {
+              _searchCtrl.text = s;
+              setState(() => _hasSearched = true);
+              context.read<BookProvider>().searchBooks(s);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color:        Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                    color: AppColors.outlineVariant),
+                boxShadow: [
+                  BoxShadow(
+                    color:     Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 6,
+                    offset:    const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(s,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize:   12,
+                  fontWeight: FontWeight.w500,
+                  color:      Color(0xFF3E2B2E),
+                )),
+            ),
+          )).toList(),
+        ),
+        const SizedBox(height: 20),
+        Text('POWERED BY IUEA CATALOGUE & INTERNET ARCHIVE',
+          style: TextStyle(
+            fontFamily:    'Inter',
+            fontSize:      9,
+            letterSpacing: 0.8,
+            color:         AppColors.textHint.withValues(alpha: 0.6),
+          )),
+      ]),
+    );
+  }
 
   Widget _noResults() => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Icon(Icons.search_off_rounded, size: 60, color: AppColors.grey300),
-      const SizedBox(height: 12),
+      Container(
+        width: 72, height: 72,
+        decoration: BoxDecoration(
+          color:        AppColors.surfaceContainerHighest,
+          shape:        BoxShape.circle,
+        ),
+        child: const Icon(AppIcons.searchOff,
+            size: 34, color: AppColors.textHint),
+      ),
+      const SizedBox(height: 16),
       Text('No results for "${_searchCtrl.text}"',
-        style: AppTextStyles.bodySmall.copyWith(color: AppColors.grey500)),
-      const SizedBox(height: 4),
-      Text('Try different keywords',
+        style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600)),
+      const SizedBox(height: 6),
+      Text('Try different keywords or browse by category',
         style: AppTextStyles.label.copyWith(color: AppColors.textHint)),
     ]),
   );
@@ -317,7 +408,7 @@ class _DropdownChip extends StatelessWidget {
           Text(label, style: AppTextStyles.label.copyWith(
             color: AppColors.textSecondary)),
           const SizedBox(width: 4),
-          const Icon(Icons.keyboard_arrow_down_rounded,
+          const Icon(AppIcons.chevronDown,
             size: 14, color: AppColors.textSecondary),
         ]),
       ),
@@ -345,7 +436,7 @@ class _ActiveTag extends StatelessWidget {
         const SizedBox(width: 4),
         GestureDetector(
           onTap: onRemove,
-          child: const Icon(Icons.close_rounded,
+          child: const Icon(AppIcons.close,
             size: 12, color: AppColors.primary),
         ),
       ]),

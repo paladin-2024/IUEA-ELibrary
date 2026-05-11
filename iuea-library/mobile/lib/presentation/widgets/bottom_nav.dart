@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 
@@ -21,11 +22,11 @@ class AppBottomNav extends StatelessWidget {
   });
 
   static const _items = [
-    _NavItem(Icons.home_outlined,     Icons.home_rounded,      'Home'),
-    _NavItem(Icons.menu_book_outlined, Icons.menu_book_rounded, 'Library'),
-    _NavItem(Icons.podcasts_outlined,  Icons.podcasts_rounded,  'Podcasts'),
-    _NavItem(Icons.download_outlined,  Icons.download_rounded,  'Downloads'),
-    _NavItem(Icons.person_outline,     Icons.person_rounded,    'Profile'),
+    _NavItem(AppIcons.home,     AppIcons.home,      'Home'),
+    _NavItem(AppIcons.bookpen, AppIcons.bookpen, 'Library'),
+    _NavItem(Icons.podcasts_outlined,  AppIcons.podcasts,  'Podcasts'),
+    _NavItem(AppIcons.download,  AppIcons.download,  'Downloads'),
+    _NavItem(AppIcons.personOutline,     AppIcons.person,    'Profile'),
   ];
 
   @override

@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../../core/constants/api_constants.dart';
+import '../../data/services/api_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -11,6 +15,9 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
+  final _api = ApiService();
+  Timer? _saveTimer;
+
   bool _silenced       = false;
   bool _newArrivals    = true;
   bool _readingRemind  = true;
@@ -19,6 +26,74 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   TimeOfDay _quietStart = const TimeOfDay(hour: 22, minute: 0);
   TimeOfDay _quietEnd   = const TimeOfDay(hour: 7,  minute: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+  @override
+  void dispose() {
+    _saveTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadPrefs() async {
+    try {
+      final res  = await _api.get(ApiConstants.notificationPrefs);
+      final prefs = (res.data as Map<String, dynamic>?)?['prefs'] as Map<String, dynamic>?;
+      if (prefs == null || !mounted) return;
+      setState(() {
+        _silenced      = prefs['silenced']      as bool? ?? false;
+        _newArrivals   = prefs['newArrivals']   as bool? ?? true;
+        _readingRemind = prefs['readingRemind'] as bool? ?? true;
+        _newPodcasts   = prefs['newPodcasts']   as bool? ?? false;
+        _weeklySummary = prefs['weeklySummary'] as bool? ?? true;
+        final qs = prefs['quietStart'] as String?;
+        final qe = prefs['quietEnd']   as String?;
+        if (qs != null) {
+          final parts = qs.split(':');
+          if (parts.length == 2) {
+            _quietStart = TimeOfDay(
+              hour:   int.tryParse(parts[0]) ?? 22,
+              minute: int.tryParse(parts[1]) ?? 0,
+            );
+          }
+        }
+        if (qe != null) {
+          final parts = qe.split(':');
+          if (parts.length == 2) {
+            _quietEnd = TimeOfDay(
+              hour:   int.tryParse(parts[0]) ?? 7,
+              minute: int.tryParse(parts[1]) ?? 0,
+            );
+          }
+        }
+      });
+    } catch (_) {}
+  }
+
+  void _scheduleSave() {
+    _saveTimer?.cancel();
+    _saveTimer = Timer(const Duration(seconds: 1), _savePrefs);
+  }
+
+  Future<void> _savePrefs() async {
+    try {
+      await _api.patch(ApiConstants.notificationPrefs, data: {
+        'prefs': {
+          'silenced':      _silenced,
+          'newArrivals':   _newArrivals,
+          'readingRemind': _readingRemind,
+          'newPodcasts':   _newPodcasts,
+          'weeklySummary': _weeklySummary,
+          'quietStart':    '${_quietStart.hour.toString().padLeft(2,'0')}:${_quietStart.minute.toString().padLeft(2,'0')}',
+          'quietEnd':      '${_quietEnd.hour.toString().padLeft(2,'0')}:${_quietEnd.minute.toString().padLeft(2,'0')}',
+        },
+      });
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +108,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
                 child: Row(children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    icon: const Icon(AppIcons.arrowBack,
                       size: 18, color: AppColors.textPrimary),
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -42,13 +117,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       fontSize: 16, color: AppColors.textPrimary)),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.notifications_none_rounded,
+                    icon: const Icon(AppIcons.notification,
                       color: AppColors.textPrimary, size: 22),
                     onPressed: () => context.pop(),
                   ),
                   const CircleAvatar(
                     radius: 16, backgroundColor: AppColors.primaryContainer,
-                    child: Icon(Icons.person_rounded,
+                    child: Icon(AppIcons.person,
                       color: AppColors.white, size: 16)),
                   const SizedBox(width: 4),
                 ]),
@@ -97,8 +172,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             borderRadius: BorderRadius.circular(10)),
                           child: Icon(
                             _silenced
-                              ? Icons.notifications_off_outlined
-                              : Icons.notifications_active_outlined,
+                              ? AppIcons.notificationOff
+                              : AppIcons.notificationActive,
                             color: _silenced ? AppColors.warning : AppColors.textSecondary,
                             size: 18),
                         ),
@@ -122,7 +197,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         Switch(
                           value:          _silenced,
                           activeThumbColor:    AppColors.warning,
-                          onChanged: (v) => setState(() => _silenced = v),
+                          onChanged: (v) {
+                            setState(() => _silenced = v);
+                            _scheduleSave();
+                          },
                         ),
                       ]),
                     ),
@@ -142,35 +220,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(children: [
                   _AlertTile(
-                    icon:     Icons.auto_stories_outlined,
+                    icon:     AppIcons.bookpen,
                     title:    'New arrivals',
                     subtitle: 'Fresh titles from your department.',
                     value:    _newArrivals,
-                    onChanged: (v) => setState(() => _newArrivals = v),
+                    onChanged: (v) { setState(() => _newArrivals = v); _scheduleSave(); },
                   ),
                   const SizedBox(height: 10),
                   _AlertTile(
-                    icon:     Icons.schedule_rounded,
+                    icon:     AppIcons.clock,
                     title:    'Reading reminders',
                     subtitle: 'Nudge on your active reading goals.',
                     value:    _readingRemind,
-                    onChanged: (v) => setState(() => _readingRemind = v),
+                    onChanged: (v) { setState(() => _readingRemind = v); _scheduleSave(); },
                   ),
                   const SizedBox(height: 10),
                   _AlertTile(
-                    icon:     Icons.podcasts_rounded,
+                    icon:     AppIcons.podcasts,
                     title:    'New podcasts',
                     subtitle: 'Faculty discussions & lecture notes.',
                     value:    _newPodcasts,
-                    onChanged: (v) => setState(() => _newPodcasts = v),
+                    onChanged: (v) { setState(() => _newPodcasts = v); _scheduleSave(); },
                   ),
                   const SizedBox(height: 10),
                   _AlertTile(
-                    icon:     Icons.bar_chart_rounded,
+                    icon:     AppIcons.grid,
                     title:    'Weekly summary',
                     subtitle: 'Your library activity at a glance.',
                     value:    _weeklySummary,
-                    onChanged: (v) => setState(() => _weeklySummary = v),
+                    onChanged: (v) { setState(() => _weeklySummary = v); _scheduleSave(); },
                   ),
                   const SizedBox(height: 24),
 
@@ -197,7 +275,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         onTap: () async {
                           final t = await showTimePicker(
                             context: context, initialTime: _quietStart);
-                          if (t != null) setState(() => _quietStart = t);
+                          if (t != null) {
+                            setState(() => _quietStart = t);
+                            _scheduleSave();
+                          }
                         },
                       )),
                       Container(width: 1, height: 48, color: AppColors.border,
@@ -208,7 +289,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         onTap: () async {
                           final t = await showTimePicker(
                             context: context, initialTime: _quietEnd);
-                          if (t != null) setState(() => _quietEnd = t);
+                          if (t != null) {
+                            setState(() => _quietEnd = t);
+                            _scheduleSave();
+                          }
                         },
                       )),
                     ]),

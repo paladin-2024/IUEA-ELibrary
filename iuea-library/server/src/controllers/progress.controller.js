@@ -37,6 +37,7 @@ const saveProgress = async (req, res, next) => {
       isCompleted:     percentComplete >= 100,
       readingLanguage: readingLanguage ?? 'English',
       hour:            new Date().getHours(),
+      startedAt:       progress.createdAt,
     }).catch(() => {});
 
     res.json({ progress });

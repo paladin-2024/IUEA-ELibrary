@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
@@ -57,7 +58,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
               child: Row(children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                  icon: const Icon(AppIcons.arrowBack,
                     size: 18, color: AppColors.textPrimary),
                   onPressed: () => context.pop(),
                 ),
@@ -115,7 +116,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   offset:    const Offset(0, 6))],
               ),
               child: const Icon(
-                Icons.lock_reset_rounded,
+                AppIcons.lock,
                 color: AppColors.primary, size: 38),
             ),
           ),
@@ -143,7 +144,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               color: AppColors.textPrimary, height: 1),
             decoration: authInputDeco(
               hint:   'yourname@iuea.ac.ug',
-              prefix: Icons.email_outlined,
+              prefix: AppIcons.email,
             ),
             validator: (v) =>
               (v == null || !v.contains('@'))
@@ -162,7 +163,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 border:       Border.all(color: AppColors.error.withValues(alpha: 0.2)),
               ),
               child: Row(children: [
-                const Icon(Icons.error_outline_rounded,
+                const Icon(AppIcons.error,
                   color: AppColors.error, size: 16),
                 const SizedBox(width: 8),
                 Expanded(
@@ -196,7 +197,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     Text('Send reset link',
                       style: AppTextStyles.button),
                     const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward_rounded, size: 16),
+                    const Icon(AppIcons.arrowForward, size: 16),
                   ]),
             ),
           ),
@@ -207,7 +208,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: GestureDetector(
               onTap: () => context.go('/login'),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.arrow_back_rounded,
+                const Icon(AppIcons.arrowBack,
                   size: 14, color: AppColors.primary),
                 const SizedBox(width: 4),
                 Text('Back to sign in',
@@ -233,7 +234,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             color:  AppColors.success.withValues(alpha: 0.1),
             shape:  BoxShape.circle,
           ),
-          child: const Icon(Icons.mark_email_read_rounded,
+          child: const Icon(AppIcons.checkCircle,
             color: AppColors.success, size: 40),
         ),
         const SizedBox(height: 28),

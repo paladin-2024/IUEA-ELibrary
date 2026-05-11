@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/reader_provider.dart';
 import '../../../core/constants/app_colors.dart';
@@ -63,7 +64,7 @@ class LanguageSwitcherSheet extends StatelessWidget {
                     decoration: BoxDecoration(
                       color:        AppColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(10)),
-                    child: const Icon(Icons.translate_rounded,
+                    child: const Icon(AppIcons.translate,
                       color: AppColors.primary, size: 18),
                   ),
                   const SizedBox(width: 12),
@@ -77,7 +78,7 @@ class LanguageSwitcherSheet extends StatelessWidget {
                       decoration: BoxDecoration(
                         color:        AppColors.grey100,
                         borderRadius: BorderRadius.circular(16)),
-                      child: const Icon(Icons.close_rounded,
+                      child: const Icon(AppIcons.close,
                         size: 16, color: AppColors.textSecondary),
                     ),
                   ),
@@ -96,7 +97,7 @@ class LanguageSwitcherSheet extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(children: [
-                    const Icon(Icons.g_translate_rounded,
+                    const Icon(AppIcons.translate,
                       size: 14, color: AppColors.textSecondary),
                     const SizedBox(width: 8),
                     Text('TRANSLATION BY GOOGLE TRANSLATE',
@@ -107,7 +108,7 @@ class LanguageSwitcherSheet extends StatelessWidget {
                         letterSpacing: 0.8,
                         fontWeight:    FontWeight.w500)),
                     const Spacer(),
-                    const Icon(Icons.tune_rounded,
+                    const Icon(AppIcons.tune,
                       size: 14, color: AppColors.textHint),
                   ]),
                 ),
@@ -146,8 +147,7 @@ class LanguageSwitcherSheet extends StatelessWidget {
                               Navigator.of(context).pop();
                               if (lang.name == reader.readingLanguage) return;
                               if (lang.code == 'en') {
-                                reader.setCurrentChapterText(
-                                  reader.currentChapterText);
+                                reader.setReadingLanguage('English');
                                 return;
                               }
                               await reader.translateCurrentChapter(lang.name);
@@ -192,7 +192,7 @@ class LanguageSwitcherSheet extends StatelessWidget {
                                     decoration: const BoxDecoration(
                                       color:  AppColors.primary,
                                       shape:  BoxShape.circle),
-                                    child: const Icon(Icons.check_rounded,
+                                    child: const Icon(AppIcons.check,
                                       color: AppColors.white, size: 14),
                                   )
                                 else
@@ -216,7 +216,7 @@ class LanguageSwitcherSheet extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.info_outline_rounded,
+                    const Icon(AppIcons.info,
                       size: 14, color: AppColors.primary),
                     const SizedBox(width: 8),
                     Expanded(

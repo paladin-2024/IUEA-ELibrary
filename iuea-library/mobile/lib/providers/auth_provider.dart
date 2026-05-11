@@ -21,15 +21,59 @@ class AuthProvider extends ChangeNotifier {
   final _storage = const FlutterSecureStorage();
 
   // ── login ──────────────────────────────────────────────────────────────────
-  Future<bool> login(String email, String password) async {
+  /// Returns `null` on success, `'verify:<email>'` if OTP needed, or an error string.
+  Future<String?> login(String email, String password) async {
     _setLoading(true);
     try {
-      final res = await _api.post(
+      final res  = await _api.post(
         ApiConstants.authLogin,
         data: {'email': email, 'password': password},
       );
-      _token = res.data['token'] as String;
-      _user  = UserModel.fromJson(res.data['user'] as Map<String, dynamic>);
+      final data = res.data as Map<String, dynamic>;
+      if (data['requiresVerification'] == true) {
+        _setLoading(false);
+        return 'verify:${data['email']}';
+      }
+      _token = data['token'] as String;
+      _user  = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      await _storage.write(key: 'jwt_token', value: _token);
+      _setLoading(false);
+      return null;
+    } catch (e) {
+      _error = _parseError(e);
+      _setLoading(false);
+      return _error;
+    }
+  }
+
+  // ── register ───────────────────────────────────────────────────────────────
+  /// Returns `null` on success (OTP sent), or an error string.
+  Future<String?> register(Map<String, dynamic> userData) async {
+    _setLoading(true);
+    try {
+      final res  = await _api.post(ApiConstants.authRegister, data: userData);
+      final data = res.data as Map<String, dynamic>;
+      // Server always returns requiresVerification:true for new registrations
+      _setLoading(false);
+      return null;
+    } catch (e) {
+      _error = _parseError(e);
+      _setLoading(false);
+      return _error;
+    }
+  }
+
+  // ── verifyEmail ────────────────────────────────────────────────────────────
+  Future<bool> verifyEmail(String email, String otp) async {
+    _setLoading(true);
+    try {
+      final res  = await _api.post(
+        ApiConstants.authVerifyEmail,
+        data: {'email': email, 'otp': otp},
+      );
+      final data = res.data as Map<String, dynamic>;
+      _token = data['token'] as String;
+      _user  = UserModel.fromJson(data['user'] as Map<String, dynamic>);
       await _storage.write(key: 'jwt_token', value: _token);
       _setLoading(false);
       return true;
@@ -40,19 +84,12 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // ── register ───────────────────────────────────────────────────────────────
-  Future<bool> register(Map<String, dynamic> userData) async {
-    _setLoading(true);
+  // ── resendOtp ──────────────────────────────────────────────────────────────
+  Future<bool> resendOtp(String email) async {
     try {
-      final res = await _api.post(ApiConstants.authRegister, data: userData);
-      _token = res.data['token'] as String;
-      _user  = UserModel.fromJson(res.data['user'] as Map<String, dynamic>);
-      await _storage.write(key: 'jwt_token', value: _token);
-      _setLoading(false);
+      await _api.post(ApiConstants.authResendOtp, data: {'email': email});
       return true;
-    } catch (e) {
-      _error = _parseError(e);
-      _setLoading(false);
+    } catch (_) {
       return false;
     }
   }

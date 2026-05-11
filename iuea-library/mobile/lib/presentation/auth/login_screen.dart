@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -39,13 +40,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final auth = context.read<AuthProvider>();
-    final ok   = await auth.login(_emailCtrl.text.trim(), _passCtrl.text);
+    final auth   = context.read<AuthProvider>();
+    final result = await auth.login(_emailCtrl.text.trim(), _passCtrl.text);
     if (!mounted) return;
-    if (ok) {
+    if (result == null) {
       context.go('/home');
+    } else if (result.startsWith('verify:')) {
+      final email = result.substring(7);
+      context.push('/verify-email', extra: {'email': email});
     } else {
-      _showError(auth.error ?? 'Login failed.');
+      _showError(result);
     }
   }
 
@@ -204,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: AppColors.textPrimary, height: 1),
                         decoration: authInputDeco(
                           hint:   'student.name@iuea.ac.ug',
-                          prefix: Icons.email_outlined,
+                          prefix: AppIcons.email,
                         ),
                         validator: (v) =>
                           (v == null || !v.contains('@'))
@@ -245,12 +249,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: AppColors.textPrimary, height: 1),
                         decoration: authInputDeco(
                           hint:   '••••••••',
-                          prefix: Icons.lock_outline_rounded,
+                          prefix: AppIcons.lock,
                           suffix: IconButton(
                             icon: Icon(
                               _showPw
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
+                                ? AppIcons.eyeOff
+                                : AppIcons.eyeOn,
                               size: 18,
                               color: AppColors.textHint,
                             ),
@@ -321,7 +325,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     'assets/images/google_logo.png',
                                     width: 18, height: 18,
                                     errorBuilder: (_, __, ___) => const Icon(
-                                      Icons.language_rounded,
+                                      AppIcons.language,
                                       size: 18,
                                       color: Color(0xFF4285F4),
                                     ),

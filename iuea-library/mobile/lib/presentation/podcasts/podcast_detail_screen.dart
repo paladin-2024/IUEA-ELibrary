@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/podcast_provider.dart';
@@ -45,12 +46,12 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
           backgroundColor: AppColors.surface,
           elevation:       0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+            icon: const Icon(AppIcons.arrowBack, size: 18),
             onPressed: () => Navigator.pop(context),
           ),
         ),
         body: AppErrorState(
-          icon: Icons.mic_none_outlined,
+          icon: AppIcons.mic,
           message: provider.error,
           onRetry: () =>
               context.read<PodcastProvider>().getPodcast(widget.podcastId),
@@ -71,7 +72,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
             pinned:          true,
             backgroundColor: AppColors.primary,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              icon: const Icon(AppIcons.arrowBack,
                 color: AppColors.white, size: 18),
               onPressed: () => Navigator.pop(context),
             ),
@@ -158,8 +159,8 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
                         },
                         icon: Icon(
                           isSubscribed
-                            ? Icons.notifications_active_rounded
-                            : Icons.notifications_none_rounded,
+                            ? AppIcons.notificationActive
+                            : AppIcons.notification,
                           size: 18),
                         label: Text(
                           isSubscribed ? 'Subscribed' : '▶  Subscribe'),
@@ -219,7 +220,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
                         decoration: BoxDecoration(
                           color:  AppColors.primary.withValues(alpha: 0.08),
                           shape:  BoxShape.circle),
-                        child: const Icon(Icons.play_arrow_rounded,
+                        child: const Icon(AppIcons.play,
                           color: AppColors.primary, size: 22),
                       ),
                       const SizedBox(width: 12),
@@ -233,7 +234,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
                           const SizedBox(height: 3),
                           Row(children: [
                             if (ep.duration > 0) ...[
-                              const Icon(Icons.access_time_rounded,
+                              const Icon(AppIcons.clock,
                                 size: 11, color: AppColors.textHint),
                               const SizedBox(width: 3),
                               Text(ep.durationFormatted,

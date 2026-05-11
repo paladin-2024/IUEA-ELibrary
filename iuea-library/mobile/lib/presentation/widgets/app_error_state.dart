@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
@@ -12,7 +13,7 @@ class AppErrorState extends StatelessWidget {
     super.key,
     this.message,
     required this.onRetry,
-    this.icon = Icons.cloud_off_rounded,
+    this.icon = AppIcons.cloudOff,
   });
 
   @override
@@ -44,7 +45,7 @@ class AppErrorState extends StatelessWidget {
             const SizedBox(height: 22),
             FilledButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
+              icon: const Icon(AppIcons.refresh, size: 18),
               label: const Text('Try again'),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,

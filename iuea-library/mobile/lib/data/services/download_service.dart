@@ -91,12 +91,14 @@ class DownloadService {
   }
 
   Future<String?> getLocalPath(String bookId) async {
-    final list = await getDownloads();
-    try {
-      return list.firstWhere((d) => d.id == bookId).localPath;
-    } catch (_) {
-      return null;
+    // Fast path: check the two expected file locations directly without
+    // scanning all downloads (avoids SharedPreferences + N file-existence checks).
+    final dir = await getApplicationDocumentsDirectory();
+    for (final ext in ['epub', 'pdf']) {
+      final path = '${dir.path}/$bookId.$ext';
+      if (await File(path).exists()) return path;
     }
+    return null;
   }
 
   Future<DownloadedBook> downloadBook(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/podcast_provider.dart';
@@ -87,7 +88,7 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(children: [
                 IconButton(
-                  icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                  icon: const Icon(AppIcons.chevronDown,
                     color: AppColors.white, size: 26),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
@@ -116,7 +117,7 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                       : Container(
                           color: AppColors.primaryDark,
                           child: const Center(child: Icon(
-                            Icons.mic_rounded,
+                            AppIcons.mic,
                             color: AppColors.accent, size: 72))),
                 ),
               ),
@@ -214,7 +215,7 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                 children: [
                   IconButton(
                     iconSize: 28,
-                    icon: const Icon(Icons.replay_10_rounded,
+                    icon: const Icon(AppIcons.rewind,
                       color: AppColors.white),
                     onPressed: () => provider.seekDelta(-10),
                   ),
@@ -227,14 +228,14 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                         color: AppColors.primary, shape: BoxShape.circle),
                       child: Icon(
                         isPlaying
-                            ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                            ? AppIcons.pause : AppIcons.play,
                         color: AppColors.white, size: 30),
                     ),
                   ),
                   const SizedBox(width: 16),
                   IconButton(
                     iconSize: 28,
-                    icon: const Icon(Icons.forward_10_rounded,
+                    icon: const Icon(AppIcons.skipForward,
                       color: AppColors.white),
                     onPressed: () => provider.seekDelta(10),
                   ),
@@ -249,17 +250,17 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _ActionBtn(
-                    icon:  Icons.favorite_border_rounded,
+                    icon:  AppIcons.heartOutline,
                     label: 'Like',
                     onTap: () {},
                   ),
                   _ActionBtn(
-                    icon:  Icons.share_outlined,
+                    icon:  AppIcons.share,
                     label: 'Share',
                     onTap: () {},
                   ),
                   _ActionBtn(
-                    icon:  Icons.download_outlined,
+                    icon:  AppIcons.download,
                     label: 'Save',
                     onTap: () {},
                   ),
@@ -316,8 +317,8 @@ class _EpisodePlayerSheetState extends State<EpisodePlayerSheet>
                   const Spacer(),
                   Icon(
                     _detailsExpanded
-                        ? Icons.keyboard_arrow_up_rounded
-                        : Icons.keyboard_arrow_down_rounded,
+                        ? AppIcons.chevronUp
+                        : AppIcons.chevronDown,
                     color: AppColors.grey500, size: 20),
                 ]),
               ),

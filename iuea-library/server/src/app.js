@@ -13,14 +13,11 @@ const app = express();
 app.use(helmet());
 app.use(morgan('dev'));
 
-// CORS — allow web client, Flutter Android emulator, Flutter iOS simulator
+// CORS — open in dev, restricted in prod
 app.use(cors({
-  origin: [
-    process.env.CLIENT_WEB_URL    || 'http://localhost:5173',
-    process.env.CLIENT_MOBILE_URL || 'exp://localhost:8081',
-    'http://10.0.2.2:8081',
-    'http://localhost:8081',
-  ],
+  origin: process.env.NODE_ENV === 'production'
+    ? [process.env.CLIENT_WEB_URL, process.env.CLIENT_MOBILE_URL].filter(Boolean)
+    : true,   // allow all origins in development (emulator + physical device)
   credentials: true,
 }));
 

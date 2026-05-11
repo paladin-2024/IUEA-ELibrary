@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../data/models/book_model.dart';
 import '../../data/repositories/book_repository.dart';
@@ -73,7 +74,7 @@ class _FacultyScreenState extends State<FacultyScreen> {
         backgroundColor: AppColors.surfaceContainerLow,
         elevation:       0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          icon: const Icon(AppIcons.arrowBack, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -131,7 +132,7 @@ class _FacultyScreenState extends State<FacultyScreen> {
                       color: AppColors.primary,
                       fontWeight: FontWeight.w600)),
               const SizedBox(width: 2),
-              const Icon(Icons.keyboard_arrow_down_rounded,
+              const Icon(AppIcons.chevronDown,
                   size: 18, color: AppColors.primary),
             ]),
           ),
@@ -141,8 +142,8 @@ class _FacultyScreenState extends State<FacultyScreen> {
             visualDensity: VisualDensity.compact,
             icon: Icon(
               _isGrid
-                  ? Icons.grid_view_rounded
-                  : Icons.view_list_rounded,
+                  ? AppIcons.grid
+                  : AppIcons.viewList,
               color: AppColors.primary,
               size:  20,
             ),
@@ -159,7 +160,7 @@ class _FacultyScreenState extends State<FacultyScreen> {
     if (books.isEmpty) {
       return Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.library_books_outlined,
+          Icon(AppIcons.library,
               size: 48, color: AppColors.primary.withAlpha(77)),
           const SizedBox(height: 12),
           Text('No books found in ${widget.facultyName}',
@@ -307,7 +308,7 @@ class _ListBookRow extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded,
+          const Icon(AppIcons.chevronRight,
               color: AppColors.outline, size: 20),
         ]),
       ),
@@ -317,7 +318,7 @@ class _ListBookRow extends StatelessWidget {
   Widget _placeholder() => Container(
     color: AppColors.primary.withAlpha(20),
     child: const Center(
-        child: Icon(Icons.book_outlined,
+        child: Icon(AppIcons.book,
             color: AppColors.primary, size: 24)),
   );
 }
@@ -335,7 +336,7 @@ class _ErrorState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_rounded,
+          Icon(AppIcons.cloudOff,
               size: 48, color: AppColors.primary.withAlpha(102)),
           const SizedBox(height: 12),
           Text('Something went wrong',
@@ -347,7 +348,7 @@ class _ErrorState extends StatelessWidget {
           const SizedBox(height: 20),
           FilledButton.icon(
             onPressed: onRetry,
-            icon:  const Icon(Icons.refresh_rounded, size: 18),
+            icon:  const Icon(AppIcons.refresh, size: 18),
             label: const Text('Retry'),
             style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary),

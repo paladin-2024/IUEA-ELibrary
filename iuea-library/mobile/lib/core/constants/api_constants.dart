@@ -12,6 +12,8 @@ class ApiConstants {
   static String get authGoogle   => '$baseUrl/auth/google';
   static String get authMe       => '$baseUrl/auth/me';
   static String get authFcmToken        => '$baseUrl/auth/fcm-token';
+  static String get authVerifyEmail     => '$baseUrl/auth/verify-email';
+  static String get authResendOtp       => '$baseUrl/auth/resend-otp';
   static String get authForgotPassword  => '$baseUrl/auth/forgot-password';
   static String get authResetPassword   => '$baseUrl/auth/reset-password';
 
@@ -33,7 +35,8 @@ class ApiConstants {
   static String chatHistory(String bookId) => '$baseUrl/chat/$bookId/history';
 
   // ── Audio ──────────────────────────────────────────────────────────────────
-  static String get audioGenerate => '$baseUrl/audio/generate';
+  static String get audioGenerate              => '$baseUrl/audio/generate';
+  static String audioNarrate(String bookId)    => '$baseUrl/audio/narrate/$bookId';
 
   // ── Translation ────────────────────────────────────────────────────────────
   static String get translate => '$baseUrl/translate';
@@ -58,4 +61,7 @@ class ApiConstants {
 
   // ── Streaks ────────────────────────────────────────────────────────────────
   static String get streaks               => '$baseUrl/streaks';
+
+  // ── Profile ────────────────────────────────────────────────────────────────
+  static String get notificationPrefs     => '$baseUrl/profile/notification-prefs';
 }

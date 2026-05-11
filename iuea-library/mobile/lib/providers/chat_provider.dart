@@ -82,20 +82,27 @@ class ChatProvider extends ChangeNotifier {
         notifyListeners();
       },
       onDone: () {
-        sessions[bookId]!.add(ChatMessageModel(
-          role:      'assistant',
-          content:   streamingMessage,
-          timestamp: DateTime.now(),
-          language:  language,
-        ));
+        if (streamingMessage.isNotEmpty) {
+          sessions[bookId]!.add(ChatMessageModel(
+            role:      'assistant',
+            content:   streamingMessage,
+            timestamp: DateTime.now(),
+            language:  language,
+          ));
+        }
         isStreaming      = false;
         streamingMessage = '';
         notifyListeners();
       },
-      onError: (_) {
+      onError: (err) {
+        final raw = err.toString();
+        // Surface the server message when it's human-readable; otherwise generic.
+        final isReadable = raw.length < 200 &&
+            !raw.contains('DioException') &&
+            !raw.contains('SocketException');
         sessions[bookId]!.add(ChatMessageModel(
           role:      'assistant',
-          content:   'Sorry, an error occurred. Please try again.',
+          content:   isReadable ? raw : 'Sorry, an error occurred. Please try again.',
           timestamp: DateTime.now(),
         ));
         isStreaming      = false;

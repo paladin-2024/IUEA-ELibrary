@@ -24,8 +24,8 @@ function ApproveModal({ loan, onClose, onSave }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
       <div style={{ background: '#fff', borderRadius: 16, padding: '1.5rem', width: '100%', maxWidth: 420 }}>
-        <h3 style={{ margin: '0 0 1rem', fontFamily: 'Playfair Display,serif', color: '#8A1228' }}>Approve — {loan.bookTitle}</h3>
-        <p style={{ margin: '0 0 1rem', color: '#6B7280', fontSize: '0.875rem' }}>Student: <strong>{loan.userId?.name}</strong> ({loan.userId?.email})</p>
+        <h3 style={{ margin: '0 0 1rem', fontFamily: 'Playfair Display,serif', color: '#0F172A' }}>Approve — {loan.bookTitle}</h3>
+        <p style={{ margin: '0 0 1rem', color: '#6B7280', fontSize: '0.875rem' }}>Student: <strong>{loan.user?.name}</strong> ({loan.user?.email})</p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <div>
@@ -61,7 +61,7 @@ function RejectModal({ loan, onClose, onSave }) {
     <div style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
       <div style={{ background: '#fff', borderRadius: 16, padding: '1.5rem', width: '100%', maxWidth: 380 }}>
         <h3 style={{ margin: '0 0 0.75rem', color: '#991B1B' }}>Reject Request</h3>
-        <p style={{ margin: '0 0 1rem', color: '#6B7280', fontSize: '0.875rem' }}>{loan.bookTitle} — {loan.userId?.name}</p>
+        <p style={{ margin: '0 0 1rem', color: '#6B7280', fontSize: '0.875rem' }}>{loan.bookTitle} — {loan.user?.name}</p>
         <textarea style={inp} placeholder="Reason (optional, sent to student)" value={reason} onChange={e => setReason(e.target.value)} />
         <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', justifyContent: 'flex-end' }}>
           <button onClick={onClose} style={{ padding: '0.5rem 1.25rem', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer' }}>Cancel</button>
@@ -106,10 +106,15 @@ export default function AdminLoansPage() {
   const stats   = statsData    ?? {};
 
   const FILTERS = ['', 'pending', 'approved', 'active', 'overdue', 'returned', 'rejected'];
-  const statCard = (label, val, color) => (
-    <div key={label} style={{ background: '#fff', border: '1px solid #F3F4F6', borderRadius: 10, padding: '0.875rem 1.25rem', minWidth: 100 }}>
-      <div style={{ fontSize: '1.5rem', fontWeight: 700, color }}>{val ?? 0}</div>
-      <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: 2 }}>{label}</div>
+  const statCard = (label, val, color, icon) => (
+    <div key={label} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '1rem 1.25rem', flex: 1, minWidth: 110, display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+      <div style={{ width: 36, height: 36, borderRadius: 8, background: color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+      </div>
+      <div>
+        <div style={{ fontSize: '1.375rem', fontWeight: 700, color: '#0F172A', lineHeight: 1, fontFamily: 'Inter, sans-serif' }}>{val ?? 0}</div>
+        <div style={{ fontSize: '0.6875rem', color: '#64748B', marginTop: 3, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'Inter, sans-serif' }}>{label}</div>
+      </div>
     </div>
   );
 
@@ -118,23 +123,28 @@ export default function AdminLoansPage() {
       {approveTarget && <ApproveModal loan={approveTarget} onClose={() => setApproveTarget(null)} onSave={(body) => patch({ id: approveTarget._id, ...body })} />}
       {rejectTarget  && <RejectModal  loan={rejectTarget}  onClose={() => setRejectTarget(null)}  onSave={(body) => patch({ id: rejectTarget._id,  ...body })} />}
 
-      <h1 style={{ fontFamily: 'Playfair Display,serif', fontSize: '1.75rem', fontWeight: 700, color: '#1A1A1A', margin: '0 0 1.25rem' }}>
-        Loan Management
-      </h1>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h1 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.75rem', fontWeight: 700, color: '#0F172A', margin: '0 0 4px' }}>
+          Loan Management
+        </h1>
+        <p style={{ fontSize: '0.8125rem', color: '#94A3B8', margin: 0, fontFamily: 'Inter, sans-serif' }}>
+          Review, approve, and track physical book borrowing requests
+        </p>
+      </div>
 
       {/* Stats */}
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-        {statCard('Pending',  stats.pending,  '#92400E')}
-        {statCard('Active',   stats.active,   '#1E40AF')}
-        {statCard('Overdue',  stats.overdue,  '#991B1B')}
-        {statCard('Returned', stats.returned, '#374151')}
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.5rem', alignItems: 'stretch' }}>
+        {statCard('Pending',  stats.pending,  '#D97706', 'pending_actions')}
+        {statCard('Active',   stats.active,   '#1D4ED8', 'library_books')}
+        {statCard('Overdue',  stats.overdue,  '#E11D48', 'schedule')}
+        {statCard('Returned', stats.returned, '#10B981', 'check_circle')}
       </div>
 
       {/* Filter */}
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
         {FILTERS.map(s => (
           <button key={s} onClick={() => { setStatusFilter(s); setPage(1); }}
-            style={{ padding: '0.35rem 0.875rem', borderRadius: 999, fontSize: '0.813rem', fontWeight: 600, border: 'none', cursor: 'pointer', background: statusFilter === s ? '#8A1228' : '#F3F4F6', color: statusFilter === s ? '#fff' : '#374151' }}>
+            style={{ padding: '0.35rem 0.875rem', borderRadius: 999, fontSize: '0.75rem', fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'background 0.12s, color 0.12s', background: statusFilter === s ? '#E11D48' : '#F1F5F9', color: statusFilter === s ? '#fff' : '#475569' }}>
             {s ? (STATUS_META[s]?.label ?? s) : 'All'} {s === '' ? `(${total})` : ''}
           </button>
         ))}
@@ -170,7 +180,7 @@ export default function AdminLoansPage() {
                     )}
                   </div>
                   <p style={{ margin: '0.1rem 0 0', fontSize: '0.813rem', color: '#6B7280' }}>
-                    {loan.userId?.name} · {loan.userId?.email} · {loan.userId?.faculty ?? 'N/A'}
+                    {loan.user?.name} · {loan.user?.email} · {loan.user?.faculty ?? 'N/A'}
                   </p>
                   {due && <p style={{ margin: 0, fontSize: '0.75rem', color: '#374151' }}>Due: {due}</p>}
                   {loan.shelfLocation && <p style={{ margin: 0, fontSize: '0.75rem', color: '#065F46' }}>📍 {loan.shelfLocation}</p>}

@@ -1,7 +1,4 @@
 const prisma        = require('../config/prisma');
-const UserProgress  = require('../models/UserProgress');
-const Book          = require('../models/Book');
-const User          = require('../models/User');
 const { syncPodcast }  = require('../services/podcast.service');
 const { uploadBookFile, uploadCover } = require('../services/r2.service');
 const { sendMulticast, sendNewBookNotification } = require('../services/firebase.service');
@@ -11,12 +8,14 @@ const { sendMulticast, sendNewBookNotification } = require('../services/firebase
 const getStats = async (req, res, next) => {
   try {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const todayStart    = new Date(); todayStart.setHours(0, 0, 0, 0);
 
-    const [users, books, sessions, podcasts, completedBooks, recentUsers] = await Promise.all([
-      prisma.user.count(),
+    const [users, books, sessions, podcastPlayCount, downloadsToday, completedBooks, recentUsers] = await Promise.all([
+      prisma.user.count({ where: { isActive: true } }),
       prisma.book.count({ where: { isActive: true } }),
       prisma.chatSession.count(),
-      prisma.podcast.count({ where: { isActive: true } }),
+      prisma.podcast.aggregate({ _sum: { playCount: true }, where: { isActive: true } }),
+      prisma.userProgress.count({ where: { isDownloaded: true, updatedAt: { gte: todayStart } } }),
       prisma.userProgress.count({ where: { isCompleted: true } }),
       prisma.user.findMany({
         orderBy: { createdAt: 'desc' },
@@ -25,20 +24,19 @@ const getStats = async (req, res, next) => {
       }),
     ]);
 
-    const dailyReaders = await UserProgress.aggregate([
-      { $match: { lastReadAt: { $gte: thirtyDaysAgo } } },
-      {
-        $group: {
-          _id:   { $dateToString: { format: '%m/%d', date: '$lastReadAt' } },
-          count: { $addToSet: '$userId' },
-        },
-      },
-      { $project: { _id: 0, date: '$_id', count: { $size: '$count' } } },
-      { $sort: { date: 1 } },
-    ]);
+    const podcastPlays = podcastPlayCount._sum.playCount ?? 0;
+
+    const dailyReaders = await prisma.$queryRaw`
+      SELECT TO_CHAR(DATE("lastReadAt"), 'MM/DD') AS date,
+             COUNT(DISTINCT "userId")::integer    AS count
+      FROM   "UserProgress"
+      WHERE  "lastReadAt" >= ${thirtyDaysAgo}
+      GROUP  BY DATE("lastReadAt")
+      ORDER  BY DATE("lastReadAt")
+    `;
 
     res.json({
-      stats: { users, books, sessions, podcasts, completedBooks },
+      stats: { users, books, sessions, downloadsToday, podcastPlays, completedBooks },
       recentUsers,
       dailyReaders,
     });
@@ -224,8 +222,6 @@ const syncPatrons = async (req, res, next) => {
 const updateUserRole = async (req, res, next) => {
   try {
     const { role } = req.body;
-    if (!['student', 'staff', 'admin'].includes(role))
-      return res.status(400).json({ message: 'Invalid role. Must be student, staff, or admin.' });
     const user = await prisma.user.update({
       where:  { id: req.params.id },
       data:   { role },
@@ -244,10 +240,12 @@ const deleteUser = async (req, res, next) => {
     const existing = await prisma.user.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ message: 'User not found.' });
 
-    // Cascade-delete dependent records before removing the user
     await Promise.all([
       prisma.userProgress.deleteMany({ where: { userId: req.params.id } }),
       prisma.chatSession.deleteMany({ where: { userId: req.params.id } }),
+      prisma.borrowRequest.deleteMany({ where: { userId: req.params.id } }),
+      prisma.review.deleteMany({ where: { userId: req.params.id } }),
+      prisma.collection.deleteMany({ where: { userId: req.params.id } }),
     ]);
     await prisma.user.delete({ where: { id: req.params.id } });
     res.json({ message: 'User deleted.' });
@@ -270,22 +268,17 @@ const toggleBookStatus = async (req, res, next) => {
 // GET /api/admin/analytics/top-books
 const getTopBooks = async (req, res, next) => {
   try {
-    const topBooks = await UserProgress.aggregate([
-      { $group: { _id: '$bookId', sessions: { $sum: 1 } } },
-      { $sort: { sessions: -1 } },
-      { $limit: 10 },
-      { $lookup: { from: 'books', localField: '_id', foreignField: '_id', as: 'bookInfo' } },
-      { $unwind: { path: '$bookInfo', preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          _id: 0,
-          bookId:   { $toString: '$_id' },
-          sessions: 1,
-          title:    { $ifNull: ['$bookInfo.title',  'Unknown'] },
-          author:   { $ifNull: ['$bookInfo.author', 'Unknown'] },
-        },
-      },
-    ]);
+    const topBooks = await prisma.$queryRaw`
+      SELECT up."bookId",
+             COUNT(*)::integer          AS sessions,
+             COALESCE(b.title,  'Unknown') AS title,
+             COALESCE(b.author, 'Unknown') AS author
+      FROM   "UserProgress" up
+      LEFT JOIN "Book" b ON b.id = up."bookId"
+      GROUP  BY up."bookId", b.title, b.author
+      ORDER  BY sessions DESC
+      LIMIT  10
+    `;
     res.json({ topBooks });
   } catch (err) { next(err); }
 };
@@ -294,12 +287,14 @@ const getTopBooks = async (req, res, next) => {
 const getUserGrowth = async (req, res, next) => {
   try {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const dailySignups = await User.aggregate([
-      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
-      { $group: { _id: { $dateToString: { format: '%m/%d', date: '$createdAt' } }, count: { $sum: 1 } } },
-      { $project: { _id: 0, date: '$_id', count: 1 } },
-      { $sort: { date: 1 } },
-    ]);
+    const dailySignups = await prisma.$queryRaw`
+      SELECT TO_CHAR(DATE("createdAt"), 'MM/DD') AS date,
+             COUNT(*)::integer                   AS count
+      FROM   "User"
+      WHERE  "createdAt" >= ${thirtyDaysAgo}
+      GROUP  BY DATE("createdAt")
+      ORDER  BY DATE("createdAt")
+    `;
     res.json({ dailySignups });
   } catch (err) { next(err); }
 };
@@ -308,7 +303,6 @@ const getUserGrowth = async (req, res, next) => {
 const sendPushNotification = async (req, res, next) => {
   try {
     const { title, body, targetRole, data = {} } = req.body;
-    if (!title || !body) return res.status(400).json({ message: 'title and body are required.' });
 
     const where = targetRole ? { role: targetRole, isActive: true } : { isActive: true };
     const users  = await prisma.user.findMany({
@@ -349,77 +343,75 @@ const getAnalytics = async (req, res, next) => {
 
     const [dailyReads, topBooksRaw, langDist, hourlyActivity, dailySignups] = await Promise.all([
       // Daily read sessions over last 30 days
-      UserProgress.aggregate([
-        { $match: { lastReadAt: { $gte: thirtyDaysAgo } } },
-        { $group: { _id: { $dateToString: { format: '%m/%d', date: '$lastReadAt' } }, count: { $sum: 1 } } },
-        { $project: { _id: 0, date: '$_id', count: 1 } },
-        { $sort: { date: 1 } },
-      ]),
+      prisma.$queryRaw`
+        SELECT TO_CHAR(DATE("lastReadAt"), 'MM/DD') AS date,
+               COUNT(*)::integer                   AS count
+        FROM   "UserProgress"
+        WHERE  "lastReadAt" >= ${thirtyDaysAgo}
+        GROUP  BY DATE("lastReadAt")
+        ORDER  BY DATE("lastReadAt")
+      `,
       // Top 10 most-read books
-      UserProgress.aggregate([
-        { $group: { _id: '$bookId', sessions: { $sum: 1 } } },
-        { $sort: { sessions: -1 } },
-        { $limit: 10 },
-        {
-          $lookup: {
-            from:         'books',
-            localField:   '_id',
-            foreignField: '_id',
-            as:           'bookInfo',
-          },
-        },
-        { $unwind: { path: '$bookInfo', preserveNullAndEmptyArrays: true } },
-        {
-          $project: {
-            _id:      0,
-            bookId:   { $toString: '$_id' },
-            sessions: 1,
-            title:    { $ifNull: ['$bookInfo.title',  'Unknown'] },
-            author:   { $ifNull: ['$bookInfo.author', 'Unknown'] },
-          },
-        },
-      ]),
-      // Language distribution from active books
-      Book.aggregate([
-        { $match: { isActive: true } },
-        { $unwind: '$languages' },
-        { $group: { _id: '$languages', value: { $sum: 1 } } },
-        { $project: { _id: 0, name: '$_id', value: 1 } },
-        { $sort: { value: -1 } },
-      ]),
-      // Hourly activity heatmap over last 7 days (day-of-week 0=Sun … 6=Sat)
-      UserProgress.aggregate([
-        { $match: { lastReadAt: { $gte: sevenDaysAgo } } },
-        {
-          $group: {
-            _id: {
-              day:  { $dayOfWeek: '$lastReadAt' },  // 1=Sun … 7=Sat → subtract 1 for 0-indexed
-              hour: { $hour: '$lastReadAt' },
-            },
-            count: { $sum: 1 },
-          },
-        },
-        {
-          $project: {
-            _id:   0,
-            day:   { $subtract: ['$_id.day', 1] },
-            hour:  '$_id.hour',
-            count: 1,
-          },
-        },
-      ]),
+      prisma.$queryRaw`
+        SELECT up."bookId",
+               COUNT(*)::integer             AS sessions,
+               COALESCE(b.title,  'Unknown') AS title,
+               COALESCE(b.author, 'Unknown') AS author
+        FROM   "UserProgress" up
+        LEFT JOIN "Book" b ON b.id = up."bookId"
+        GROUP  BY up."bookId", b.title, b.author
+        ORDER  BY sessions DESC
+        LIMIT  10
+      `,
+      // Language distribution from active books (unnest array)
+      prisma.$queryRaw`
+        SELECT lang AS name, COUNT(*)::integer AS value
+        FROM   "Book", UNNEST(languages) AS lang
+        WHERE  "isActive" = true
+        GROUP  BY lang
+        ORDER  BY value DESC
+      `,
+      // Hourly activity heatmap over last 7 days (0=Sun … 6=Sat)
+      prisma.$queryRaw`
+        SELECT EXTRACT(DOW  FROM "lastReadAt")::integer  AS day,
+               EXTRACT(HOUR FROM "lastReadAt")::integer  AS hour,
+               COUNT(*)::integer                         AS count
+        FROM   "UserProgress"
+        WHERE  "lastReadAt" >= ${sevenDaysAgo}
+        GROUP  BY day, hour
+      `,
       // Daily signups over last 30 days
-      User.aggregate([
-        { $match: { createdAt: { $gte: thirtyDaysAgo } } },
-        { $group: { _id: { $dateToString: { format: '%m/%d', date: '$createdAt' } }, count: { $sum: 1 } } },
-        { $project: { _id: 0, date: '$_id', count: 1 } },
-        { $sort: { date: 1 } },
-      ]),
+      prisma.$queryRaw`
+        SELECT TO_CHAR(DATE("createdAt"), 'MM/DD') AS date,
+               COUNT(*)::integer                   AS count
+        FROM   "User"
+        WHERE  "createdAt" >= ${thirtyDaysAgo}
+        GROUP  BY DATE("createdAt")
+        ORDER  BY DATE("createdAt")
+      `,
     ]);
 
-    const topBooks = topBooksRaw;
+    res.json({ dailyReads, topBooks: topBooksRaw, langDist, hourlyActivity, dailySignups });
+  } catch (err) { next(err); }
+};
 
-    res.json({ dailyReads, topBooks, langDist, hourlyActivity, dailySignups });
+// GET /api/admin/podcasts
+const getPodcasts = async (req, res, next) => {
+  try {
+    const { q, page = 1, limit = 30 } = req.query;
+    const where = {};
+    if (q) where.title = { contains: q, mode: 'insensitive' };
+
+    const [total, podcasts] = await Promise.all([
+      prisma.podcast.count({ where }),
+      prisma.podcast.findMany({
+        where,
+        orderBy: [{ createdAt: 'desc' }],
+        skip:    (Number(page) - 1) * Number(limit),
+        take:    Number(limit),
+      }),
+    ]);
+    res.json({ podcasts, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
   } catch (err) { next(err); }
 };
 
@@ -542,6 +534,6 @@ module.exports = {
   getStats, getBooks, uploadBook, updateBook, deleteBook, toggleBookStatus,
   discoverBooks, importBook,
   getUsers, suspendUser, getUserDetail, updateUserRole, deleteUser,
-  syncPatrons, addPodcast, updatePodcast, deletePodcast, getAnalytics,
+  syncPatrons, getPodcasts, addPodcast, updatePodcast, deletePodcast, getAnalytics,
   getTopBooks, getUserGrowth, sendPushNotification,
 };

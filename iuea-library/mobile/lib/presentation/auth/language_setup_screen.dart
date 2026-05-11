@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/services/api_service.dart';
 import '../../core/constants/api_constants.dart';
@@ -144,7 +145,7 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                               children: [
                                 Text('Continue', style: AppTextStyles.button),
                                 const SizedBox(width: 8),
-                                const Icon(Icons.arrow_forward_rounded, size: 16),
+                                const Icon(AppIcons.arrowForward, size: 16),
                               ]),
                       ),
                     ),
@@ -229,7 +230,7 @@ class _LanguageCard extends StatelessWidget {
                   width: 20, height: 20,
                   decoration: const BoxDecoration(
                     color: AppColors.primary, shape: BoxShape.circle),
-                  child: const Icon(Icons.check_rounded,
+                  child: const Icon(AppIcons.check,
                     color: AppColors.white, size: 12),
                 ),
               ),

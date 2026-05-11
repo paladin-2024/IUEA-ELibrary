@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -101,14 +102,14 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                     const Spacer(),
                     IconButton(
                       icon: Icon(
-                        _searching ? Icons.close_rounded : Icons.search_rounded,
+                        _searching ? AppIcons.close : AppIcons.search,
                         color: _searching ? AppColors.primary : AppColors.textPrimary,
                         size: 22),
                       onPressed: _toggleSearch,
                       tooltip: _searching ? 'Close search' : 'Search podcasts',
                     ),
                     IconButton(
-                      icon: const Icon(Icons.notifications_none_rounded,
+                      icon: const Icon(AppIcons.notification,
                         color: AppColors.textPrimary, size: 22),
                       onPressed: () => context.push('/notifications'),
                     ),
@@ -144,11 +145,11 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                             hintText:  'Search podcasts & shows…',
                             hintStyle: AppTextStyles.label.copyWith(
                               color: AppColors.textHint),
-                            prefixIcon: const Icon(Icons.search_rounded,
+                            prefixIcon: const Icon(AppIcons.search,
                               color: AppColors.textHint, size: 20),
                             suffixIcon: _searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.clear_rounded,
+                                  icon: const Icon(AppIcons.close,
                                     size: 18, color: AppColors.textHint),
                                   onPressed: () => setState(() {
                                     _searchQuery = '';
@@ -182,7 +183,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
             else if (provider.error != null && provider.podcasts.isEmpty)
               SliverFillRemaining(
                 child: AppErrorState(
-                  icon: Icons.mic_none_outlined,
+                  icon: AppIcons.mic,
                   message: provider.error,
                   onRetry: () {
                     context.read<PodcastProvider>().loadPodcasts();
@@ -198,7 +199,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                   child: Center(child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.search_off_rounded,
+                      const Icon(AppIcons.searchOff,
                         size: 52, color: AppColors.grey300),
                       const SizedBox(height: 8),
                       Text('No results for "$_searchQuery"',
@@ -235,7 +236,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                                   : Container(
                                       width: 56, height: 56,
                                       color: AppColors.primary.withValues(alpha: 0.08),
-                                      child: const Icon(Icons.mic_rounded,
+                                      child: const Icon(AppIcons.mic,
                                         color: AppColors.primary, size: 24)),
                               ),
                               const SizedBox(width: 12),
@@ -260,7 +261,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                                   ],
                                 ],
                               )),
-                              const Icon(Icons.chevron_right_rounded,
+                              const Icon(AppIcons.chevronRight,
                                 color: AppColors.grey300, size: 18),
                             ]),
                           ),
@@ -281,69 +282,137 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                     onTap: () => context.push('/podcasts/${featured.id}'),
                     child: Container(
                       margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                      height: 175,
+                      height: 196,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(20),
                         gradient: const LinearGradient(
                           colors: [AppColors.primaryDark, AppColors.primary],
                           begin: Alignment.topLeft,
                           end:   Alignment.bottomRight),
+                        boxShadow: [
+                          BoxShadow(
+                            color:      AppColors.primary.withValues(alpha: 0.35),
+                            blurRadius: 20,
+                            offset:     const Offset(0, 8),
+                          ),
+                        ],
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: Stack(
                         children: [
+                          // Background cover image
                           if (featured.coverUrl.isNotEmpty)
                             Positioned.fill(
                               child: CachedNetworkImage(
                                 imageUrl:       featured.coverUrl,
                                 fit:            BoxFit.cover,
-                                color:          AppColors.primaryDark.withValues(alpha: 0.72),
+                                color:          AppColors.primaryDark.withValues(alpha: 0.65),
                                 colorBlendMode: BlendMode.darken),
                             ),
+                          // Bottom gradient
+                          Positioned(
+                            bottom: 0, left: 0, right: 0,
+                            child: Container(
+                              height: 120,
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.bottomCenter,
+                                  end:   Alignment.topCenter,
+                                  colors: [Color(0xE6000000), Colors.transparent],
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Decorative circle
+                          Positioned(
+                            top: -20, right: -20,
+                            child: Container(
+                              width: 100, height: 100,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.06),
+                                  width: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Content
                           Padding(
-                            padding: const EdgeInsets.all(18),
+                            padding: const EdgeInsets.all(20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment:  MainAxisAlignment.end,
                               children: [
-                                // Category badge
-                                if (featured.category != null)
+                                // Featured + category badges
+                                Row(children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 3),
+                                        horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color:        AppColors.accent.withValues(alpha: 0.9),
-                                      borderRadius: BorderRadius.circular(6)),
-                                    child: Text(featured.category!,
-                                      style: TextStyle(fontFamily: 'Inter', 
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.primaryDark)),
+                                      color:        Colors.white.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(
+                                          color: Colors.white.withValues(alpha: 0.3)),
+                                    ),
+                                    child: const Text('FEATURED',
+                                      style: TextStyle(
+                                        fontFamily:    'Inter',
+                                        fontSize:      8,
+                                        fontWeight:    FontWeight.w800,
+                                        color:         Colors.white,
+                                        letterSpacing: 1.2,
+                                      )),
                                   ),
-                                const SizedBox(height: 6),
+                                  if (featured.category != null) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color:        AppColors.accent.withValues(alpha: 0.9),
+                                        borderRadius: BorderRadius.circular(6)),
+                                      child: Text(featured.category!,
+                                        style: const TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize:   8,
+                                          fontWeight: FontWeight.w700,
+                                          color:      AppColors.primaryDark,
+                                          letterSpacing: 0.5,
+                                        )),
+                                    ),
+                                  ],
+                                ]),
+                                const SizedBox(height: 8),
                                 Text(featured.title,
-                                  style: AppTextStyles.h2.copyWith(
-                                    color: AppColors.white, fontSize: 17),
+                                  style: const TextStyle(
+                                    fontFamily: 'Newsreader',
+                                    color:      Colors.white,
+                                    fontSize:   20,
+                                    fontWeight: FontWeight.w700,
+                                    height:     1.2,
+                                  ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis),
-                                const SizedBox(height: 2),
+                                const SizedBox(height: 4),
                                 Text(
                                   '${featured.author} · ${featured.episodes.length} episodes',
-                                  style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.white.withValues(alpha: 0.7),
-                                    fontSize: 11)),
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    color:      Colors.white.withValues(alpha: 0.7),
+                                    fontSize:   12)),
                               ],
                             ),
                           ),
                           // Play button
                           Positioned(
-                            right: 16, bottom: 16,
+                            right: 18, bottom: 18,
                             child: Container(
-                              width: 40, height: 40,
+                              width: 46, height: 46,
                               decoration: const BoxDecoration(
-                                color: AppColors.accent, shape: BoxShape.circle),
-                              child: const Icon(Icons.play_arrow_rounded,
-                                color: AppColors.primaryDark, size: 22),
+                                  color: AppColors.accent, shape: BoxShape.circle),
+                              child: const Icon(AppIcons.play,
+                                  color: AppColors.primaryDark, size: 26),
                             ),
                           ),
                         ],
@@ -408,7 +477,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.8, fontSize: 10)),
-                          const Icon(Icons.chevron_right_rounded,
+                          const Icon(AppIcons.chevronRight,
                             size: 14, color: AppColors.primary),
                         ]),
                       ),
@@ -438,7 +507,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                                   : Container(
                                       width: 62, height: 62,
                                       color: AppColors.primary.withValues(alpha: 0.08),
-                                      child: const Icon(Icons.mic_rounded,
+                                      child: const Icon(AppIcons.mic,
                                         color: AppColors.primary, size: 28)),
                               ),
                               const SizedBox(height: 5),
@@ -464,11 +533,16 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                     Text('Popular at IUEA',
                       style: AppTextStyles.h3.copyWith(fontSize: 15)),
                     const Spacer(),
-                    Text('SEE ALL', style: AppTextStyles.label.copyWith(
-                      color: AppColors.primary, fontWeight: FontWeight.w600,
-                      letterSpacing: 0.8, fontSize: 10)),
-                    const Icon(Icons.chevron_right_rounded,
-                      size: 14, color: AppColors.primary),
+                    GestureDetector(
+                      onTap: () => context.go('/search'),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Text('SEE ALL', style: AppTextStyles.label.copyWith(
+                          color: AppColors.primary, fontWeight: FontWeight.w600,
+                          letterSpacing: 0.8, fontSize: 10)),
+                        const Icon(AppIcons.chevronRight,
+                          size: 14, color: AppColors.primary),
+                      ]),
+                    ),
                   ]),
                 ),
               ),
@@ -478,7 +552,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                     child: Center(child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.mic_none_outlined,
+                        const Icon(AppIcons.mic,
                           size: 56, color: AppColors.grey300),
                         const SizedBox(height: 8),
                         Text('No podcasts yet.',
@@ -542,7 +616,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                                 : Container(
                                     width: 52, height: 52,
                                     color: AppColors.primary.withValues(alpha: 0.08),
-                                    child: const Icon(Icons.mic_rounded,
+                                    child: const Icon(AppIcons.mic,
                                       color: AppColors.primary, size: 24)),
                             ),
                             const SizedBox(width: 12),
@@ -566,7 +640,7 @@ class _PodcastsHomeScreenState extends State<PodcastsHomeScreen>
                                 decoration: BoxDecoration(
                                   color:  AppColors.primary.withValues(alpha: 0.08),
                                   shape:  BoxShape.circle),
-                                child: const Icon(Icons.play_arrow_rounded,
+                                child: const Icon(AppIcons.play,
                                   color: AppColors.primary, size: 18),
                               ),
                               onPressed: () =>
@@ -606,46 +680,105 @@ class _PodcastCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color:        AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04), blurRadius: 8,
-          offset: const Offset(0, 2))],
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color:     Colors.black.withValues(alpha: 0.07),
+            blurRadius: 12,
+            offset:    const Offset(0, 4),
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        // Cover with play overlay
         Expanded(
-          child: podcast.coverUrl.isNotEmpty
-            ? CachedNetworkImage(
-                imageUrl: podcast.coverUrl,
-                fit: BoxFit.cover, width: double.infinity)
-            : Container(
-                color: AppColors.primary.withValues(alpha: 0.07),
-                child: const Center(child: Icon(Icons.mic_rounded,
-                  color: AppColors.primary, size: 40))),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              podcast.coverUrl.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: podcast.coverUrl,
+                      fit: BoxFit.cover, width: double.infinity)
+                  : Container(
+                      color: AppColors.primary.withValues(alpha: 0.07),
+                      child: const Center(child: Icon(AppIcons.mic,
+                          color: AppColors.primary, size: 40))),
+              // Bottom gradient
+              Positioned(
+                bottom: 0, left: 0, right: 0,
+                child: Container(
+                  height: 60,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end:   Alignment.topCenter,
+                      colors: [Color(0xCC000000), Colors.transparent],
+                    ),
+                  ),
+                ),
+              ),
+              // Play button
+              Positioned(
+                bottom: 8, right: 8,
+                child: Container(
+                  width: 32, height: 32,
+                  decoration: const BoxDecoration(
+                    color: AppColors.accent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(AppIcons.play,
+                      color: AppColors.primaryDark, size: 18),
+                ),
+              ),
+              // Episode count badge
+              Positioned(
+                top: 8, left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color:        Colors.black.withValues(alpha: 0.55),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${podcast.episodes?.length ?? 0} eps',
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      color:      Colors.white,
+                      fontSize:   9,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
+        // Info
         Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(podcast.title,
               style: AppTextStyles.body.copyWith(
-                fontWeight: FontWeight.w600, fontSize: 12),
+                  fontWeight: FontWeight.w700, fontSize: 12),
               maxLines: 1, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 2),
             Text(podcast.author,
               style: AppTextStyles.label.copyWith(
-                color: AppColors.textHint, fontSize: 11),
+                  color: AppColors.textHint, fontSize: 10),
               maxLines: 1, overflow: TextOverflow.ellipsis),
             if (podcast.category != null) ...[
               const SizedBox(height: 5),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color:        AppColors.primary.withValues(alpha: 0.07),
-                  borderRadius: BorderRadius.circular(8)),
+                  color:        AppColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(6)),
                 child: Text(podcast.category!,
                   style: AppTextStyles.label.copyWith(
                     fontSize: 9, color: AppColors.primary,
-                    fontWeight: FontWeight.w600)),
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3)),
               ),
             ],
           ]),

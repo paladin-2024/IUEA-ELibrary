@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -36,11 +37,20 @@ class _ReaderScreenState extends State<ReaderScreen> {
   final _epubController = EpubController();
   Timer? _autoSaveTimer;
   Timer? _epubBlankTimer;
+  Timer? _textExtractDebounce;
   bool    _initialized      = false;
   bool    _loadFailed        = false;
-  bool    _epubBlank         = false; // true when EPUB viewer loaded but no content
+  bool    _epubBlank         = false;
+  bool    _epubLoading       = false;
+  bool    _downloading       = false;
+  double  _downloadProgress  = 0.0;
   String  _mode              = 'read';
   String? _localFilePath;
+  List<EpubChapter> _chapters = [];
+
+  // Track last-applied epub settings so we only push changes, not every rebuild
+  double? _epubFontSize;
+  String? _epubThemeKey;
 
   @override
   void initState() {
@@ -50,6 +60,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
       final reader = context.read<ReaderProvider>();
       await reader.initTts();
 
+      // ignore: use_build_context_synchronously
       final book = await context.read<BookProvider>().getBook(widget.bookId);
       if (!mounted) return;
       if (book == null) {
@@ -60,15 +71,41 @@ class _ReaderScreenState extends State<ReaderScreen> {
       reader.currentBook = book;
       await reader.loadProgress(widget.bookId);
 
-      // Prefer local offline copy over network URL
-      final localPath = await DownloadService().getLocalPath(widget.bookId);
+      // Check for an already-downloaded local copy
+      String? localPath = await DownloadService().getLocalPath(widget.bookId);
+
+      // If no local copy and it's an EPUB with a URL, download it now.
+      // EpubSource.fromUrl() is unreliable (CORS, redirects, large files);
+      // downloading first and using fromFile() is the only robust approach.
+      if (localPath == null &&
+          book.fileUrl != null &&
+          book.fileUrl!.isNotEmpty &&
+          book.fileFormat != 'pdf') {
+        if (mounted) setState(() => _downloading = true);
+        try {
+          final dl = await DownloadService().downloadBook(
+            book,
+            onProgress: (pct) {
+              if (mounted) setState(() => _downloadProgress = pct);
+            },
+          );
+          localPath = dl.localPath;
+        } catch (_) {
+          // download failed — we'll show the no-file state below
+        }
+        if (mounted) setState(() => _downloading = false);
+      }
+
       if (mounted) _localFilePath = localPath;
 
       setState(() => _initialized = true);
 
-      // Start blank-content watchdog only when we actually have a source to load
-      if (localPath != null ||
-          (book.fileUrl != null && book.fileUrl!.isNotEmpty)) {
+      // Start loading state + blank timer for ANY epub source (local or URL fallback)
+      final isEpub = book.fileFormat != 'pdf';
+      final hasEpubSource = localPath != null ||
+          (book.fileUrl != null && book.fileUrl!.isNotEmpty);
+      if (isEpub && hasEpubSource) {
+        if (mounted) setState(() => _epubLoading = true);
         _startEpubBlankTimer();
       }
 
@@ -83,29 +120,114 @@ class _ReaderScreenState extends State<ReaderScreen> {
   void dispose() {
     _autoSaveTimer?.cancel();
     _epubBlankTimer?.cancel();
+    _textExtractDebounce?.cancel();
+    // ignore: use_build_context_synchronously
+    context.read<ReaderProvider>().removeListener(_syncEpubSettings);
     super.dispose();
   }
 
   void _startEpubBlankTimer() {
     _epubBlankTimer?.cancel();
     _epubBlank = false;
-    _epubBlankTimer = Timer(const Duration(seconds: 7), () {
+    // 20 s — generous for slow mobile networks
+    _epubBlankTimer = Timer(const Duration(seconds: 60), () {
       if (mounted && !_epubBlank) {
-        setState(() => _epubBlank = true);
+        setState(() {
+          _epubBlank   = true;
+          _epubLoading = false;
+        });
       }
     });
   }
 
   void _onEpubChaptersLoaded(List<EpubChapter> chapters) {
-    if (chapters.isNotEmpty) {
-      _epubBlankTimer?.cancel();
-      if (mounted && _epubBlank) setState(() => _epubBlank = false);
+    _epubBlankTimer?.cancel();
+    _chapters = chapters;
+    if (mounted) {
+      setState(() {
+        _epubLoading = false;
+        if (_epubBlank) _epubBlank = false;
+      });
     }
+    _scheduleTextExtract();
+  }
+
+  void _onEpubLoaded() {
+    _epubBlankTimer?.cancel();
+    if (mounted) setState(() => _epubLoading = false);
+    _scheduleTextExtract();
+    // Start watching for font/theme changes to push to the epub WebView
+    context.read<ReaderProvider>().addListener(_syncEpubSettings);
+  }
+
+  // Push font-size and theme changes into the epub WebView without reloading it
+  void _syncEpubSettings() {
+    if (_epubController.webViewController == null || !mounted) return;
+    final reader = context.read<ReaderProvider>();
+    if (reader.fontSize != _epubFontSize) {
+      _epubFontSize = reader.fontSize;
+      _epubController.setFontSize(fontSize: reader.fontSize);
+    }
+    if (reader.theme != _epubThemeKey) {
+      _epubThemeKey = reader.theme;
+      _epubController.updateTheme(theme: _buildEpubTheme(reader.theme));
+    }
+  }
+
+  static EpubTheme _buildEpubTheme(String theme) {
+    switch (theme) {
+      case 'dark':
+        return EpubTheme.dark();
+      case 'sepia':
+        return EpubTheme.custom(
+          backgroundDecoration: const BoxDecoration(color: Color(0xFFF5ECD7)),
+          foregroundColor: const Color(0xFF3B2A1A),
+        );
+      default:
+        return EpubTheme.light();
+    }
+  }
+
+  // Match a CFI to its chapter by checking each chapter's href against the CFI string.
+  // Falls back to progress-based estimate if no match is found.
+  int _findChapterIndex(String cfi) {
+    if (_chapters.isEmpty) return 0;
+    for (int i = _chapters.length - 1; i >= 0; i--) {
+      final href = _chapters[i].href.split('#').first;
+      if (href.isNotEmpty && cfi.contains(href)) return i;
+      if (_chapters[i].id.isNotEmpty && cfi.contains(_chapters[i].id)) return i;
+    }
+    return 0;
+  }
+
+  void _scheduleTextExtract() {
+    _textExtractDebounce?.cancel();
+    _textExtractDebounce = Timer(const Duration(milliseconds: 600), () async {
+      try {
+        final result = await _epubController.extractCurrentPageText();
+        final text = result.text;
+        if (mounted && text != null && text.isNotEmpty) {
+          // ignore: use_build_context_synchronously
+          context.read<ReaderProvider>().setCurrentChapterText(text);
+        }
+      } catch (_) {}
+    });
   }
 
   Future<bool> _onWillPop() async {
     await context.read<ReaderProvider>().saveProgress(widget.bookId);
     return true;
+  }
+
+  String _pageLabel(ReaderProvider reader, dynamic book) {
+    final chap = 'CH ${reader.currentChapter + 1}';
+    if (book.pageCount != null && book.pageCount! > 0 && reader.currentPage > 0) {
+      return '$chap · P ${reader.currentPage}/${book.pageCount}';
+    }
+    if (reader.percentComplete > 0) {
+      return '$chap · ${reader.percentComplete.toStringAsFixed(0)}%';
+    }
+    return chap;
   }
 
   Color _bgColor(ReaderProvider reader) {
@@ -198,6 +320,64 @@ class _ReaderScreenState extends State<ReaderScreen> {
       );
     }
 
+    // Show download progress before _initialized — the progress overlay inside
+    // the Stack is unreachable until after download completes, so we hoist it.
+    if (_downloading) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 64, height: 64,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(AppIcons.book,
+                      size: 32, color: AppColors.primary),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    _downloadProgress > 0
+                        ? 'Downloading… ${(_downloadProgress * 100).toStringAsFixed(0)}%'
+                        : 'Preparing book…',
+                    style: const TextStyle(
+                      fontFamily: 'Inter', fontSize: 14,
+                      color: Color(0xFF475569), fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 16),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value:           _downloadProgress > 0 ? _downloadProgress : null,
+                      color:           AppColors.primary,
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.10),
+                      minHeight:       6,
+                    ),
+                  ),
+                  if (_downloadProgress > 0) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      'This may take a moment on slow networks',
+                      style: const TextStyle(
+                        fontFamily: 'Inter', fontSize: 11,
+                        color: Color(0xFF94A3B8)),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     if (!_initialized || book == null) {
       return const Scaffold(body: LoadingWidget());
     }
@@ -212,8 +392,15 @@ class _ReaderScreenState extends State<ReaderScreen> {
     final barSub    = isDark ? Colors.white.withValues(alpha: 0.5) : AppColors.textHint;
     final barBorder = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.07);
 
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (!didPop) {
+          await _onWillPop();
+          // ignore: use_build_context_synchronously
+          if (mounted) context.pop();
+        }
+      },
       child: Scaffold(
         backgroundColor: bg,
         body: SafeArea(
@@ -234,10 +421,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
                       horizontal: 4, vertical: 6),
                     child: Row(children: [
                       IconButton(
-                        icon: Icon(Icons.arrow_back_ios_new_rounded,
+                        icon: Icon(AppIcons.arrowBack,
                           size: 18, color: barFg),
                         onPressed: () async {
                           await reader.saveProgress(widget.bookId);
+                          // ignore: use_build_context_synchronously
                           if (mounted) context.pop();
                         },
                       ),
@@ -252,7 +440,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis),
                             Text(
-                              'CHAPTER ${reader.currentChapter + 1} · PAGE ${reader.currentPage > 0 ? reader.currentPage : '—'}',
+                              _pageLabel(reader, book),
                               style: TextStyle(
                                 fontFamily:    'Inter',
                                 fontSize:      10,
@@ -264,7 +452,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                       ),
                       // Translate & Chat in top bar
                       IconButton(
-                        icon: Icon(Icons.translate_rounded,
+                        icon: Icon(AppIcons.translate,
                           size: 20,
                           color: reader.readingLanguage != 'English'
                               ? AppColors.primary : barFg),
@@ -272,13 +460,13 @@ class _ReaderScreenState extends State<ReaderScreen> {
                         tooltip: 'Switch language',
                       ),
                       IconButton(
-                        icon: Icon(Icons.smart_toy_outlined,
+                        icon: Icon(AppIcons.bot,
                           size: 20, color: barFg),
                         onPressed: _openChatbot,
                         tooltip: 'Ask Digital Curator',
                       ),
                       PopupMenuButton<String>(
-                        icon: Icon(Icons.more_vert_rounded,
+                        icon: Icon(AppIcons.moreVert,
                           size: 20, color: barFg),
                         color: isDark
                             ? const Color(0xFF1A1A2E) : AppColors.white,
@@ -299,8 +487,8 @@ class _ReaderScreenState extends State<ReaderScreen> {
                             value: 'mode',
                             child: Row(children: [
                               Icon(_mode == 'read'
-                                  ? Icons.headphones_outlined
-                                  : Icons.menu_book_outlined,
+                                  ? AppIcons.headphones
+                                  : AppIcons.bookpen,
                                 size: 18, color: AppColors.primary),
                               const SizedBox(width: 10),
                               Text(_mode == 'read'
@@ -312,7 +500,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
                           PopupMenuItem(
                             value: 'toc',
                             child: Row(children: [
-                              const Icon(Icons.format_list_bulleted_rounded,
+                              const Icon(AppIcons.list,
                                 size: 18, color: AppColors.primary),
                               const SizedBox(width: 10),
                               Text('Table of Contents',
@@ -343,30 +531,82 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                     reader.setReadingMode('audio');
                                   }),
                                 )
-                              : (_localFilePath != null || (book.fileUrl != null && book.fileUrl!.isNotEmpty))
-                                  ? EpubViewer(
-                                      epubSource: _localFilePath != null
-                                          ? EpubSource.fromFile(File(_localFilePath!))
-                                          : EpubSource.fromUrl(book.fileUrl!),
-                                      epubController:   _epubController,
-                                      onChaptersLoaded: _onEpubChaptersLoaded,
-                                      onEpubLoaded:     () {},
-                                      onRelocated: (value) {
-                                        reader.setCurrentCfi(value.startCfi);
-                                        reader.setPage(
-                                          reader.currentPage,
-                                          value.progress * 100,
-                                        );
-                                      },
-                                    )
-                                  : _NoFileState(
+                              : book.fileFormat == 'pdf'
+                                  ? _PdfNotSupportedState(
                                       fg: fg, bg: bg,
                                       onSwitchToAudio: () => setState(() {
                                         _mode = 'audio';
                                         reader.setReadingMode('audio');
                                       }),
-                                    ),
+                                    )
+                                  : (_localFilePath != null || (book.fileUrl != null && book.fileUrl!.isNotEmpty))
+                                      ? EpubViewer(
+                                          epubSource: _localFilePath != null
+                                              ? EpubSource.fromFile(File(_localFilePath!))
+                                              : EpubSource.fromUrl(book.fileUrl!),
+                                          epubController:   _epubController,
+                                          initialCfi:       reader.currentCfi,
+                                          displaySettings:  EpubDisplaySettings(
+                                            fontSize:  reader.fontSize.toInt(),
+                                            spread:    EpubSpread.none,
+                                            flow:      EpubFlow.paginated,
+                                            snap:      true,
+                                            theme:     _buildEpubTheme(reader.theme),
+                                          ),
+                                          onChaptersLoaded: _onEpubChaptersLoaded,
+                                          onEpubLoaded:     _onEpubLoaded,
+                                          onRelocated: (value) {
+                                            reader.setCurrentCfi(value.startCfi);
+                                            // Calculate page from progress × total pages
+                                            final total = book.pageCount ?? 0;
+                                            reader.setPage(
+                                              total > 0
+                                                  ? (value.progress * total)
+                                                      .round()
+                                                      .clamp(1, total)
+                                                  : 0,
+                                              value.progress * 100,
+                                            );
+                                            // Match CFI to chapter by href, not by index
+                                            if (_chapters.isNotEmpty) {
+                                              reader.setCurrentChapter(
+                                                _findChapterIndex(value.startCfi));
+                                            }
+                                            _scheduleTextExtract();
+                                          },
+                                        )
+                                      : _NoFileState(
+                                          fg: fg, bg: bg,
+                                          onSwitchToAudio: () => setState(() {
+                                            _mode = 'audio';
+                                            reader.setReadingMode('audio');
+                                          }),
+                                        ),
                     ),
+
+                    // Loading overlay — shown while EpubViewer initialises
+                    if (_epubLoading && !_downloading && _mode == 'read')
+                      Positioned.fill(
+                        child: Container(
+                          color: bg,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const CircularProgressIndicator(
+                                  color: AppColors.primary, strokeWidth: 2.5),
+                              const SizedBox(height: 18),
+                              Text(
+                                'Opening book…',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize:   13,
+                                  color:      fg.withValues(alpha: 0.55),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
 
                     // Translated text overlay
                     if (reader.translatedContent != null && _mode == 'read')
@@ -442,7 +682,7 @@ class _AudioWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color:        AppColors.primary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(16)),
-            child: const Icon(Icons.book_outlined,
+            child: const Icon(AppIcons.book,
               size: 64, color: AppColors.primary),
           ),
         const SizedBox(height: 24),
@@ -466,11 +706,72 @@ class _AudioWidget extends StatelessWidget {
             decoration: const BoxDecoration(
               color: AppColors.primary, shape: BoxShape.circle),
             child: Icon(
-              reader.isPlaying ? Icons.stop_rounded : Icons.play_arrow_rounded,
+              reader.isPlaying ? Icons.stop_rounded : AppIcons.play,
               color: AppColors.white, size: 36),
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── PDF-not-supported state ───────────────────────────────────────────────────
+class _PdfNotSupportedState extends StatelessWidget {
+  final Color        fg;
+  final Color        bg;
+  final VoidCallback onSwitchToAudio;
+  const _PdfNotSupportedState({
+    required this.fg, required this.bg, required this.onSwitchToAudio});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: bg,
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(AppIcons.pdf,
+              size: 64, color: fg.withValues(alpha: 0.25)),
+          const SizedBox(height: 20),
+          Text(
+            'PDF format',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Newsreader',
+              fontSize:   20,
+              fontWeight: FontWeight.w700,
+              color:      fg,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'This book is a PDF file. In-app PDF reading is coming soon. '
+            'You can download it for offline use or listen to an audio summary.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize:   14,
+              height:     1.6,
+              color:      fg.withValues(alpha: 0.55),
+            ),
+          ),
+          const SizedBox(height: 28),
+          ElevatedButton.icon(
+            onPressed: onSwitchToAudio,
+            icon:  const Icon(AppIcons.headphones, size: 18),
+            label: const Text('Switch to Audio Mode'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.white,
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -491,7 +792,7 @@ class _NoFileState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.menu_book_outlined,
+          Icon(AppIcons.bookpen,
             size: 64, color: fg.withValues(alpha: 0.25)),
           const SizedBox(height: 20),
           Text(
@@ -520,7 +821,7 @@ class _NoFileState extends StatelessWidget {
           const SizedBox(height: 28),
           ElevatedButton.icon(
             onPressed: onSwitchToAudio,
-            icon:  const Icon(Icons.headphones_rounded, size: 18),
+            icon:  const Icon(AppIcons.headphones, size: 18),
             label: const Text('Switch to Audio Mode'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
@@ -563,7 +864,7 @@ class _StyleSheet extends StatelessWidget {
               const Spacer(),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close_rounded,
+                child: const Icon(AppIcons.close,
                   size: 20, color: AppColors.textSecondary),
               ),
             ]),
@@ -668,7 +969,7 @@ class _StyleSheet extends StatelessWidget {
                                 ? AppColors.primary : AppColors.border,
                             width: reader.theme == t['id'] ? 2 : 1)),
                         child: reader.theme == t['id']
-                            ? const Icon(Icons.check_rounded,
+                            ? const Icon(AppIcons.check,
                                 color: AppColors.primary, size: 18)
                             : null,
                       ),

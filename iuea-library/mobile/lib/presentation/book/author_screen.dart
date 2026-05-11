@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../data/models/book_model.dart';
@@ -79,7 +80,7 @@ class _AuthorScreenState extends State<AuthorScreen> {
             backgroundColor: AppColors.surfaceContainerLow,
             elevation:       0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+              icon: const Icon(AppIcons.arrowBack, size: 20),
               onPressed: () => Navigator.of(context).pop(),
             ),
             actions: [
@@ -158,7 +159,7 @@ class _AuthorScreenState extends State<AuthorScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.menu_book_outlined,
+                          Icon(AppIcons.bookpen,
                               size: 48,
                               color: AppColors.primary.withAlpha(77)),
                           const SizedBox(height: 12),
@@ -319,7 +320,7 @@ class _AuthorScreenState extends State<AuthorScreen> {
   Widget _avatarPlaceholder() => Container(
     color: AppColors.primary.withAlpha(26),
     child: const Center(
-      child: Icon(Icons.person_rounded, size: 40, color: AppColors.primary),
+      child: Icon(AppIcons.person, size: 40, color: AppColors.primary),
     ),
   );
 }
@@ -354,7 +355,7 @@ class _ErrorState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_rounded,
+          Icon(AppIcons.cloudOff,
               size: 48, color: AppColors.primary.withAlpha(102)),
           const SizedBox(height: 12),
           Text('Something went wrong',
@@ -366,7 +367,7 @@ class _ErrorState extends StatelessWidget {
           const SizedBox(height: 20),
           FilledButton.icon(
             onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded, size: 18),
+            icon: const Icon(AppIcons.refresh, size: 18),
             label: const Text('Retry'),
             style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary),

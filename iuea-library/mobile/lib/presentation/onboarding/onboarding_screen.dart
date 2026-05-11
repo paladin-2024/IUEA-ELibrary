@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
@@ -143,7 +144,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         'assets/images/iuea_logo.png',
                         color: AppColors.white,
                         errorBuilder: (_, __, ___) => const Icon(
-                          Icons.school_rounded,
+                          AppIcons.school,
                           color: AppColors.white, size: 22),
                       ),
                     ),
@@ -299,7 +300,7 @@ class _BottomSection extends StatelessWidget {
                       color:         AppColors.white,
                       letterSpacing: 0.3)),
                   const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward_rounded, size: 18),
+                  const Icon(AppIcons.arrowForward, size: 18),
                 ],
               ),
             ),
@@ -341,7 +342,7 @@ class _BottomSection extends StatelessWidget {
                   'assets/images/iuea_logo.png',
                   color: AppColors.white,
                   errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.school_rounded, color: AppColors.white, size: 10),
+                      const Icon(AppIcons.school, color: AppColors.white, size: 10),
                 ),
               ),
               const SizedBox(width: 6),
@@ -511,7 +512,7 @@ class _Page1 extends StatelessWidget {
                                 'assets/images/iuea_logo.png',
                                 color: Colors.white,
                                 errorBuilder: (_, __, ___) => const Icon(
-                                  Icons.school_rounded,
+                                  AppIcons.school,
                                   color: Colors.white, size: 48),
                               ),
                             ),
@@ -565,7 +566,7 @@ class _Page1 extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.menu_book_rounded,
+                        Icon(AppIcons.bookpen,
                           color: AppColors.primary, size: 18),
                         const SizedBox(width: 6),
                         Text('100,000+ resources',
@@ -715,7 +716,7 @@ class _Page2 extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.07),
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.16), width: 1.5)),
-                      child: const Icon(Icons.headphones_rounded,
+                      child: const Icon(AppIcons.headphones,
                         size: 48, color: Colors.white),
                     ),
                   ),
@@ -742,7 +743,7 @@ class _Page2 extends StatelessWidget {
                           'assets/images/iuea_logo.png',
                           color: AppColors.white,
                           errorBuilder: (_, __, ___) => const Icon(
-                            Icons.school_rounded, color: AppColors.white, size: 18),
+                            AppIcons.school, color: AppColors.white, size: 18),
                         ),
                       ),
                     ),
@@ -885,7 +886,7 @@ class _Page3 extends StatelessWidget {
                                 'assets/images/iuea_logo.png',
                                 color: AppColors.white,
                                 errorBuilder: (_, __, ___) => const Icon(
-                                  Icons.school_rounded, color: AppColors.white, size: 18),
+                                  AppIcons.school, color: AppColors.white, size: 18),
                               ),
                             ),
                           ),
@@ -896,7 +897,7 @@ class _Page3 extends StatelessWidget {
                           left: cx + 44,
                           top:  cy - 88 + float * 0.5,
                           child: _FloatingIcon(
-                            icon: Icons.translate_rounded,
+                            icon: AppIcons.translate,
                             bg:   AppColors.primary, iconClr: AppColors.white,
                             size: 46, glow: true),
                         ),
@@ -904,7 +905,7 @@ class _Page3 extends StatelessWidget {
                           left: cx - 116,
                           top:  cy - 20 + float * 0.7,
                           child: _FloatingIcon(
-                            icon: Icons.share_rounded,
+                            icon: AppIcons.share,
                             bg:   AppColors.white, iconClr: AppColors.primary,
                             size: 52, shadow: true),
                         ),
@@ -912,7 +913,7 @@ class _Page3 extends StatelessWidget {
                           left: cx + 62,
                           top:  cy + 28 - float * 0.4,
                           child: _FloatingIcon(
-                            icon: Icons.menu_book_rounded,
+                            icon: AppIcons.bookpen,
                             bg:   AppColors.white, iconClr: AppColors.primary,
                             size: 40, shadow: true),
                         ),
@@ -920,7 +921,7 @@ class _Page3 extends StatelessWidget {
                           left: cx - 90,
                           top:  cy + 52 - float * 0.6,
                           child: _FloatingIcon(
-                            icon: Icons.spellcheck_rounded,
+                            icon: AppIcons.spellCheck,
                             bg:   AppColors.accent.withValues(alpha: 0.15),
                             iconClr: AppColors.accent,
                             size: 38),
@@ -929,7 +930,7 @@ class _Page3 extends StatelessWidget {
                           left: cx - 86,
                           top:  cy - 72 + float * 0.3,
                           child: _FloatingIcon(
-                            icon: Icons.mic_rounded,
+                            icon: AppIcons.mic,
                             bg:   AppColors.surface, iconClr: AppColors.textSecondary,
                             size: 36, shadow: true),
                         ),
@@ -948,7 +949,7 @@ class _Page3 extends StatelessWidget {
                                 blurRadius: 32,
                                 offset:    const Offset(0, 12))],
                             ),
-                            child: const Icon(Icons.smart_toy_rounded,
+                            child: const Icon(AppIcons.bot,
                               color: AppColors.white, size: 54),
                           ),
                         ),

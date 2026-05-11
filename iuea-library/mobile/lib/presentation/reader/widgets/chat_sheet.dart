@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/chat_provider.dart';
 import '../../../providers/auth_provider.dart';
@@ -55,11 +56,11 @@ class _ChatSheetState extends State<ChatSheet> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.smart_toy_outlined, color: AppColors.accent, size: 18),
+                const Icon(AppIcons.bot, color: AppColors.accent, size: 18),
                 const SizedBox(width: 8),
                 const Text('AI Assistant', style: TextStyle(color: AppColors.white, fontWeight: FontWeight.w600)),
                 const Spacer(),
-                IconButton(icon: const Icon(Icons.close, color: AppColors.white, size: 18),
+                IconButton(icon: const Icon(AppIcons.close, color: AppColors.white, size: 18),
                   onPressed: () => Navigator.pop(context)),
               ],
             ),
@@ -72,7 +73,7 @@ class _ChatSheetState extends State<ChatSheet> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.chat_bubble_outline, size: 48, color: AppColors.grey300),
+                        Icon(AppIcons.bot, size: 48, color: AppColors.grey300),
                         const SizedBox(height: 8),
                         const Text('Ask me anything about this book!',
                           style: TextStyle(color: AppColors.grey500)),
@@ -137,7 +138,7 @@ class _ChatSheetState extends State<ChatSheet> {
                 FloatingActionButton.small(
                   onPressed:       chat.isLoading ? null : _send,
                   backgroundColor: AppColors.primary,
-                  child:           const Icon(Icons.send, color: AppColors.white, size: 18),
+                  child:           const Icon(AppIcons.send, color: AppColors.white, size: 18),
                 ),
               ],
             ),

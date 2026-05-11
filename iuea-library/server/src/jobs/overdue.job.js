@@ -1,11 +1,13 @@
-const BorrowRequest = require('../models/BorrowRequest');
+'use strict';
+
+const prisma = require('../config/prisma');
 
 const markOverdueLoans = async () => {
-  const result = await BorrowRequest.updateMany(
-    { status: 'active', dueDate: { $lt: new Date() } },
-    { $set: { status: 'overdue' } },
-  );
-  return result.modifiedCount;
+  const result = await prisma.borrowRequest.updateMany({
+    where: { status: 'active', dueDate: { lt: new Date() } },
+    data:  { status: 'overdue' },
+  });
+  return result.count;
 };
 
 module.exports = { markOverdueLoans };

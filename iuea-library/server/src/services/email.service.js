@@ -1,12 +1,10 @@
-const nodemailer = require('nodemailer');
+'use strict';
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const { Resend } = require('resend');
+
+const resend  = new Resend(process.env.RESEND_API_KEY);
+const FROM    = process.env.FROM_EMAIL || 'IUEA Library <onboarding@resend.dev>';
+const WEB_URL = process.env.CLIENT_WEB_URL || 'http://localhost:5173';
 
 // ── Brand HTML wrapper ────────────────────────────────────────────────────────
 const wrapHtml = (bodyHtml) => `
@@ -26,6 +24,11 @@ const wrapHtml = (bodyHtml) => `
     .cta     { display:inline-block; margin:20px 0; padding:12px 28px;
                background:#7B0D1E; color:#ffffff; text-decoration:none;
                border-radius:6px; font-weight:700; font-size:14px; }
+    .otp-box { margin:24px 0; padding:20px; background:#fdf6f7; border:2px solid #7B0D1E;
+               border-radius:10px; text-align:center; }
+    .otp-code { font-size:40px; font-weight:900; color:#7B0D1E; letter-spacing:10px;
+                font-family:monospace; }
+    .otp-note { font-size:12px; color:#6b7280; margin-top:8px; }
     .footer  { border-top:1px solid #e5e7eb; padding:20px 32px;
                color:#9ca3af; font-size:12px; text-align:center; }
     .stat-row { display:flex; gap:12px; margin:16px 0; }
@@ -52,14 +55,42 @@ const wrapHtml = (bodyHtml) => `
 
 // ── Core send ─────────────────────────────────────────────────────────────────
 const sendEmail = async ({ to, subject, html, text }) => {
-  const info = await transporter.sendMail({
-    from:    `"IUEA Library" <${process.env.SMTP_USER}>`,
-    to,
+  const { data, error } = await resend.emails.send({
+    from:    FROM,
+    to:      Array.isArray(to) ? to : [to],
     subject,
     html,
     text,
   });
-  return info;
+  if (error) throw new Error(error.message ?? JSON.stringify(error));
+  return data;
+};
+
+// ── sendOtp ───────────────────────────────────────────────────────────────────
+const sendOtp = async (user, otp, purpose = 'verify') => {
+  const isReset   = purpose === 'reset';
+  const heading   = isReset ? 'Password Reset Code' : 'Verify Your Email';
+  const subline   = isReset
+    ? 'Use this code to reset your password.'
+    : 'Enter this code in the app to activate your account.';
+
+  return sendEmail({
+    to:      user.email,
+    subject: isReset ? 'Your IUEA Library password reset code' : 'Your IUEA Library verification code',
+    html: wrapHtml(`
+      <h2>${heading}</h2>
+      <p>Hi ${user.name},</p>
+      <p>${subline}</p>
+      <div class="otp-box">
+        <div class="otp-code">${otp}</div>
+        <div class="otp-note">Expires in 10 minutes · Do not share this code</div>
+      </div>
+      <p style="color:#6b7280;font-size:13px;">
+        If you didn't request this, you can safely ignore this email.
+      </p>
+    `),
+    text: `Your IUEA Library ${isReset ? 'password reset' : 'verification'} code is: ${otp}\n\nExpires in 10 minutes. Do not share this code.`,
+  });
 };
 
 // ── sendWelcomeEmail ──────────────────────────────────────────────────────────
@@ -69,49 +100,23 @@ const sendWelcomeEmail = async (user) => {
     subject: 'Welcome to IUEA Library!',
     html: wrapHtml(`
       <h2>Welcome, ${user.name}!</h2>
-      <p>Your IUEA Library account has been created successfully.</p>
+      <p>Your IUEA Library account has been verified and is ready to use.</p>
       <p>You now have access to thousands of books, academic journals, podcasts,
          and our AI reading assistant — all in one place.</p>
-      <a class="cta" href="${process.env.CLIENT_WEB_URL || 'http://localhost:5173'}">
-        Start Reading
-      </a>
-      <p style="color:#6b7280;font-size:13px;">
-        Happy reading!<br/>The IUEA Library Team
-      </p>
+      <a class="cta" href="${WEB_URL}">Start Reading</a>
+      <p style="color:#6b7280;font-size:13px;">Happy reading!<br/>The IUEA Library Team</p>
     `),
-    text: `Welcome to IUEA Library, ${user.name}! Your account is ready. Visit ${process.env.CLIENT_WEB_URL || 'http://localhost:5173'} to start reading.`,
+    text: `Welcome to IUEA Library, ${user.name}! Your account is ready. Visit ${WEB_URL} to start reading.`,
   });
 };
 
 // ── sendPasswordReset ─────────────────────────────────────────────────────────
+// Kept for backward-compatibility; sendOtp(user, otp, 'reset') is preferred.
 const sendPasswordReset = async (user, token) => {
-  const resetUrl = `${process.env.CLIENT_WEB_URL || 'http://localhost:5173'}/reset-password?token=${token}`;
-
-  return sendEmail({
-    to:      user.email,
-    subject: 'Reset your IUEA Library password',
-    html: wrapHtml(`
-      <h2>Password Reset Request</h2>
-      <p>Hi ${user.name},</p>
-      <p>We received a request to reset the password for your IUEA Library account.
-         Click the button below to choose a new password.</p>
-      <a class="cta" href="${resetUrl}">Reset Password</a>
-      <p style="margin-top:20px;color:#6b7280;font-size:13px;">
-        This link expires in <strong>1 hour</strong>.
-        If you didn't request a password reset, you can safely ignore this email —
-        your password will not be changed.
-      </p>
-      <p style="color:#6b7280;font-size:12px;word-break:break-all;">
-        If the button doesn't work, copy this link into your browser:<br/>
-        ${resetUrl}
-      </p>
-    `),
-    text: `Reset your IUEA Library password: ${resetUrl}\n\nThis link expires in 1 hour. If you didn't request this, ignore this email.`,
-  });
+  return sendOtp(user, token, 'reset');
 };
 
 // ── sendWeeklyDigest ──────────────────────────────────────────────────────────
-// stats = { booksRead, minutesRead, sessions, topBook? }
 const sendWeeklyDigest = async (user, stats = {}) => {
   const mins = stats.minutesRead ?? 0;
   const hrs  = Math.floor(mins / 60);
@@ -120,34 +125,23 @@ const sendWeeklyDigest = async (user, stats = {}) => {
 
   return sendEmail({
     to:      user.email,
-    subject: `Your IUEA Library weekly summary`,
+    subject: 'Your IUEA Library weekly summary',
     html: wrapHtml(`
       <h2>Your Weekly Reading Summary</h2>
       <p>Hi ${user.name}, here's what you accomplished this week:</p>
       <div class="stat-row">
-        <div class="stat-card">
-          <div class="num">${stats.booksRead ?? 0}</div>
-          <div class="lbl">Books Completed</div>
-        </div>
-        <div class="stat-card">
-          <div class="num">${time}</div>
-          <div class="lbl">Time Reading</div>
-        </div>
-        <div class="stat-card">
-          <div class="num">${stats.sessions ?? 0}</div>
-          <div class="lbl">Sessions</div>
-        </div>
+        <div class="stat-card"><div class="num">${stats.booksRead ?? 0}</div><div class="lbl">Books Completed</div></div>
+        <div class="stat-card"><div class="num">${time}</div><div class="lbl">Time Reading</div></div>
+        <div class="stat-card"><div class="num">${stats.sessions ?? 0}</div><div class="lbl">Sessions</div></div>
       </div>
-      ${stats.topBook ? `<p>You spent the most time reading <strong>${stats.topBook}</strong> — great choice!</p>` : ''}
-      <a class="cta" href="${process.env.CLIENT_WEB_URL || 'http://localhost:5173'}">
-        Keep Reading
-      </a>
+      ${stats.topBook ? `<p>You spent the most time reading <strong>${stats.topBook}</strong>.</p>` : ''}
+      <a class="cta" href="${WEB_URL}">Keep Reading</a>
     `),
-    text: `IUEA Library weekly summary for ${user.name}: ${stats.booksRead ?? 0} books, ${time} reading time, ${stats.sessions ?? 0} sessions.`,
+    text: `IUEA Library weekly summary for ${user.name}: ${stats.booksRead ?? 0} books, ${time} reading time.`,
   });
 };
 
-// ── Borrow request received (to admin) ───────────────────────────────────────
+// ── Borrow notifications ──────────────────────────────────────────────────────
 const sendBorrowRequestNotification = async (student, book) => {
   if (!process.env.ADMIN_EMAIL) return;
   return sendEmail({
@@ -158,15 +152,12 @@ const sendBorrowRequestNotification = async (student, book) => {
       <p><strong>${student.name}</strong> (${student.email}) has requested to borrow:</p>
       <p style="font-size:1.1rem;font-weight:700;color:#7B0D1E;">${book.title}</p>
       <p style="color:#6b7280;">by ${book.author}</p>
-      <a class="cta" href="${process.env.CLIENT_WEB_URL || 'http://localhost:5173'}/admin/loans">
-        Review Request
-      </a>
+      <a class="cta" href="${WEB_URL}/admin/loans">Review Request</a>
     `),
     text: `${student.name} requested to borrow "${book.title}".`,
   });
 };
 
-// ── Borrow approved (to student) ─────────────────────────────────────────────
 const sendBorrowApproved = async (student, loan, dueDate, shelfLocation, notes) => {
   const due = new Date(dueDate).toLocaleDateString('en-UG', { dateStyle: 'long' });
   return sendEmail({
@@ -179,15 +170,12 @@ const sendBorrowApproved = async (student, loan, dueDate, shelfLocation, notes) 
       <p><strong>Due date:</strong> ${due}</p>
       ${notes ? `<p><strong>Note from library:</strong> ${notes}</p>` : ''}
       <p>Please pick up the book within 3 days or the reservation may be cancelled.</p>
-      <a class="cta" href="${process.env.CLIENT_WEB_URL || 'http://localhost:5173'}/home/library/loans">
-        View My Loans
-      </a>
+      <a class="cta" href="${WEB_URL}/home/library/loans">View My Loans</a>
     `),
     text: `Your borrow request for "${loan.bookTitle}" was approved. Due: ${due}.`,
   });
 };
 
-// ── Borrow rejected (to student) ─────────────────────────────────────────────
 const sendBorrowRejected = async (student, loan, notes) => {
   return sendEmail({
     to:      student.email,
@@ -204,6 +192,7 @@ const sendBorrowRejected = async (student, loan, notes) => {
 
 module.exports = {
   sendEmail,
+  sendOtp,
   sendWelcomeEmail,
   sendPasswordReset,
   sendWeeklyDigest,

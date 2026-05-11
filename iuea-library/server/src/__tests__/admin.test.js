@@ -12,10 +12,6 @@ jest.mock('../services/r2.service', () => ({
   uploadCover:    jest.fn().mockResolvedValue('http://localhost/uploads/cover.jpg'),
 }));
 
-// Mock Mongoose models used directly in admin controller for aggregation
-jest.mock('../models/UserProgress', () => ({ aggregate: jest.fn().mockResolvedValue([]) }));
-jest.mock('../models/Book',         () => ({ aggregate: jest.fn().mockResolvedValue([]) }));
-jest.mock('../models/User',         () => ({ aggregate: jest.fn().mockResolvedValue([]) }));
 
 const request = require('supertest');
 const jwt     = require('jsonwebtoken');

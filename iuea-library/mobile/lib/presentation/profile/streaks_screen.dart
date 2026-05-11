@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
@@ -41,7 +42,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
         backgroundColor: AppColors.white,
         elevation:       0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
+          icon: const Icon(AppIcons.arrowBack, size: 18, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Text('Streaks & Badges', style: AppTextStyles.h2.copyWith(fontSize: 18)),
@@ -50,7 +51,7 @@ class _StreaksScreenState extends State<StreaksScreen> {
         ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
         : _error != null || _data == null
           ? AppErrorState(
-              icon: Icons.local_fire_department_outlined,
+              icon: AppIcons.fire,
               message: _error,
               onRetry: _load,
             )

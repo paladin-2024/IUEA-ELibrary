@@ -1,32 +1,28 @@
 'use strict';
 
-jest.mock('../models/BorrowRequest', () => ({
-  updateMany: jest.fn(),
-}));
+jest.mock('../config/prisma', () => require('./mocks/prisma.mock'));
 
-const BorrowRequest  = require('../models/BorrowRequest');
+const prisma             = require('../config/prisma');
 const { markOverdueLoans } = require('../jobs/overdue.job');
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+beforeEach(() => jest.clearAllMocks());
 
 describe('markOverdueLoans', () => {
   it('updates active loans past dueDate to overdue', async () => {
-    BorrowRequest.updateMany.mockResolvedValue({ modifiedCount: 3 });
+    prisma.borrowRequest.updateMany.mockResolvedValue({ count: 3 });
 
     const result = await markOverdueLoans();
 
-    expect(BorrowRequest.updateMany).toHaveBeenCalledTimes(1);
-    const [filter, update] = BorrowRequest.updateMany.mock.calls[0];
-    expect(filter.status).toBe('active');
-    expect(filter.dueDate).toHaveProperty('$lt');
-    expect(update.$set).toHaveProperty('status', 'overdue');
+    expect(prisma.borrowRequest.updateMany).toHaveBeenCalledTimes(1);
+    const [args] = prisma.borrowRequest.updateMany.mock.calls;
+    expect(args[0].where.status).toBe('active');
+    expect(args[0].where.dueDate).toHaveProperty('lt');
+    expect(args[0].data).toHaveProperty('status', 'overdue');
     expect(result).toBe(3);
   });
 
   it('returns 0 when no loans are overdue', async () => {
-    BorrowRequest.updateMany.mockResolvedValue({ modifiedCount: 0 });
+    prisma.borrowRequest.updateMany.mockResolvedValue({ count: 0 });
 
     const result = await markOverdueLoans();
 
@@ -34,7 +30,7 @@ describe('markOverdueLoans', () => {
   });
 
   it('throws if the DB call fails', async () => {
-    BorrowRequest.updateMany.mockRejectedValue(new Error('DB error'));
+    prisma.borrowRequest.updateMany.mockRejectedValue(new Error('DB error'));
 
     await expect(markOverdueLoans()).rejects.toThrow('DB error');
   });

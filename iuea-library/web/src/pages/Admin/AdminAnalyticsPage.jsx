@@ -2,52 +2,89 @@ import { useQuery }            from '@tanstack/react-query';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
-  LineChart, Line,
+  AreaChart, Area,
 } from 'recharts';
 import api from '../../services/api';
 
 const fetchAnalytics = () => api.get('/admin/analytics').then((r) => r.data);
+
+const PRIMARY     = '#E11D48';
+const PRIMARY_LIGHT = '#FFF1F4';
 
 const DAYS  = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const HOURS = Array.from({ length: 24 }, (_, i) =>
   i === 0 ? '12a' : i < 12 ? `${i}a` : i === 12 ? '12p' : `${i - 12}p`
 );
 
-const PIE_COLORS = [
-  '#5C0F1F', '#B8964A', '#2563EB', '#16A34A',
-  '#9333EA', '#EA580C', '#DB2777', '#0891B2', '#6b7280',
-];
-
-const tooltipStyle = {
-  fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb',
-};
+const PIE_COLORS = ['#E11D48', '#6366F1', '#10B981', '#F59E0B', '#8B5CF6', '#EA580C', '#0891B2', '#16A34A', '#64748B'];
 
 // ── Heatmap helpers ───────────────────────────────────────────────────────────
 function buildHeatmap(hourlyActivity) {
-  // Grid: [day 0..6][hour 0..23]
   const grid = Array.from({ length: 7 }, () => new Array(24).fill(0));
   (hourlyActivity ?? []).forEach(({ day, hour, count }) => {
-    grid[day - 1][hour] = count;   // day: 1=Sun…7=Sat → 0-indexed
+    const d = Number(day);   // DOW from EXTRACT is 0=Sun … 6=Sat
+    const h = Number(hour);
+    if (d >= 0 && d <= 6 && h >= 0 && h <= 23) grid[d][h] = Number(count);
   });
   const max = Math.max(1, ...grid.flat());
   return { grid, max };
 }
 
 function heatColor(count, max) {
-  if (count === 0) return 'bg-gray-100';
+  if (count === 0) return '#F1F5F9';
   const pct = count / max;
-  if (pct < 0.25) return 'bg-primary/20';
-  if (pct < 0.50) return 'bg-primary/40';
-  if (pct < 0.75) return 'bg-primary/65';
-  return 'bg-primary';
+  if (pct < 0.25) return 'rgba(225,29,72,0.15)';
+  if (pct < 0.50) return 'rgba(225,29,72,0.35)';
+  if (pct < 0.75) return 'rgba(225,29,72,0.60)';
+  return PRIMARY;
 }
 
-// ── Sections ──────────────────────────────────────────────────────────────────
-function Section({ title, children }) {
+// ── Shared tooltip ────────────────────────────────────────────────────────────
+function DarkTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h2 className="text-sm font-semibold text-gray-700 mb-4">{title}</h2>
-      {children}
+    <div style={{ background: '#0F172A', color: '#fff', padding: '8px 12px', borderRadius: 8, fontSize: 12, lineHeight: 1.6 }}>
+      <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 11 }}>{label}</div>
+      <div style={{ fontWeight: 700 }}>{payload[0].value?.toLocaleString()}</div>
+    </div>
+  );
+}
+
+// ── Card wrapper ──────────────────────────────────────────────────────────────
+function Card({ title, subtitle, action, children }) {
+  return (
+    <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ padding: '1rem 1.25rem 0.875rem', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FAFAFA' }}>
+        <div>
+          <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0F172A', fontFamily: 'Inter, sans-serif' }}>{title}</div>
+          {subtitle && <div style={{ fontSize: '0.6875rem', color: '#94A3B8', marginTop: 2, fontFamily: 'Inter, sans-serif' }}>{subtitle}</div>}
+        </div>
+        {action}
+      </div>
+      <div style={{ padding: '1.25rem' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+function Skel({ w = '100%', h = 14, r = 6, mb = 0 }) {
+  return (
+    <div style={{
+      width: w, height: h, borderRadius: r, marginBottom: mb,
+      background: 'linear-gradient(90deg,#F1F5F9 25%,#E2E8F0 50%,#F1F5F9 75%)',
+      backgroundSize: '200% 100%', animation: 'an-shimmer 1.4s ease-in-out infinite',
+    }} />
+  );
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+function Empty({ icon = 'bar_chart', label = 'No data yet.' }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 180, gap: 8 }}>
+      <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: '#E2E8F0' }}>{icon}</span>
+      <p style={{ fontSize: '0.8125rem', color: '#94A3B8', fontFamily: 'Inter, sans-serif', margin: 0 }}>{label}</p>
     </div>
   );
 }
@@ -59,187 +96,170 @@ export default function AdminAnalyticsPage() {
     staleTime: 60_000,
   });
 
-  const dailyReads    = data?.dailyReads    ?? [];
-  const topBooks      = data?.topBooks      ?? [];
-  const langDist      = data?.langDist      ?? [];
-  const hourlyAct     = data?.hourlyActivity ?? [];
-  const dailySignups  = data?.dailySignups  ?? [];
+  const dailyReads   = data?.dailyReads    ?? [];
+  const topBooks     = data?.topBooks      ?? [];
+  const langDist     = data?.langDist      ?? [];
+  const hourlyAct    = data?.hourlyActivity ?? [];
+  const dailySignups = data?.dailySignups  ?? [];
 
   const { grid, max } = buildHeatmap(hourlyAct);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64 text-sm text-gray-400">
-        Loading analytics…
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-bold text-gray-900">Analytics</h1>
+    <>
+      <style>{`
+        @keyframes an-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
+      `}</style>
 
-      {/* Row 1: Daily reads + Daily signups */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        <Section title="Daily Read Sessions — last 30 days">
-          {dailyReads.length === 0 ? (
-            <p className="text-sm text-gray-400 h-40 flex items-center justify-center">No data.</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={dailyReads} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} interval="preserveStartEnd" />
-                <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v) => [v, 'Sessions']} />
-                <Line
-                  type="monotone" dataKey="count" stroke="#5C0F1F" strokeWidth={2}
-                  dot={{ fill: '#B8964A', r: 3, strokeWidth: 0 }}
-                  activeDot={{ r: 5, fill: '#B8964A' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </Section>
+      <div style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', fontFamily: 'Inter, sans-serif' }}>
 
-        <Section title="New Registrations — last 30 days">
-          {dailySignups.length === 0 ? (
-            <p className="text-sm text-gray-400 h-40 flex items-center justify-center">No data.</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={dailySignups} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} interval="preserveStartEnd" />
-                <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
-                <Tooltip contentStyle={tooltipStyle} formatter={(v) => [v, 'Sign-ups']} />
-                <Line
-                  type="monotone" dataKey="count" stroke="#2563EB" strokeWidth={2}
-                  dot={{ fill: '#2563EB', r: 3, strokeWidth: 0 }}
-                  activeDot={{ r: 5, fill: '#2563EB' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </Section>
-      </div>
+        {/* ── Page header ── */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div>
+            <h1 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.75rem', fontWeight: 700, color: '#0F172A', margin: '0 0 4px' }}>Analytics</h1>
+            <p style={{ fontSize: '0.8125rem', color: '#94A3B8', margin: 0 }}>Platform usage insights — last 30 days</p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block', animation: 'an-shimmer 2s ease-in-out infinite' }} />
+            <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}>Live data</span>
+          </div>
+        </div>
 
-      {/* Row 2: Top books bar chart */}
-      <Section title="Top 10 Most-Read Books">
-        {topBooks.length === 0 ? (
-          <p className="text-sm text-gray-400 h-40 flex items-center justify-center">No data.</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart
-              data={topBooks}
-              layout="vertical"
-              margin={{ top: 0, right: 24, left: 8, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-              <XAxis
-                type="number"
-                tick={{ fontSize: 10, fill: '#9ca3af' }}
-                allowDecimals={false}
-              />
-              <YAxis
-                type="category"
-                dataKey="title"
-                width={160}
-                tick={{ fontSize: 10, fill: '#6b7280' }}
-                tickFormatter={(t) => t.length > 22 ? t.slice(0, 22) + '…' : t}
-              />
-              <Tooltip
-                contentStyle={tooltipStyle}
-                formatter={(v) => [v, 'Sessions']}
-                labelFormatter={(l) => l}
-              />
-              <Bar dataKey="sessions" fill="#5C0F1F" radius={[0, 4, 4, 0]} maxBarSize={20} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </Section>
+        {/* ── Row 1: Daily reads + Daily signups ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
 
-      {/* Row 3: Language dist + Activity heatmap */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        <Section title="Language Distribution">
-          {langDist.length === 0 ? (
-            <p className="text-sm text-gray-400 h-48 flex items-center justify-center">No data.</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie
-                  data={langDist}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  label={({ name, percent }) =>
-                    percent > 0.04 ? `${name} ${(percent * 100).toFixed(0)}%` : ''
-                  }
-                  labelLine={false}
-                >
-                  {langDist.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={tooltipStyle}
-                  formatter={(v, name) => [v, name]}
-                />
-                <Legend
-                  iconSize={8}
-                  wrapperStyle={{ fontSize: 11 }}
-                  formatter={(value) => value.length > 14 ? value.slice(0, 14) + '…' : value}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-        </Section>
-
-        <Section title="Reading Activity Heatmap — last 7 days">
-          {hourlyAct.length === 0 ? (
-            <p className="text-sm text-gray-400 h-48 flex items-center justify-center">No data.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              {/* Hour labels */}
-              <div className="flex mb-1 ml-8">
-                {HOURS.map((h, i) => (
-                  <div
-                    key={i}
-                    className="text-[8px] text-gray-400 flex-1 text-center"
-                    style={{ minWidth: 14 }}
-                  >
-                    {i % 3 === 0 ? h : ''}
-                  </div>
-                ))}
+          <Card title="Daily Read Sessions" subtitle="Unique reading sessions per day — last 30 days">
+            {isLoading ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Skel h={200} r={8} />
               </div>
-              {/* Grid rows */}
-              {DAYS.map((day, di) => (
-                <div key={day} className="flex items-center gap-1 mb-0.5">
-                  <span className="text-[9px] text-gray-400 w-7 flex-shrink-0 text-right pr-1">
-                    {day}
-                  </span>
-                  {grid[di].map((count, hi) => (
-                    <div
-                      key={hi}
-                      title={`${day} ${HOURS[hi]}: ${count} sessions`}
-                      className={`flex-1 rounded-sm transition-colors ${heatColor(count, max)}`}
-                      style={{ minWidth: 14, height: 14 }}
-                    />
+            ) : dailyReads.length === 0 ? <Empty icon="menu_book" label="No reading sessions recorded yet." /> : (
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart data={dailyReads} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="ag1" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor={PRIMARY} stopOpacity={0.12} />
+                      <stop offset="95%" stopColor={PRIMARY} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip content={<DarkTooltip />} cursor={{ stroke: '#E2E8F0' }} />
+                  <Area type="monotone" dataKey="count" stroke={PRIMARY} strokeWidth={2} fill="url(#ag1)" dot={false} activeDot={{ r: 4, fill: PRIMARY, strokeWidth: 0 }} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </Card>
+
+          <Card title="New Registrations" subtitle="User sign-ups per day — last 30 days">
+            {isLoading ? <Skel h={200} r={8} /> : dailySignups.length === 0 ? <Empty icon="person_add" label="No sign-ups recorded yet." /> : (
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart data={dailySignups} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#6366F1" stopOpacity={0.12} />
+                      <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip content={<DarkTooltip />} cursor={{ stroke: '#E2E8F0' }} />
+                  <Area type="monotone" dataKey="count" stroke="#6366F1" strokeWidth={2} fill="url(#ag2)" dot={false} activeDot={{ r: 4, fill: '#6366F1', strokeWidth: 0 }} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </Card>
+        </div>
+
+        {/* ── Row 2: Top books horizontal bar ── */}
+        <Card
+          title="Top 10 Most-Read Books"
+          subtitle="Ranked by reading session count"
+          action={
+            <span style={{ background: PRIMARY_LIGHT, color: PRIMARY, fontSize: '0.6875rem', fontWeight: 700, padding: '3px 10px', borderRadius: 999 }}>
+              {topBooks.length} books
+            </span>
+          }
+        >
+          {isLoading ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[1,2,3,4,5].map(i => <Skel key={i} h={22} r={4} />)}
+            </div>
+          ) : topBooks.length === 0 ? <Empty icon="auto_stories" label="No reading sessions recorded yet." /> : (
+            <ResponsiveContainer width="100%" height={Math.max(200, topBooks.length * 28)}>
+              <BarChart data={topBooks} layout="vertical" margin={{ top: 0, right: 24, left: 8, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor={PRIMARY} />
+                    <stop offset="100%" stopColor="#FB7185" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <YAxis type="category" dataKey="title" width={170} tick={{ fontSize: 10, fill: '#475569' }} tickFormatter={(t) => t.length > 24 ? t.slice(0, 24) + '…' : t} axisLine={false} tickLine={false} />
+                <Tooltip content={<DarkTooltip />} cursor={{ fill: 'rgba(225,29,72,0.04)' }} />
+                <Bar dataKey="sessions" fill="url(#barGrad)" radius={[0, 6, 6, 0]} maxBarSize={18} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </Card>
+
+        {/* ── Row 3: Language dist + Heatmap ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
+
+          <Card title="Language Distribution" subtitle="Books accessed by reading language">
+            {isLoading ? <Skel h={220} r={8} /> : langDist.length === 0 ? <Empty icon="translate" label="No language data yet." /> : (
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie data={langDist} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}
+                    label={({ name, percent }) => percent > 0.05 ? `${name} ${(percent * 100).toFixed(0)}%` : ''}
+                    labelLine={{ stroke: '#E2E8F0', strokeWidth: 1 }}
+                  >
+                    {langDist.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip content={<DarkTooltip />} />
+                  <Legend iconSize={8} wrapperStyle={{ fontSize: 11, color: '#64748B' }} formatter={(v) => v.length > 14 ? v.slice(0, 14) + '…' : v} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </Card>
+
+          <Card title="Reading Activity Heatmap" subtitle="Sessions by day and hour — last 7 days">
+            {isLoading ? <Skel h={160} r={8} /> : hourlyAct.length === 0 ? <Empty icon="grid_view" label="No activity data yet." /> : (
+              <div style={{ overflowX: 'auto' }}>
+                <div style={{ display: 'flex', marginBottom: 4, marginLeft: 28 }}>
+                  {HOURS.map((h, i) => (
+                    <div key={i} style={{ fontSize: 8, color: '#94A3B8', flex: 1, textAlign: 'center', minWidth: 14 }}>
+                      {i % 4 === 0 ? h : ''}
+                    </div>
                   ))}
                 </div>
-              ))}
-              {/* Legend */}
-              <div className="flex items-center gap-2 mt-3 justify-end">
-                <span className="text-[9px] text-gray-400">Less</span>
-                {['bg-gray-100', 'bg-primary/20', 'bg-primary/40', 'bg-primary/65', 'bg-primary'].map((c) => (
-                  <div key={c} className={`w-3 h-3 rounded-sm ${c}`} />
+                {DAYS.map((day, di) => (
+                  <div key={day} style={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 3 }}>
+                    <span style={{ fontSize: 9, color: '#94A3B8', width: 24, flexShrink: 0, textAlign: 'right', paddingRight: 4 }}>{day}</span>
+                    {grid[di].map((count, hi) => (
+                      <div
+                        key={hi}
+                        title={`${day} ${HOURS[hi]}: ${count} sessions`}
+                        style={{ flex: 1, height: 13, minWidth: 13, borderRadius: 3, background: heatColor(count, max), transition: 'background 0.1s', cursor: count > 0 ? 'default' : 'default' }}
+                      />
+                    ))}
+                  </div>
                 ))}
-                <span className="text-[9px] text-gray-400">More</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, justifyContent: 'flex-end' }}>
+                  <span style={{ fontSize: 9, color: '#94A3B8' }}>Less</span>
+                  {['#F1F5F9', 'rgba(225,29,72,0.15)', 'rgba(225,29,72,0.35)', 'rgba(225,29,72,0.60)', PRIMARY].map((c, i) => (
+                    <div key={i} style={{ width: 12, height: 12, borderRadius: 3, background: c, border: '1px solid rgba(0,0,0,0.04)' }} />
+                  ))}
+                  <span style={{ fontSize: 9, color: '#94A3B8' }}>More</span>
+                </div>
               </div>
-            </div>
-          )}
-        </Section>
+            )}
+          </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

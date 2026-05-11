@@ -75,7 +75,7 @@ function AddBookPanel({ onClose }) {
       <div style={{ flex: 1, background: 'rgba(0,0,0,0.4)' }} onClick={onClose} />
       <div style={{ width: '100%', maxWidth: 480, background: '#ffffff', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '-4px 0 40px rgba(138,18,40,0.15)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 1.5rem', borderBottom: '1px solid #FCE8E6' }}>
-          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#8A1228', margin: 0 }}>Add Book</h2>
+          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#E11D48', margin: 0 }}>Add Book</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B5456' }}>
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -89,7 +89,7 @@ function AddBookPanel({ onClose }) {
             ['archive',  'From Archive ID', 'inventory_2'],
           ].map(([k, label, icon]) => (
             <button key={k} onClick={() => setTab(k)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, border: 'none', cursor: 'pointer', background: 'none', borderBottom: `2px solid ${tab === k ? '#8A1228' : 'transparent'}`, color: tab === k ? '#8A1228' : '#6B5456', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.75rem', fontSize: '0.875rem', fontWeight: 500, border: 'none', cursor: 'pointer', background: 'none', borderBottom: `2px solid ${tab === k ? '#E11D48' : 'transparent'}`, color: tab === k ? '#E11D48' : '#6B5456', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>{icon}</span> {label}
             </button>
           ))}
@@ -120,7 +120,7 @@ function AddBookPanel({ onClose }) {
                 onDragLeave={() => setDragging(false)}
                 onDrop={handleDrop}
                 onClick={() => document.getElementById('bookFileInput')?.click()}
-                style={{ border: `2px dashed ${dragging ? '#8A1228' : '#EBD2CF'}`, borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'center', cursor: 'pointer', background: dragging ? 'rgba(138,18,40,0.04)' : 'transparent' }}
+                style={{ border: `2px dashed ${dragging ? '#E11D48' : '#EBD2CF'}`, borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'center', cursor: 'pointer', background: dragging ? 'rgba(138,18,40,0.04)' : 'transparent' }}
               >
                 <span className="material-symbols-outlined" style={{ color: '#6B5456', display: 'block', marginBottom: '0.5rem' }}>upload</span>
                 <p style={{ fontSize: '0.875rem', color: '#6B5456', margin: 0, fontFamily: 'Inter, sans-serif' }}>{bookFile ? bookFile.name : 'Drop EPUB or PDF, or click to browse'}</p>
@@ -153,7 +153,7 @@ function AddBookPanel({ onClose }) {
                   style={{ ...inputStyle, flex: 1 }}
                 />
                 <button onClick={handleDiscover} disabled={discovering}
-                  style={{ background: '#8A1228', color: '#fff', border: 'none', borderRadius: '0.5rem', padding: '0.5rem 1rem', cursor: 'pointer', fontSize: '0.875rem', fontFamily: 'Inter, sans-serif', flexShrink: 0, opacity: discovering ? 0.6 : 1 }}>
+                  style={{ background: '#E11D48', color: '#fff', border: 'none', borderRadius: '0.5rem', padding: '0.5rem 1rem', cursor: 'pointer', fontSize: '0.875rem', fontFamily: 'Inter, sans-serif', flexShrink: 0, opacity: discovering ? 0.6 : 1 }}>
                   {discovering ? '…' : 'Search'}
                 </button>
               </div>
@@ -169,7 +169,7 @@ function AddBookPanel({ onClose }) {
                   {b.coverUrl
                     ? <img src={b.coverUrl} alt={b.title} style={{ width: 40, height: 56, objectFit: 'cover', borderRadius: '0.25rem', flexShrink: 0 }} />
                     : <div style={{ width: 40, height: 56, background: '#EBD2CF', borderRadius: '0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <span className="material-symbols-outlined" style={{ color: '#8A1228', fontSize: '1.25rem' }}>book</span>
+                        <span className="material-symbols-outlined" style={{ color: '#E11D48', fontSize: '1.25rem' }}>book</span>
                       </div>
                   }
                   <div style={{ flex: 1, overflow: 'hidden' }}>
@@ -183,7 +183,7 @@ function AddBookPanel({ onClose }) {
                     <button
                       onClick={() => importMutate(b)}
                       disabled={importing}
-                      style={{ background: '#8A1228', color: '#fff', border: 'none', borderRadius: '0.375rem', padding: '0.375rem 0.75rem', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, fontFamily: 'Inter, sans-serif', flexShrink: 0, opacity: importing ? 0.5 : 1 }}>
+                      style={{ background: '#E11D48', color: '#fff', border: 'none', borderRadius: '0.375rem', padding: '0.375rem 0.75rem', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, fontFamily: 'Inter, sans-serif', flexShrink: 0, opacity: importing ? 0.5 : 1 }}>
                       Import
                     </button>
                   )}
@@ -209,7 +209,7 @@ function AddBookPanel({ onClose }) {
         {tab !== 'discover' && (
           <div style={{ padding: '1rem 1.5rem 1.5rem', borderTop: '1px solid #FCE8E6' }}>
             <button onClick={handleSubmit} disabled={isPending || !form.title || !form.author}
-              style={{ width: '100%', padding: '0.625rem', borderRadius: '0.5rem', background: '#8A1228', color: '#fff', border: 'none', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', opacity: (isPending || !form.title || !form.author) ? 0.5 : 1 }}>
+              style={{ width: '100%', padding: '0.625rem', borderRadius: '0.5rem', background: '#E11D48', color: '#fff', border: 'none', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', opacity: (isPending || !form.title || !form.author) ? 0.5 : 1 }}>
               {isPending ? 'Saving…' : 'Add Book'}
             </button>
           </div>
@@ -236,7 +236,7 @@ function EditBookModal({ book, onClose }) {
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }}>
       <div style={{ background: '#ffffff', borderRadius: '1rem', boxShadow: '0 24px 64px rgba(138,18,40,0.18)', width: '100%', maxWidth: 384, padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#8A1228', margin: 0 }}>Edit Book</h2>
+          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.25rem', fontWeight: 700, color: '#E11D48', margin: 0 }}>Edit Book</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B5456' }}>
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -258,7 +258,7 @@ function EditBookModal({ book, onClose }) {
           Active
         </label>
         <button onClick={() => mutate({ id: book.id ?? book._id, data: form })} disabled={isPending}
-          style={{ padding: '0.625rem', borderRadius: '0.5rem', background: '#8A1228', color: '#fff', border: 'none', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', opacity: isPending ? 0.5 : 1 }}>
+          style={{ padding: '0.625rem', borderRadius: '0.5rem', background: '#E11D48', color: '#fff', border: 'none', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', opacity: isPending ? 0.5 : 1 }}>
           {isPending ? 'Saving…' : 'Save Changes'}
         </button>
       </div>
@@ -296,16 +296,16 @@ export default function AdminBooksPage() {
   return (
     <>
       <style>{`
-        .abp-table-row:hover { background: rgba(255,240,240,0.3); }
+        .abp-table-row:hover { background: #FAFAFA; }
         .abp-action-btn { opacity: 0; transition: opacity 0.15s; }
         .abp-table-row:hover .abp-action-btn { opacity: 1; }
       `}</style>
 
       {/* Topbar */}
-      <header style={{ position: 'sticky', top: 0, width: '100%', zIndex: 40, height: 80, background: '#FCE8E6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 2rem', flexShrink: 0, boxSizing: 'border-box' }}>
+      <header style={{ position: 'sticky', top: 0, width: '100%', zIndex: 40, height: 64, background: '#fff', borderBottom: '1px solid #E9EAEC', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 2rem', flexShrink: 0, boxSizing: 'border-box' }}>
         <div>
-          <h2 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.875rem', fontWeight: 600, color: '#8A1228', margin: 0 }}>Book Management</h2>
-          <span style={{ fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6B5456', fontFamily: 'Inter, sans-serif' }}>Inventory Control</span>
+          <h2 style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9375rem', fontWeight: 600, color: '#111', margin: 0, letterSpacing: '-0.01em' }}>Book Management</h2>
+          <span style={{ fontSize: '0.6875rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#9CA3AF', fontFamily: 'Inter, sans-serif' }}>Inventory Control</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <div style={{ position: 'relative' }}>
@@ -315,47 +315,37 @@ export default function AdminBooksPage() {
               onChange={e => { setQ(e.target.value); setPage(1); }}
               placeholder="Search title or author..."
               style={{ background: '#ffffff', border: 'none', outline: 'none', boxShadow: '0 0 0 1px #EBD2CF', borderRadius: '0.5rem', padding: '0.5rem 1rem 0.5rem 2.75rem', fontSize: '0.875rem', width: 288, fontFamily: 'Inter, sans-serif' }}
-              onFocus={e => (e.target.style.boxShadow = '0 0 0 2px #8A1228')}
-              onBlur={e  => (e.target.style.boxShadow = '0 0 0 1px #EBD2CF')}
+              onFocus={e => { e.target.style.boxShadow = '0 0 0 2px rgba(225,29,72,0.15)'; e.target.style.background = '#fff'; }}
+              onBlur={e  => { e.target.style.boxShadow = 'none'; e.target.style.background = '#F4F5F7'; }}
             />
           </div>
           <button
             onClick={() => setPanel(true)}
-            style={{ background: '#8A1228', color: '#fff', padding: '0.625rem 1.25rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 600, fontFamily: 'Inter, sans-serif', boxShadow: '0 4px 12px rgba(107,15,26,0.2)' }}>
+            style={{ background: '#E11D48', color: '#fff', padding: '0.625rem 1.25rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 600, fontFamily: 'Inter, sans-serif', boxShadow: '0 4px 12px rgba(107,15,26,0.2)' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
             Add Book
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingLeft: '1rem', borderLeft: '1px solid rgba(223,191,190,0.3)' }}>
-            {user?.avatar
-              ? <img src={user.avatar} alt={user.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', boxShadow: '0 0 0 2px #ffdad9' }} />
-              : <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#8A1228', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 2px #ffdad9' }}>
-                  <span style={{ color: '#fff', fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.875rem' }}>
-                    {(user?.name ?? 'A').charAt(0).toUpperCase()}
-                  </span>
-                </div>
-            }
-          </div>
         </div>
       </header>
 
-      <section style={{ padding: '2rem 2rem 6rem' }}>
+      <section style={{ padding: '1.75rem 1.75rem 6rem' }}>
 
         {/* Stats bento */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
-          <div style={{ gridColumn: 'span 4', background: '#ffffff', padding: '1.5rem', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(74,8,16,0.04)', border: '1px solid rgba(223,191,190,0.1)' }}>
+          <div style={{ gridColumn: 'span 4', background: '#ffffff', padding: '1.5rem', borderRadius: 12, border: '1px solid #E2E8F0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#6B5456', margin: '0 0 4px', fontFamily: 'Inter, sans-serif' }}>Total Volumes</p>
-                <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#8A1228', margin: 0 }}>
+                <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '2.25rem', fontWeight: 700, color: '#E11D48', margin: 0 }}>
                   {isLoading ? '—' : total.toLocaleString()}
                 </h3>
               </div>
-              <div style={{ padding: '0.75rem', background: '#ffd9dc', borderRadius: '0.5rem', color: '#8A1228' }}>
+              <div style={{ padding: '0.75rem', background: '#ffd9dc', borderRadius: '0.5rem', color: '#E11D48' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.5rem' }}>library_books</span>
               </div>
             </div>
           </div>
-          <div style={{ gridColumn: 'span 8', background: '#8A1228', padding: '1.5rem', borderRadius: '0.75rem', boxShadow: '0 8px 24px rgba(138,18,40,0.2)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
+          <div style={{ gridColumn: 'span 8', background: '#E11D48', padding: '1.5rem', borderRadius: '0.75rem', boxShadow: '0 8px 24px rgba(138,18,40,0.2)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #8A1228, #5C0F1F)', opacity: 0.8 }} />
             <div style={{ position: 'relative', zIndex: 1, color: '#fff' }}>
               <h4 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.5rem', fontStyle: 'italic', margin: '0 0 0.5rem' }}>"Knowledge is the only wealth that increases when shared."</h4>
@@ -370,9 +360,9 @@ export default function AdminBooksPage() {
         </div>
 
         {/* Table */}
-        <div style={{ background: '#ffffff', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(74,8,16,0.04)', border: '1px solid rgba(223,191,190,0.1)', overflow: 'hidden' }}>
-          <div style={{ padding: '1.5rem', borderBottom: '1px solid #ffe1e3', background: 'rgba(255,248,247,0.5)' }}>
-            <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontWeight: 700, fontSize: '1.125rem', color: '#8A1228', margin: 0 }}>All Books</h3>
+        <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+          <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #F3F4F6', background: '#FAFAFA' }}>
+            <h3 style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.875rem', color: '#111', margin: 0 }}>All Books</h3>
           </div>
 
           {isLoading ? (
@@ -390,33 +380,40 @@ export default function AdminBooksPage() {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
-                  <tr style={{ background: 'rgba(255,240,240,0.5)' }}>
-                    {['Cover', 'Book Details', 'Category', 'Format', 'Status', 'Actions'].map((col, i) => (
-                      <th key={col} style={{ padding: '1rem 1.5rem', fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6B5456', width: i === 0 ? 80 : undefined, textAlign: i === 5 ? 'right' : 'left' }}>{col}</th>
+                  <tr style={{ background: '#FAFAFA' }}>
+                    {['Cover', 'Book Details', 'Languages', 'Format', 'Status', 'Actions'].map((col, i) => (
+                      <th key={col} style={{ padding: '0.75rem 1.5rem', fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9CA3AF', width: i === 0 ? 80 : undefined, textAlign: i === 5 ? 'right' : 'left' }}>{col}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody style={{ borderTop: '1px solid #ffe1e3' }}>
+                <tbody>
                   {books.map(b => {
                     const status = bookStatus(b);
                     return (
-                      <tr key={b.id ?? b._id} className="abp-table-row" style={{ borderBottom: '1px solid #ffe1e3' }}>
+                      <tr key={b.id ?? b._id} className="abp-table-row" style={{ borderBottom: '1px solid #F3F4F6' }}>
                         <td style={{ padding: '1rem 1.5rem' }}>
                           <div style={{ width: 48, height: 64, borderRadius: '0.25rem', overflow: 'hidden', background: '#F2BEB8' }}>
                             {b.coverUrl
                               ? <img src={b.coverUrl} alt={b.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  <span className="material-symbols-outlined" style={{ color: '#6B5456', fontSize: '1.25rem' }}>book</span>
+                                  <span className="material-symbols-outlined" style={{ color: '#94A3B8', fontSize: '1.125rem' }}>book</span>
                                 </div>
                             }
                           </div>
                         </td>
                         <td style={{ padding: '1rem 1.5rem' }}>
-                          <span style={{ display: 'block', fontFamily: 'Playfair Display, Georgia, serif', fontWeight: 700, fontSize: '1rem', color: '#8A1228' }}>{b.title}</span>
-                          <span style={{ fontSize: '0.875rem', color: '#6B5456', fontFamily: 'Inter, sans-serif' }}>{b.author}</span>
+                          <span style={{ display: 'block', fontWeight: 600, fontSize: '0.8125rem', color: '#0F172A', fontFamily: 'Inter, sans-serif' }}>{b.title}</span>
+                          <span style={{ fontSize: '0.75rem', color: '#64748B', fontFamily: 'Inter, sans-serif' }}>{b.author}</span>
                         </td>
                         <td style={{ padding: '1rem 1.5rem' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#6B5456', fontFamily: 'Inter, sans-serif' }}>{b.category ?? '—'}</span>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                            {(b.languages ?? []).length > 0
+                              ? (b.languages ?? []).slice(0, 2).map(lang => (
+                                  <span key={lang} style={{ fontSize: '0.625rem', fontWeight: 700, color: '#be1239', background: '#ffdad9', padding: '2px 7px', borderRadius: '0.25rem', fontFamily: 'Inter, sans-serif', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{lang}</span>
+                                ))
+                              : <span style={{ fontSize: '0.75rem', color: '#A89597', fontFamily: 'Inter, sans-serif' }}>—</span>
+                            }
+                          </div>
                         </td>
                         <td style={{ padding: '1rem 1.5rem' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6B5456', background: '#ffd9dc', padding: '3px 10px', borderRadius: '0.375rem', fontFamily: 'Inter, sans-serif', textTransform: 'uppercase' }}>
@@ -435,7 +432,7 @@ export default function AdminBooksPage() {
                           <div className="abp-action-btn" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
                             <button onClick={() => setEditing(b)}
                               style={{ padding: '0.5rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', background: 'none', color: '#6B5456' }}
-                              onMouseEnter={e => { e.currentTarget.style.color = '#8A1228'; e.currentTarget.style.background = '#FCE8E6'; }}
+                              onMouseEnter={e => { e.currentTarget.style.color = '#E11D48'; e.currentTarget.style.background = '#FCE8E6'; }}
                               onMouseLeave={e => { e.currentTarget.style.color = '#6B5456'; e.currentTarget.style.background = 'none'; }}>
                               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>edit_note</span>
                             </button>
@@ -457,7 +454,7 @@ export default function AdminBooksPage() {
 
           {/* Pagination */}
           {pages > 1 && (
-            <div style={{ padding: '1.5rem', background: 'rgba(255,248,247,0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #ffe1e3' }}>
+            <div style={{ padding: '1rem 1.5rem', background: '#FAFAFA', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F3F4F6' }}>
               <span style={{ fontSize: '0.75rem', color: '#6B5456', fontFamily: 'Inter, sans-serif' }}>
                 Page {page} of {pages} ({total.toLocaleString()} books)
               </span>

@@ -7,7 +7,6 @@ class UserModel {
   final String       role;                   // student | staff | admin
   final List<String> preferredLanguages;
   final String?      avatar;                 // R2 URL
-  final String?      kohaPatronId;
   final int          readingGoal;
   final bool         isActive;
 
@@ -20,7 +19,6 @@ class UserModel {
     this.role                = 'student',
     this.preferredLanguages  = const ['English'],
     this.avatar,
-    this.kohaPatronId,
     this.readingGoal         = 20,
     this.isActive            = true,
   });
@@ -37,7 +35,6 @@ class UserModel {
               ?.cast<String>() ??
           ['English'],
       avatar:       json['avatar']       as String?,
-      kohaPatronId: json['kohaPatronId'] as String?,
       readingGoal:  (json['readingGoal'] as num?)?.toInt() ?? 20,
       isActive:      json['isActive']    as bool? ?? true,
     );
@@ -52,7 +49,6 @@ class UserModel {
     'role':              role,
     'preferredLanguages': preferredLanguages,
     if (avatar       != null) 'avatar':       avatar,
-    if (kohaPatronId != null) 'kohaPatronId': kohaPatronId,
     'readingGoal':       readingGoal,
     'isActive':          isActive,
   };

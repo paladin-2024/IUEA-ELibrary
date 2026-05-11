@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
@@ -81,7 +82,7 @@ class _MyLoansScreenState extends State<MyLoansScreen> {
         backgroundColor: AppColors.white,
         elevation:       0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.textPrimary),
+          icon: const Icon(AppIcons.arrowBack, size: 18, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Text('My Loans', style: AppTextStyles.h2.copyWith(fontSize: 18)),
@@ -257,7 +258,7 @@ class _LoanCard extends StatelessWidget {
                 if (loan.status == 'approved' && loan.shelfLocation != null) ...[
                   const SizedBox(height: 4),
                   Row(children: [
-                    const Icon(Icons.location_on_outlined, size: 12, color: Colors.green),
+                    const Icon(AppIcons.location, size: 12, color: Colors.green),
                     const SizedBox(width: 4),
                     Text(loan.shelfLocation!,
                       style: AppTextStyles.label.copyWith(color: Colors.green, fontSize: 12)),
@@ -324,7 +325,7 @@ class _LoanCard extends StatelessWidget {
   Widget _placeholder() => Container(
     width: 48, height: 68,
     color: AppColors.grey100,
-    child: const Icon(Icons.book_outlined, color: AppColors.grey300, size: 24),
+    child: const Icon(AppIcons.book, color: AppColors.grey300, size: 24),
   );
 }
 

@@ -2,7 +2,6 @@ class BookModel {
   final String       id;
   final String       title;
   final String       author;           // single string from API
-  final String?      kohaId;
   final String?      isbn;
   final String?      coverUrl;         // Open Library URL
   final String?      fileUrl;          // R2 path — EPUB or PDF
@@ -25,7 +24,6 @@ class BookModel {
     required this.id,
     required this.title,
     required this.author,
-    this.kohaId,
     this.isbn,
     this.coverUrl,
     this.fileUrl,
@@ -56,7 +54,6 @@ class BookModel {
       id:           json['_id']  as String? ?? json['id'] as String? ?? '',
       title:        json['title'] as String? ?? 'Unknown',
       author:       authorStr,
-      kohaId:       json['kohaId']       as String?,
       isbn:         json['isbn']         as String?,
       coverUrl:     json['coverUrl']     as String?,
       fileUrl:      json['fileUrl']      as String?,

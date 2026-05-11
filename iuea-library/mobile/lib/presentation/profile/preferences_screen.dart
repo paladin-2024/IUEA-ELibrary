@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:provider/provider.dart';
 import '../../providers/reader_provider.dart';
 import '../../core/constants/app_colors.dart';
@@ -47,7 +48,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                 padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
                 child: Row(children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    icon: const Icon(AppIcons.arrowBack,
                       size: 18, color: AppColors.textPrimary),
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -75,7 +76,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _SectionCard(
-                  icon:  Icons.text_fields_rounded,
+                  icon:  AppIcons.textSize,
                   title: 'Typography',
                   child: Column(
                     children: [
@@ -200,7 +201,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _SectionCard(
-                  icon:  Icons.palette_outlined,
+                  icon:  AppIcons.palette,
                   title: 'Environment',
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -225,7 +226,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                   blurRadius: 6, offset: const Offset(0, 2))],
                               ),
                               child: sel
-                                  ? Icon(Icons.check_rounded,
+                                  ? Icon(AppIcons.check,
                                       color: Color(t['text'] as int), size: 22)
                                   : null,
                             ),
@@ -260,7 +261,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   ),
                   child: Column(children: [
                     _ToggleRow(
-                      icon:     Icons.bookmark_added_outlined,
+                      icon:     AppIcons.bookark_added_outlined,
                       title:    'Auto-save progress',
                       subtitle: 'Resume where you left off',
                       value:    reader.autoSave,
@@ -270,7 +271,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     const Divider(height: 1, indent: 16, endIndent: 16,
                       color: AppColors.border),
                     _ToggleRow(
-                      icon:     Icons.cloud_download_outlined,
+                      icon:     AppIcons.download,
                       title:    'Offline reading',
                       subtitle: 'Download for later use',
                       value:    reader.offlineReading,
@@ -289,8 +290,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                 child: Column(children: [
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     _Lnk('Privacy'), _Sep(),
-                    _Lnk('Terms'),   _Sep(),
-                    _Lnk('Koha API'),
+                    _Lnk('Terms'),
                   ]),
                   const SizedBox(height: 6),
                   Text('POWERED BY GOOGLE',

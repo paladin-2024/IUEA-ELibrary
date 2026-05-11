@@ -1,6 +1,7 @@
-const prisma         = require('../config/prisma');
-const BorrowRequest  = require('../models/BorrowRequest');
-const emailService   = require('../services/email.service');
+'use strict';
+
+const prisma       = require('../config/prisma');
+const emailService = require('../services/email.service');
 
 const DEFAULT_LOAN_DAYS = 14;
 
@@ -13,27 +14,24 @@ const requestBorrow = async (req, res, next) => {
     const book = await prisma.book.findUnique({ where: { id: bookId } });
     if (!book) return res.status(404).json({ message: 'Book not found.' });
 
-    // Check for existing active/pending request
-    const existing = await BorrowRequest.findOne({
-      userId: req.user.id,
-      bookId,
-      status: { $in: ['pending', 'approved', 'active'] },
+    const existing = await prisma.borrowRequest.findFirst({
+      where: { userId: req.user.id, bookId, status: { in: ['pending', 'approved', 'active'] } },
     });
     if (existing) {
       return res.status(409).json({ message: 'You already have an active request for this book.' });
     }
 
-    const request = await BorrowRequest.create({
-      userId:       req.user.id,
-      bookId,
-      bookTitle:    book.title,
-      bookAuthor:   book.author,
-      bookCoverUrl: book.coverUrl,
+    const request = await prisma.borrowRequest.create({
+      data: {
+        userId:       req.user.id,
+        bookId,
+        bookTitle:    book.title,
+        bookAuthor:   book.author,
+        bookCoverUrl: book.coverUrl,
+      },
     });
 
-    // Notify admins via email (fire-and-forget)
     emailService.sendBorrowRequestNotification(req.user, book).catch(console.error);
-
     res.status(201).json({ request });
   } catch (err) { next(err); }
 };
@@ -41,32 +39,34 @@ const requestBorrow = async (req, res, next) => {
 // ── GET /api/borrowing/my  (student sees their loans) ─────────────────────────
 const getMyLoans = async (req, res, next) => {
   try {
-    const loans = await BorrowRequest.find({ userId: req.user.id })
-      .sort({ createdAt: -1 })
-      .lean();
+    const loans = await prisma.borrowRequest.findMany({
+      where:   { userId: req.user.id },
+      orderBy: { createdAt: 'desc' },
+    });
 
-    // Mark overdue
     const now = new Date();
-    for (const loan of loans) {
+    const updated = await Promise.all(loans.map(async (loan) => {
       if (loan.status === 'active' && loan.dueDate && loan.dueDate < now) {
-        await BorrowRequest.findByIdAndUpdate(loan._id, { status: 'overdue' });
-        loan.status = 'overdue';
+        return prisma.borrowRequest.update({ where: { id: loan.id }, data: { status: 'overdue' } });
       }
-    }
+      return loan;
+    }));
 
-    res.json({ loans });
+    res.json({ loans: updated });
   } catch (err) { next(err); }
 };
 
 // ── DELETE /api/borrowing/:id  (student cancels pending request) ──────────────
 const cancelRequest = async (req, res, next) => {
   try {
-    const loan = await BorrowRequest.findOne({ _id: req.params.id, userId: req.user.id });
+    const loan = await prisma.borrowRequest.findFirst({
+      where: { id: req.params.id, userId: req.user.id },
+    });
     if (!loan) return res.status(404).json({ message: 'Request not found.' });
     if (loan.status !== 'pending') {
       return res.status(400).json({ message: 'Only pending requests can be cancelled.' });
     }
-    await BorrowRequest.findByIdAndDelete(loan._id);
+    await prisma.borrowRequest.delete({ where: { id: loan.id } });
     res.json({ message: 'Request cancelled.' });
   } catch (err) { next(err); }
 };
@@ -74,7 +74,9 @@ const cancelRequest = async (req, res, next) => {
 // ── POST /api/borrowing/:id/renew  (student requests renewal) ─────────────────
 const requestRenewal = async (req, res, next) => {
   try {
-    const loan = await BorrowRequest.findOne({ _id: req.params.id, userId: req.user.id });
+    const loan = await prisma.borrowRequest.findFirst({
+      where: { id: req.params.id, userId: req.user.id },
+    });
     if (!loan) return res.status(404).json({ message: 'Loan not found.' });
     if (!['active', 'overdue'].includes(loan.status)) {
       return res.status(400).json({ message: 'Only active loans can be renewed.' });
@@ -82,7 +84,7 @@ const requestRenewal = async (req, res, next) => {
     if (loan.renewalCount >= 2) {
       return res.status(400).json({ message: 'Maximum renewals reached.' });
     }
-    await BorrowRequest.findByIdAndUpdate(loan._id, { renewalRequested: true });
+    await prisma.borrowRequest.update({ where: { id: loan.id }, data: { renewalRequested: true } });
     res.json({ message: 'Renewal request submitted.' });
   } catch (err) { next(err); }
 };
@@ -91,17 +93,20 @@ const requestRenewal = async (req, res, next) => {
 const getAllLoans = async (req, res, next) => {
   try {
     const { status, page = 1, limit = 20 } = req.query;
-    const filter = {};
-    if (status) filter.status = status;
+    const where = {};
+    if (status) where.status = status;
 
     const skip  = (Number(page) - 1) * Number(limit);
-    const total = await BorrowRequest.countDocuments(filter);
-    const loans = await BorrowRequest.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit))
-      .populate('userId', 'name email studentId faculty avatar')
-      .lean();
+    const [total, loans] = await Promise.all([
+      prisma.borrowRequest.count({ where }),
+      prisma.borrowRequest.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take:    Number(limit),
+        include: { user: { select: { name: true, email: true, studentId: true, faculty: true, avatar: true } } },
+      }),
+    ]);
 
     res.json({ loans, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
   } catch (err) { next(err); }
@@ -116,36 +121,37 @@ const updateLoanStatus = async (req, res, next) => {
       return res.status(400).json({ message: `Invalid status: ${status}` });
     }
 
-    const loan = await BorrowRequest.findById(req.params.id)
-      .populate('userId', 'name email')
-      .lean();
+    const loan = await prisma.borrowRequest.findUnique({
+      where:   { id: req.params.id },
+      include: { user: { select: { name: true, email: true } } },
+    });
     if (!loan) return res.status(404).json({ message: 'Loan not found.' });
 
-    const update = { status };
-    if (adminNotes)     update.adminNotes     = adminNotes;
-    if (shelfLocation)  update.shelfLocation  = shelfLocation;
+    const data = { status };
+    if (adminNotes)    data.adminNotes    = adminNotes;
+    if (shelfLocation) data.shelfLocation = shelfLocation;
 
     if (status === 'approved') {
-      update.approvedAt = new Date();
-      update.dueDate    = new Date(Date.now() + Number(loanDays) * 24 * 60 * 60 * 1000);
-      // Email student
-      emailService.sendBorrowApproved(loan.userId, loan, update.dueDate, shelfLocation, adminNotes).catch(console.error);
+      data.approvedAt = new Date();
+      data.dueDate    = new Date(Date.now() + Number(loanDays) * 24 * 60 * 60 * 1000);
+      emailService.sendBorrowApproved(loan.user, loan, data.dueDate, shelfLocation, adminNotes).catch(console.error);
     }
     if (status === 'rejected') {
-      emailService.sendBorrowRejected(loan.userId, loan, adminNotes).catch(console.error);
+      emailService.sendBorrowRejected(loan.user, loan, adminNotes).catch(console.error);
     }
     if (status === 'returned') {
-      update.returnedAt = new Date();
-      // Handle renewal approval
       if (loan.renewalRequested) {
-        update.renewalRequested = false;
-        update.renewalCount = (loan.renewalCount ?? 0) + 1;
-        update.dueDate = new Date(Date.now() + Number(loanDays) * 24 * 60 * 60 * 1000);
-        update.status  = 'active';
+        // Approve renewal — extend loan instead of marking returned
+        data.status           = 'active';
+        data.renewalRequested = false;
+        data.renewalCount     = (loan.renewalCount ?? 0) + 1;
+        data.dueDate          = new Date(Date.now() + Number(loanDays) * 24 * 60 * 60 * 1000);
+      } else {
+        data.returnedAt = new Date();
       }
     }
 
-    const updated = await BorrowRequest.findByIdAndUpdate(req.params.id, update, { new: true }).lean();
+    const updated = await prisma.borrowRequest.update({ where: { id: req.params.id }, data });
     res.json({ loan: updated });
   } catch (err) { next(err); }
 };
@@ -154,10 +160,10 @@ const updateLoanStatus = async (req, res, next) => {
 const getLoanStats = async (req, res, next) => {
   try {
     const [pending, active, overdue, returned] = await Promise.all([
-      BorrowRequest.countDocuments({ status: 'pending' }),
-      BorrowRequest.countDocuments({ status: 'active' }),
-      BorrowRequest.countDocuments({ status: 'overdue' }),
-      BorrowRequest.countDocuments({ status: 'returned' }),
+      prisma.borrowRequest.count({ where: { status: 'pending'  } }),
+      prisma.borrowRequest.count({ where: { status: 'active'   } }),
+      prisma.borrowRequest.count({ where: { status: 'overdue'  } }),
+      prisma.borrowRequest.count({ where: { status: 'returned' } }),
     ]);
     res.json({ stats: { pending, active, overdue, returned } });
   } catch (err) { next(err); }

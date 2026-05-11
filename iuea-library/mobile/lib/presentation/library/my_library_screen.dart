@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../data/repositories/progress_repository.dart';
@@ -65,7 +66,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
               const Spacer(),
               TextButton.icon(
                 onPressed: () => context.push('/library/downloads'),
-                icon: const Icon(Icons.download_done_rounded, size: 16),
+                icon: const Icon(AppIcons.downloadDone, size: 16),
                 label: const Text('Downloads'),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.primary,
@@ -74,7 +75,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
               ),
               TextButton.icon(
                 onPressed: () => context.push('/library/loans'),
-                icon: const Icon(Icons.local_library_outlined, size: 16),
+                icon: const Icon(AppIcons.library, size: 16),
                 label: const Text('Loans'),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.primary,
@@ -170,7 +171,7 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
 
   Widget _emptyState() => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Icon(Icons.book_outlined, size: 56, color: AppColors.grey300),
+      Icon(AppIcons.book, size: 56, color: AppColors.grey300),
       const SizedBox(height: 10),
       Text(
         _tab == 1 ? 'No books in progress.' :
@@ -188,6 +189,16 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
     padding: const EdgeInsets.symmetric(horizontal: 5),
     child: Text('·', style: TextStyle(
       fontSize: 10, color: AppColors.textHint.withValues(alpha: 0.5))));
+}
+
+String _relativeDate(DateTime date) {
+  final days = DateTime.now().difference(date).inDays;
+  if (days == 0) return 'today';
+  if (days == 1) return 'yesterday';
+  if (days < 7)  return '$days days ago';
+  if (days < 30) return '${(days / 7).floor()} week${(days / 7).floor() != 1 ? 's' : ''} ago';
+  if (days < 365) return '${(days / 30).floor()} month${(days / 30).floor() != 1 ? 's' : ''} ago';
+  return '${(days / 365).floor()} year${(days / 365).floor() != 1 ? 's' : ''} ago';
 }
 
 // ── Book row ──────────────────────────────────────────────────────────────────
@@ -223,7 +234,7 @@ class _BookRow extends StatelessWidget {
                     imageUrl: book!.coverUrl!, fit: BoxFit.cover)
                 : Container(
                     color: AppColors.primary.withValues(alpha: 0.08),
-                    child: const Icon(Icons.book_outlined,
+                    child: const Icon(AppIcons.book,
                       color: AppColors.primary, size: 24)),
             ),
           ),
@@ -271,10 +282,13 @@ class _BookRow extends StatelessWidget {
                         fontSize: 10, color: AppColors.textHint)),
                   if (progress.isCompleted)
                     Row(mainAxisSize: MainAxisSize.min, children: [
-                      const Icon(Icons.check_circle_rounded,
+                      const Icon(AppIcons.checkCircle,
                         color: AppColors.success, size: 12),
                       const SizedBox(width: 3),
-                      Text('Finished 3 days ago',
+                      Text(
+                        progress.lastReadAt != null
+                          ? 'Finished ${_relativeDate(progress.lastReadAt!)}'
+                          : 'Finished',
                         style: AppTextStyles.label.copyWith(
                           fontSize: 10, color: AppColors.success)),
                     ]),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -58,19 +59,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _showError('Passwords do not match.');
       return;
     }
-    final auth = context.read<AuthProvider>();
-    final ok   = await auth.register({
+    final auth  = context.read<AuthProvider>();
+    final email = _emailCtrl.text.trim();
+    final error = await auth.register({
       'name':      _nameCtrl.text.trim(),
       'studentId': _studentIdCtrl.text.trim(),
-      'email':     _emailCtrl.text.trim(),
+      'email':     email,
       'faculty':   _faculty,
       'password':  _passCtrl.text,
     });
     if (!mounted) return;
-    if (ok) {
-      context.go('/onboarding');
+    if (error == null) {
+      context.push('/verify-email', extra: {'email': email});
     } else {
-      _showError(auth.error ?? 'Registration failed.');
+      _showError(error);
     }
   }
 
@@ -164,7 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: AppColors.textPrimary, height: 1),
                         decoration: authInputDeco(
                           hint:   'John Doe',
-                          prefix: Icons.person_outline_rounded,
+                          prefix: AppIcons.personOutline,
                         ),
                         validator: (v) =>
                           (v == null || v.trim().isEmpty)
@@ -183,7 +185,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: AppColors.textPrimary, height: 1),
                         decoration: authInputDeco(
                           hint:   'IUEA-2024-000',
-                          prefix: Icons.badge_outlined,
+                          prefix: AppIcons.school,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.md),
@@ -200,7 +202,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: AppColors.textPrimary, height: 1),
                         decoration: authInputDeco(
                           hint:   'example@iuea.ac.ug',
-                          prefix: Icons.email_outlined,
+                          prefix: AppIcons.email,
                         ),
                         validator: (v) =>
                           (v == null || !v.contains('@'))
@@ -244,7 +246,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         icon: const Icon(
-                          Icons.keyboard_arrow_down_rounded,
+                          AppIcons.chevronDown,
                           color: AppColors.textHint,
                         ),
                         dropdownColor: AppColors.white,
@@ -267,12 +269,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: AppColors.textPrimary, height: 1),
                         decoration: authInputDeco(
                           hint:   '••••••••',
-                          prefix: Icons.lock_outline_rounded,
+                          prefix: AppIcons.lock,
                           suffix: IconButton(
                             icon: Icon(
                               _showPw
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
+                                ? AppIcons.eyeOff
+                                : AppIcons.eyeOn,
                               size: 18,
                               color: AppColors.textHint,
                             ),
@@ -298,12 +300,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: AppColors.textPrimary, height: 1),
                         decoration: authInputDeco(
                           hint:   '••••••••',
-                          prefix: Icons.lock_outline_rounded,
+                          prefix: AppIcons.lock,
                           suffix: IconButton(
                             icon: Icon(
                               _showCpw
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
+                                ? AppIcons.eyeOff
+                                : AppIcons.eyeOn,
                               size: 18,
                               color: AppColors.textHint,
                             ),
@@ -427,8 +429,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const AuthFooterLink('Terms'),
                       authFooterDot(),
                       const AuthFooterLink('Translate'),
-                      authFooterDot(),
-                      const AuthFooterLink('Koha ILS'),
                     ],
                   ),
                   const SizedBox(height: 4),

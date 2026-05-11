@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -269,7 +270,7 @@ class _SplashScreenState extends State<SplashScreen>
                                             ),
                                           ),
                                           SizedBox(width: 8),
-                                          Icon(Icons.arrow_forward_rounded, size: 18),
+                                          Icon(AppIcons.arrowForward, size: 18),
                                         ],
                                       ),
                                     ),

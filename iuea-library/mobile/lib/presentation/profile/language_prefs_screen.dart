@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
@@ -29,7 +30,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
   String  _chatbotMode   = 'same'; // 'same' | 'custom'
   bool    _autoTranslate = true;
   String  _voice         = 'en-GB-Arthur';
-  double  _speechRate    = 1.2;
+  double  _speechRate    = 0.5;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +45,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
                 padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
                 child: Row(children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    icon: const Icon(AppIcons.arrowBack,
                       size: 18, color: AppColors.textPrimary),
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -53,13 +54,13 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
                       fontSize: 16, color: AppColors.textPrimary)),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.notifications_none_rounded,
+                    icon: const Icon(AppIcons.notification,
                       color: AppColors.textPrimary, size: 22),
                     onPressed: () => context.push('/notifications'),
                   ),
                   const CircleAvatar(
                     radius: 16, backgroundColor: AppColors.primaryContainer,
-                    child: Icon(Icons.person_rounded,
+                    child: Icon(AppIcons.person,
                       color: AppColors.white, size: 16)),
                   const SizedBox(width: 4),
                 ]),
@@ -92,7 +93,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _Section(
-                  icon:  Icons.translate_rounded,
+                  icon:  AppIcons.translate,
                   title: 'App Language',
                   child: _StyledDropdown(
                     value:    _appLang,
@@ -109,7 +110,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _Section(
-                  icon:  Icons.smart_toy_outlined,
+                  icon:  AppIcons.bot,
                   title: 'Chatbot Response',
                   subtitle: 'The Digital Curator AI will reply in this language.',
                   child: Row(children: [
@@ -136,7 +137,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _Section(
-                  icon:  Icons.auto_stories_outlined,
+                  icon:  AppIcons.bookpen,
                   title: 'Auto-translate books',
                   subtitle: 'Instantly translate book text.',
                   child: Row(
@@ -164,7 +165,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _Section(
-                  icon:  Icons.record_voice_over_outlined,
+                  icon:  AppIcons.mic,
                   title: 'Voice Selection',
                   child: Column(
                     children: [
@@ -206,8 +207,8 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
                                 ),
                                 child: Slider(
                                   value:    _speechRate,
-                                  min:      0.5,
-                                  max:      2.0,
+                                  min:      0.25,
+                                  max:      1.0,
                                   divisions: 6,
                                   onChanged: (v) =>
                                     setState(() => _speechRate = v),
@@ -234,7 +235,7 @@ class _LanguagePrefsScreenState extends State<LanguagePrefsScreen> {
                       color: AppColors.textHint.withValues(alpha: 0.6))),
                   const SizedBox(height: 4),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    _fl('Privacy'), _fd(), _fl('Terms'), _fd(), _fl('Koha ILS'),
+                    _fl('Privacy'), _fd(), _fl('Terms'),
                   ]),
                 ]),
               ),
@@ -330,7 +331,7 @@ class _StyledDropdown extends StatelessWidget {
           isExpanded:  true,
           style:       AppTextStyles.body.copyWith(
             color: AppColors.textPrimary, fontSize: 13),
-          icon: const Icon(Icons.keyboard_arrow_down_rounded,
+          icon: const Icon(AppIcons.chevronDown,
             color: AppColors.textHint),
           dropdownColor: AppColors.white,
           items: options.map((o) => DropdownMenuItem(
@@ -396,7 +397,7 @@ class _VoiceRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(children: [
-          Icon(Icons.person_outline_rounded,
+          Icon(AppIcons.personOutline,
             size: 18, color: AppColors.textSecondary),
           const SizedBox(width: 10),
           Expanded(child: Text(name,

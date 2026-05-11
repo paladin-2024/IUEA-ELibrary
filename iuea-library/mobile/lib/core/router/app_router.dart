@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import '../constants/app_colors.dart';
@@ -7,6 +8,7 @@ import '../../presentation/splash/splash_screen.dart';
 import '../../presentation/auth/login_screen.dart';
 import '../../presentation/auth/register_screen.dart';
 import '../../presentation/auth/forgot_password_screen.dart';
+import '../../presentation/auth/otp_verification_screen.dart';
 import '../../presentation/auth/language_setup_screen.dart';
 import '../../presentation/onboarding/onboarding_screen.dart';
 import '../../presentation/home/home_screen.dart';
@@ -23,6 +25,7 @@ import '../../presentation/profile/preferences_screen.dart';
 import '../../presentation/profile/streaks_screen.dart';
 import '../../presentation/library/my_loans_screen.dart';
 import '../../presentation/notifications/notifications_screen.dart';
+import '../../presentation/profile/language_prefs_screen.dart';
 import '../../presentation/book/author_screen.dart';
 import '../../presentation/library/faculty_screen.dart';
 import '../../presentation/reader/widgets/chatbot_sheet.dart';
@@ -30,9 +33,10 @@ import '../../presentation/widgets/mini_player.dart';
 import 'package:provider/provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../providers/reader_provider.dart';
+import '../../providers/podcast_provider.dart';
 
 // ── Auth routes (no shell) ────────────────────────────────────────────────────
-const _authRoutes = {'/login', '/register', '/forgot-password', '/onboarding', '/language-setup', '/splash'};
+const _authRoutes = {'/login', '/register', '/forgot-password', '/verify-email', '/onboarding', '/language-setup', '/splash'};
 
 bool _isAuthRoute(String loc) => _authRoutes.any(loc.startsWith);
 
@@ -68,6 +72,16 @@ class AppRouter {
       GoRoute(path: '/login',           builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/register',        builder: (_, __) => const RegisterScreen()),
       GoRoute(path: '/forgot-password', builder: (_, __) => const ForgotPasswordScreen()),
+      GoRoute(
+        path: '/verify-email',
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return OtpVerificationScreen(
+            email:           extra['email'] as String? ?? '',
+            isPasswordReset: extra['isPasswordReset'] == true,
+          );
+        },
+      ),
       GoRoute(path: '/onboarding',      builder: (_, __) => const OnboardingScreen()),
       GoRoute(path: '/language-setup',  builder: (_, __) => const LanguageSetupScreen()),
 
@@ -103,6 +117,10 @@ class AppRouter {
               GoRoute(
                 path:    'streaks',
                 builder: (_, __) => const StreaksScreen(),
+              ),
+              GoRoute(
+                path:    'language',
+                builder: (_, __) => const LanguagePrefsScreen(),
               ),
             ],
           ),
@@ -177,55 +195,63 @@ class _MainShellState extends State<_MainShell> {
           const MiniPlayer(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          final chat   = context.read<ChatProvider>();
-          final reader = context.read<ReaderProvider>();
-          showModalBottomSheet(
-            context:            context,
-            isScrollControlled: true,
-            backgroundColor:    Colors.transparent,
-            builder: (_) => MultiProvider(
-              providers: [
-                ChangeNotifierProvider.value(value: chat),
-                ChangeNotifierProvider.value(value: reader),
-              ],
-              child: const ChatbotSheet(bookId: '__general__'),
+      floatingActionButton: Consumer2<PodcastProvider, ReaderProvider>(
+        builder: (_, podcast, reader, __) {
+          final miniVisible = podcast.currentEpisode != null ||
+              (reader.isPlaying && reader.currentBook != null);
+          return Padding(
+            padding: EdgeInsets.only(bottom: miniVisible ? 68.0 : 0.0),
+            child: FloatingActionButton(
+              onPressed: () {
+                final chat = context.read<ChatProvider>();
+                showModalBottomSheet(
+                  context:            context,
+                  isScrollControlled: true,
+                  backgroundColor:    Colors.transparent,
+                  builder: (_) => MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider.value(value: chat),
+                      ChangeNotifierProvider.value(value: reader),
+                    ],
+                    child: const ChatbotSheet(bookId: '__general__'),
+                  ),
+                );
+              },
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.white,
+              tooltip: 'Ask AI',
+              child: const Icon(AppIcons.aiSparkle),
             ),
           );
         },
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white,
-        tooltip: 'Ask AI',
-        child: const Icon(Icons.auto_awesome_rounded),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (i) => context.go(_tabs[i]),
         items: const [
           BottomNavigationBarItem(
-            icon:       Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
+            icon:       Icon(AppIcons.home),
+            activeIcon: Icon(AppIcons.home),
             label:      'Home',
           ),
           BottomNavigationBarItem(
-            icon:       Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search),
+            icon:       Icon(AppIcons.search),
+            activeIcon: Icon(AppIcons.search),
             label:      'Search',
           ),
           BottomNavigationBarItem(
-            icon:       Icon(Icons.collections_bookmark_outlined),
-            activeIcon: Icon(Icons.collections_bookmark),
+            icon:       Icon(AppIcons.library),
+            activeIcon: Icon(AppIcons.library),
             label:      'My Books',
           ),
           BottomNavigationBarItem(
-            icon:       Icon(Icons.headphones_outlined),
-            activeIcon: Icon(Icons.headphones),
+            icon:       Icon(AppIcons.headphones),
+            activeIcon: Icon(AppIcons.headphones),
             label:      'Podcasts',
           ),
           BottomNavigationBarItem(
-            icon:       Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
+            icon:       Icon(AppIcons.personOutline),
+            activeIcon: Icon(AppIcons.person),
             label:      'Profile',
           ),
         ],

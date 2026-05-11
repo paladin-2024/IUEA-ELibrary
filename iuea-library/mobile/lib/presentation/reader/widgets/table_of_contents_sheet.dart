@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/reader_provider.dart';
 import '../../../core/constants/app_colors.dart';
@@ -67,7 +68,7 @@ class TableOfContentsSheet extends StatelessWidget {
                       decoration: BoxDecoration(
                         color:        AppColors.grey100,
                         borderRadius: BorderRadius.circular(16)),
-                      child: const Icon(Icons.close_rounded,
+                      child: const Icon(AppIcons.close,
                         size: 16, color: AppColors.textSecondary),
                     ),
                   ),
@@ -125,7 +126,7 @@ class TableOfContentsSheet extends StatelessWidget {
                       decoration: BoxDecoration(
                         color:        AppColors.primary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(10)),
-                      child: const Icon(Icons.menu_book_rounded,
+                      child: const Icon(AppIcons.bookpen,
                         color: AppColors.primary, size: 18),
                     ),
                     const SizedBox(width: 12),
@@ -176,7 +177,7 @@ class TableOfContentsSheet extends StatelessWidget {
                         color: AppColors.primary.withValues(alpha: 0.2)),
                     ),
                     child: Row(children: [
-                      const Icon(Icons.translate_rounded,
+                      const Icon(AppIcons.translate,
                         size: 14, color: AppColors.primary),
                       const SizedBox(width: 8),
                       Text(
@@ -200,7 +201,7 @@ class TableOfContentsSheet extends StatelessWidget {
                         await reader.saveProgress(bookId);
                         if (context.mounted) Navigator.of(context).pop();
                       },
-                      icon:  const Icon(Icons.bookmark_rounded, size: 18),
+                      icon:  const Icon(AppIcons.bookarkFilled, size: 18),
                       label: const Text('Save Progress'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,

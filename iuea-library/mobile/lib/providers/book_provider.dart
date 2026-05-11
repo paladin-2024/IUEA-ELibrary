@@ -108,6 +108,10 @@ class BookProvider extends ChangeNotifier {
 
   // ── getBook ───────────────────────────────────────────────────────────────────
   Future<BookModel?> getBook(String id) async {
+    // Return cached book immediately — avoids a redundant network call when
+    // navigating from BookDetailScreen (which already set _current).
+    if (_current?.id == id) return _current;
+
     _setLoading(true);
     try {
       _current = await _repo.getBookById(id);

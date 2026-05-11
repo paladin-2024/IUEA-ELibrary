@@ -11,9 +11,6 @@ const chat = async (req, res, next) => {
     const userId = req.user.id;
     const { message, language = 'English', chapter = '' } = req.body;
 
-    if (!message?.trim())
-      return res.status(400).json({ message: 'message is required.' });
-
     const book = bookId === GENERAL_BOOK_ID
       ? GENERAL_BOOK
       : await prisma.book.findUnique({

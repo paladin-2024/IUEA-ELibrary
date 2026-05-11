@@ -1,6 +1,10 @@
+import 'dart:ui';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:dio/dio.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/book_provider.dart';
@@ -27,21 +31,23 @@ class BookDetailScreen extends StatefulWidget {
 class _BookDetailScreenState extends State<BookDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabs;
-  List<BookModel>    _similar      = [];
-  bool               _expanded     = false;
-  bool               _downloaded   = false;
-  bool               _downloading  = false;
-  double             _dlProgress   = 0.0;
-  bool               _borrowing    = false;
-  List<ReviewModel>  _reviews      = [];
+  List<BookModel>    _similar          = [];
+  bool               _expanded         = false;
+  bool               _downloaded       = false;
+  bool               _downloading      = false;
+  double             _dlProgress       = 0.0;
+  bool               _borrowing        = false;
+  bool               _hasActiveLoan    = false;
+  List<ReviewModel>  _reviews          = [];
   ReviewModel?       _myReview;
-  int                _reviewRating = 0;
+  int                _reviewRating     = 0;
+  bool               _isFavorite       = false;
   final _reviewTextCtrl = TextEditingController();
   bool               _submittingReview = false;
 
-  final _dlService      = DownloadService();
-  final _borrowingRepo  = BorrowingRepository(ApiService());
-  final _reviewsRepo    = ReviewsRepository(ApiService());
+  final _dlService     = DownloadService();
+  final _borrowingRepo = BorrowingRepository(ApiService());
+  final _reviewsRepo   = ReviewsRepository(ApiService());
 
   @override
   void initState() {
@@ -55,6 +61,13 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       try {
         final sims = await bp.getSimilarBooks(widget.bookId);
         if (mounted) setState(() => _similar = sims);
+      } catch (_) {}
+      try {
+        final loans = await _borrowingRepo.getMyLoans();
+        final active = loans.any((l) =>
+            l.bookId == widget.bookId &&
+            ['pending', 'approved', 'active'].contains(l.status));
+        if (mounted) setState(() => _hasActiveLoan = active);
       } catch (_) {}
       _loadReviews();
     });
@@ -79,6 +92,7 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     try {
       await _borrowingRepo.requestBorrow(book.id);
       if (mounted) {
+        setState(() => _hasActiveLoan = true);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Request sent! Library will notify you when approved.'),
@@ -88,8 +102,15 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       }
     } catch (e) {
       if (mounted) {
+        final msg = e is DioException
+            ? ((e.response?.data is Map
+                    ? e.response!.data['message'] as String?
+                    : null) ??
+                e.message ??
+                'Failed to send borrow request.')
+            : e.toString().replaceAll('Exception: ', '');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+          SnackBar(content: Text(msg)),
         );
       }
     } finally {
@@ -101,16 +122,19 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     if (_reviewRating == 0) return;
     setState(() => _submittingReview = true);
     try {
-      await _reviewsRepo.submitReview(widget.bookId, _reviewRating, _reviewTextCtrl.text);
+      await _reviewsRepo.submitReview(
+          widget.bookId, _reviewRating, _reviewTextCtrl.text);
       await _loadReviews();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Review saved!'), backgroundColor: AppColors.success));
+          const SnackBar(
+              content: Text('Review saved!'),
+              backgroundColor: AppColors.success));
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not save review.')));
+            const SnackBar(content: Text('Could not save review.')));
       }
     } finally {
       if (mounted) setState(() => _submittingReview = false);
@@ -121,7 +145,8 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _CitationSheet(book: book),
     );
   }
@@ -138,29 +163,22 @@ class _BookDetailScreenState extends State<BookDetailScreen>
     final bp   = context.watch<BookProvider>();
     final book = bp.current;
 
-    final backAppBar = AppBar(
-      backgroundColor: Colors.transparent,
-      elevation:       0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-          color: AppColors.textPrimary, size: 18),
-        onPressed: () => context.pop(),
-      ),
-    );
-
     if (bp.isLoading) {
-      return Scaffold(
-        backgroundColor: AppColors.surface,
-        appBar: backAppBar,
-        body: const Center(
-          child: CircularProgressIndicator(color: AppColors.primary)),
-      );
+      return const _BookDetailSkeleton();
     }
 
     if (book == null) {
       return Scaffold(
         backgroundColor: AppColors.surface,
-        appBar: backAppBar,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(AppIcons.arrowBack,
+                color: AppColors.textPrimary, size: 18),
+            onPressed: () => context.pop(),
+          ),
+        ),
         body: AppErrorState(
           message: bp.error,
           onRetry: () => context.read<BookProvider>().getBook(widget.bookId),
@@ -168,12 +186,12 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       );
     }
 
-    final hasFile     = book.hasFile || book.archiveId != null;
+    final hasFile    = book.hasFile || book.archiveId != null;
     final availability = book.availability;
     final isAvailable  = (availability?['available'] as int? ?? 0) > 0;
-    final words       = (book.description ?? '').split(' ');
-    final isLong      = words.length > 60;
-    final descText    = isLong && !_expanded
+    final words      = (book.description ?? '').split(' ');
+    final isLong     = words.length > 60;
+    final descText   = isLong && !_expanded
         ? '${words.take(60).join(' ')}…'
         : (book.description ?? 'No description available.');
 
@@ -181,261 +199,244 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       backgroundColor: AppColors.surface,
       body: CustomScrollView(
         slivers: [
-          // ── Cover SliverAppBar ─────────────────────────────────────────────
+          // ── Blurred Hero SliverAppBar ──────────────────────────────────────
           SliverAppBar(
-            expandedHeight:  320,
+            expandedHeight: 500,
             pinned:          true,
             backgroundColor: AppColors.primaryDark,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                color: AppColors.white, size: 18),
-              onPressed: () => context.pop(),
+            elevation:       0,
+            leading: Padding(
+              padding: const EdgeInsets.all(8),
+              child: GestureDetector(
+                onTap: () => context.pop(),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      width: 36, height: 36,
+                      color: Colors.white.withValues(alpha: 0.2),
+                      child: const Icon(AppIcons.arrowBack,
+                          color: Colors.white, size: 16),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            actions: const [],
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: GestureDetector(
+                  onTap: () => setState(() => _isFavorite = !_isFavorite),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        width: 36, height: 36,
+                        color: Colors.white.withValues(alpha: 0.2),
+                        child: Icon(
+                          _isFavorite ? AppIcons.heart : AppIcons.heartOutline,
+                          color: _isFavorite ? Colors.redAccent : Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: GestureDetector(
+                  onTap: () {},
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        width: 36, height: 36,
+                        color: Colors.white.withValues(alpha: 0.2),
+                        child: const Icon(AppIcons.share,
+                            color: Colors.white, size: 18),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
-              background: book.hasCover
-                ? CachedNetworkImage(
-                    imageUrl:    book.coverUrl!,
-                    fit:         BoxFit.cover,
-                    errorWidget: (_, __, ___) => _coverPlaceholder())
-                : _coverPlaceholder(),
+              background: _HeroBackground(
+                book:        book,
+                isAvailable: isAvailable,
+              ),
             ),
           ),
 
-          // ── Body ───────────────────────────────────────────────────────────
+          // ── Action Buttons ─────────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Container(
-              color:   AppColors.white,
+              color:   AppColors.surface,
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
-                  Text(book.title,
-                    style: AppTextStyles.h2.copyWith(
-                      fontSize: 20, color: AppColors.textPrimary)),
-                  const SizedBox(height: 6),
-
-                  // Author
-                  GestureDetector(
-                    onTap: () => context.push(
-                        '/author/${Uri.encodeComponent(book.author)}'),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      const Icon(Icons.person_outline_rounded,
-                        size: 14, color: AppColors.primary),
-                      const SizedBox(width: 4),
-                      Text(book.author,
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.primary, fontSize: 14)),
-                    ]),
+                  // Read Now — full width primary
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton.icon(
+                      onPressed: hasFile
+                          ? () => context.push('/reader/${book.id}')
+                          : null,
+                      icon:  const Icon(AppIcons.bookpen, size: 20),
+                      label: const Text('Read Now',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w700)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.white,
+                        elevation: 2,
+                        shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 10),
 
-                  // Rating + availability
-                  Row(children: [
-                    // Stars
-                    Row(mainAxisSize: MainAxisSize.min,
-                      children: List.generate(5, (i) => Icon(
-                        i < (book.rating).floor()
-                          ? Icons.star_rounded
-                          : Icons.star_outline_rounded,
-                        size: 16,
-                        color: AppColors.accent))),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${book.rating.toStringAsFixed(1)} (${book.ratingCount} reviews)',
-                      style: AppTextStyles.label.copyWith(
-                        color: AppColors.textSecondary)),
-                    const Spacer(),
-                    if (availability != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color:        (isAvailable ? AppColors.success : AppColors.warning)
-                              .withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(
-                            color: (isAvailable ? AppColors.success : AppColors.warning)
-                                .withValues(alpha: 0.3))),
-                        child: Row(mainAxisSize: MainAxisSize.min, children: [
-                          Icon(
-                            isAvailable
-                              ? Icons.check_circle_outline_rounded
-                              : Icons.warning_amber_outlined,
-                            size: 12,
-                            color: isAvailable ? AppColors.success : AppColors.warning),
-                          const SizedBox(width: 4),
-                          Text(
-                            isAvailable ? 'Available' : 'Checked out',
-                            style: AppTextStyles.label.copyWith(
-                              fontSize: 11,
-                              color: isAvailable ? AppColors.success : AppColors.warning)),
-                        ]),
-                      ),
-                  ]),
-                  const SizedBox(height: 12),
-
-                  // Language chips
-                  if (book.languages.isNotEmpty)
-                    Wrap(
-                      spacing: 6, runSpacing: 4,
-                      children: [
-                        Text(
-                          'Available in ${book.languages.length} language${book.languages.length != 1 ? 's' : ''}',
-                          style: AppTextStyles.label.copyWith(
-                            color: AppColors.textSecondary, fontSize: 11)),
-                        ...book.languages.take(3).map((lang) =>
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color:        AppColors.primary,
-                              borderRadius: BorderRadius.circular(20)),
-                            child: Text(lang,
-                              style: TextStyle(fontFamily: 'Inter', 
-                                color: AppColors.white, fontSize: 10,
-                                fontWeight: FontWeight.w500)))),
-                      ],
-                    ),
-                  const SizedBox(height: 20),
-
-                  // CTA buttons
+                  // Listen + Download — 2-column grid
                   Row(children: [
                     Expanded(
-                      flex: 3,
                       child: SizedBox(
-                        height: 48,
-                        child: ElevatedButton.icon(
+                        height: 46,
+                        child: OutlinedButton.icon(
                           onPressed: hasFile
-                            ? () => context.push('/reader/${book.id}')
-                            : null,
-                          icon:  const Icon(Icons.menu_book_rounded, size: 18),
-                          label: const Text('Read Now'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryContainer,
-                            foregroundColor: AppColors.white,
-                            elevation: 0,
+                              ? () => context.push('/audio/${book.id}')
+                              : null,
+                          icon:  const Icon(AppIcons.headphones, size: 18),
+                          label: const Text('Listen'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            side: const BorderSide(
+                                color: AppColors.primary, width: 1.5),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10))),
+                                borderRadius: BorderRadius.circular(14)),
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      flex: 2,
                       child: SizedBox(
-                        height: 48,
-                        child: OutlinedButton.icon(
-                          onPressed: hasFile
-                            ? () => context.push('/audio/${book.id}')
-                            : null,
-                          icon:  const Icon(Icons.headphones_rounded, size: 18),
-                          label: const Text('Listen'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.primary,
-                            side: const BorderSide(color: AppColors.border),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10))),
-                        ),
+                        height: 46,
+                        child: _downloading
+                            ? _DownloadProgressButton(progress: _dlProgress)
+                            : OutlinedButton.icon(
+                                onPressed: hasFile
+                                    ? () async {
+                                        final sm = ScaffoldMessenger.of(context);
+                                        if (_downloaded) {
+                                          await _dlService.deleteDownload(book.id);
+                                          if (mounted) setState(() => _downloaded = false);
+                                        } else {
+                                          setState(() {
+                                            _downloading = true;
+                                            _dlProgress  = 0;
+                                          });
+                                          try {
+                                            await _dlService.downloadBook(
+                                              book,
+                                              onProgress: (p) {
+                                                if (mounted) setState(() => _dlProgress = p);
+                                              },
+                                            );
+                                            if (mounted) {
+                                              setState(() {
+                                                _downloaded  = true;
+                                                _downloading = false;
+                                              });
+                                            }
+                                            sm.showSnackBar(
+                                              const SnackBar(
+                                                  content: Text('Saved for offline reading')));
+                                          } catch (e) {
+                                            if (mounted) setState(() => _downloading = false);
+                                            sm.showSnackBar(
+                                                SnackBar(content: Text('Download failed: $e')));
+                                          }
+                                        }
+                                      }
+                                    : null,
+                                icon: Icon(
+                                  _downloaded
+                                      ? AppIcons.downloadDone
+                                      : AppIcons.download,
+                                  size: 18,
+                                ),
+                                label:
+                                    Text(_downloaded ? 'Remove' : 'Download'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: _downloaded
+                                      ? AppColors.success
+                                      : AppColors.primary,
+                                  side: BorderSide(
+                                    color: _downloaded
+                                        ? AppColors.success
+                                        : AppColors.primary,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14)),
+                                ),
+                              ),
                       ),
                     ),
                   ]),
                   const SizedBox(height: 10),
 
-                  // Download / offline button
-                  if (hasFile)
-                    _downloading
-                      ? Column(children: [
-                          LinearProgressIndicator(
-                            value:           _dlProgress,
-                            backgroundColor: AppColors.grey300,
-                            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-                            minHeight:    4,
-                            borderRadius: BorderRadius.circular(2)),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${(_dlProgress * 100).toInt()}% downloading…',
-                            style: AppTextStyles.label.copyWith(
-                              fontSize: 11, color: AppColors.textHint)),
-                        ])
-                      : SizedBox(
-                          width: double.infinity,
-                          height: 44,
-                          child: OutlinedButton.icon(
-                            onPressed: _downloaded
-                              ? () async {
-                                  await _dlService.deleteDownload(book.id);
-                                  if (mounted) setState(() => _downloaded = false);
-                                }
-                              : () async {
-                                  setState(() { _downloading = true; _dlProgress = 0; });
-                                  try {
-                                    await _dlService.downloadBook(
-                                      book,
-                                      onProgress: (p) {
-                                        if (mounted) setState(() => _dlProgress = p);
-                                      },
-                                    );
-                                    if (mounted) setState(() { _downloaded = true; _downloading = false; });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Saved for offline reading')));
-                                  } catch (e) {
-                                    if (mounted) setState(() => _downloading = false);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Download failed: $e')));
-                                  }
-                                },
-                            icon: Icon(
-                              _downloaded
-                                ? Icons.download_done_rounded
-                                : Icons.download_outlined,
-                              size: 18),
-                            label: Text(_downloaded ? 'Remove Offline Copy' : 'Download for Offline'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: _downloaded
-                                ? AppColors.success : AppColors.primary,
-                              side: BorderSide(
-                                color: _downloaded ? AppColors.success : AppColors.border),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10))),
+                  // Borrow + Cite — 2-column
+                  Row(children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 46,
+                        child: ElevatedButton.icon(
+                          onPressed: (_borrowing || _hasActiveLoan) ? null : () => _borrow(book),
+                          icon: _borrowing
+                              ? const SizedBox(
+                                  width: 16, height: 16,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.white))
+                              : Icon(_hasActiveLoan ? AppIcons.check : AppIcons.library,
+                                  size: 18),
+                          label: Text(
+                              _borrowing ? 'Requesting…' : _hasActiveLoan ? 'Requested' : 'Borrow Physical'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryDark,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14)),
                           ),
                         ),
-                  // Borrow physical copy button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 44,
-                    child: ElevatedButton.icon(
-                      onPressed: _borrowing ? null : () => _borrow(book),
-                      icon: _borrowing
-                        ? const SizedBox(width: 16, height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.local_library_rounded, size: 18),
-                      label: Text(_borrowing ? 'Requesting…' : 'Borrow Physical Copy'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryDark,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Cite this book
-                  SizedBox(
-                    width: double.infinity,
-                    height: 40,
-                    child: OutlinedButton.icon(
-                      onPressed: () => _showCitationSheet(book),
-                      icon: const Icon(Icons.format_quote_rounded, size: 16),
-                      label: const Text('Cite this Book'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.border),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      height: 46,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showCitationSheet(book),
+                        icon: const Icon(AppIcons.info, size: 16),
+                        label: const Text('Cite'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.tertiary,
+                          side: const BorderSide(
+                              color: AppColors.tertiaryFixed, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
+                  ]),
+                  const SizedBox(height: 4),
                 ],
               ),
             ),
@@ -450,9 +451,18 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                 labelColor:           AppColors.primary,
                 unselectedLabelColor: AppColors.textSecondary,
                 indicatorColor:       AppColors.primary,
-                indicatorWeight:      2,
+                indicatorWeight:      2.5,
+                indicatorSize:        TabBarIndicatorSize.label,
                 isScrollable:         true,
-                labelStyle: TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w600),
+                tabAlignment:         TabAlignment.start,
+                labelStyle: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize:   13,
+                    fontWeight: FontWeight.w700),
+                unselectedLabelStyle: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize:   13,
+                    fontWeight: FontWeight.w500),
                 tabs: const [
                   Tab(text: 'About'),
                   Tab(text: 'Reviews'),
@@ -474,84 +484,119 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(descText, style: AppTextStyles.body.copyWith(
-                        height: 1.7, fontSize: 14,
-                        color: AppColors.textPrimary)),
+                      // Meta cards row
+                      Row(children: [
+                        if (book.pageCount != null)
+                          Expanded(child: _MetaCard(
+                            icon: AppIcons.bookpen,
+                            label: 'Pages',
+                            value: '${book.pageCount}',
+                          )),
+                        if (book.pageCount != null) const SizedBox(width: 10),
+                        if (book.publishedYear != null)
+                          Expanded(child: _MetaCard(
+                            icon: AppIcons.calendar,
+                            label: 'Year',
+                            value: '${book.publishedYear}',
+                          )),
+                        if (book.publishedYear != null) const SizedBox(width: 10),
+                        Expanded(child: _MetaCard(
+                          icon: AppIcons.library,
+                          label: 'Source',
+                          value: 'IUEA',
+                        )),
+                      ]),
+                      const SizedBox(height: 20),
+
+                      // Description
+                      Text('Description',
+                        style: AppTextStyles.h3.copyWith(
+                            color: AppColors.primary, fontSize: 15)),
+                      const SizedBox(height: 8),
+                      Text(descText,
+                        style: AppTextStyles.body.copyWith(
+                            height: 1.75, fontSize: 14,
+                            color: AppColors.textPrimary)),
                       if (isLong)
                         TextButton(
                           onPressed: () =>
-                            setState(() => _expanded = !_expanded),
+                              setState(() => _expanded = !_expanded),
                           child: Text(
                             _expanded ? 'Show less' : 'Read more',
-                            style: AppTextStyles.label.copyWith(
-                              color: AppColors.primary)),
+                            style: AppTextStyles.label
+                                .copyWith(color: AppColors.primary)),
                         ),
+
+                      // Faculty tags
                       if (book.faculty.isNotEmpty) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         Text('FACULTIES',
                           style: AppTextStyles.label.copyWith(
-                            letterSpacing: 1.1, fontSize: 10,
-                            color: AppColors.textHint)),
-                        const SizedBox(height: 6),
-                        Wrap(spacing: 6, runSpacing: 4,
-                          children: book.faculty.map((f) => Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppColors.accent),
-                              borderRadius: BorderRadius.circular(20)),
-                            child: Text(f,
-                              style: AppTextStyles.label.copyWith(
-                                color: AppColors.accent)))).toList()),
+                              letterSpacing: 1.1, fontSize: 10,
+                              color: AppColors.textHint)),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6, runSpacing: 6,
+                          children: book.faculty
+                              .map((f) => Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color:        AppColors.tertiaryFixed,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                          color: AppColors.tertiaryFixedDim)),
+                                    child: Text(f,
+                                      style: AppTextStyles.label.copyWith(
+                                          color: AppColors.tertiary,
+                                          fontWeight: FontWeight.w600)),
+                                  ))
+                              .toList(),
+                        ),
                       ],
-                      const SizedBox(height: 16),
-                      // Meta
-                      if (book.pageCount != null)
-                        _MetaRow(label: 'Pages', value: '${book.pageCount}'),
-                      if (book.publishedYear != null)
-                        _MetaRow(label: 'Published', value: '${book.publishedYear}'),
-                      _MetaRow(label: 'Source', value: 'IUEA Koha Catalogue'),
                     ],
                   ),
                 ),
 
                 // Reviews
                 _ReviewsTab(
-                  reviews:          _reviews,
-                  myReview:         _myReview,
-                  rating:           _reviewRating,
-                  textCtrl:         _reviewTextCtrl,
-                  submitting:       _submittingReview,
-                  onRatingChanged:  (r) => setState(() => _reviewRating = r),
-                  onSubmit:         _submitReview,
-                  onVote:           (reviewId) async {
+                  reviews:         _reviews,
+                  myReview:        _myReview,
+                  rating:          _reviewRating,
+                  textCtrl:        _reviewTextCtrl,
+                  submitting:      _submittingReview,
+                  onRatingChanged: (r) => setState(() => _reviewRating = r),
+                  onSubmit:        _submitReview,
+                  onVote: (reviewId) async {
                     try {
-                      await _reviewsRepo.voteHelpful(widget.bookId, reviewId);
+                      await _reviewsRepo.voteHelpful(
+                          widget.bookId, reviewId);
                       await _loadReviews();
                     } catch (_) {}
                   },
                 ),
 
-                // Podcasts tab - placeholder
+                // Podcasts placeholder
                 const Center(
                   child: Text('No related podcasts yet.',
-                    style: TextStyle(color: AppColors.textHint))),
+                      style: TextStyle(color: AppColors.textHint))),
 
                 // Similar
                 _similar.isEmpty
-                  ? const Center(child: Text('No similar books found.',
-                      style: TextStyle(color: AppColors.textHint)))
-                  : GridView.builder(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount:   2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing:  10,
-                          childAspectRatio: 0.65),
-                      itemCount:   _similar.length,
-                      itemBuilder: (_, i) => BookCard(book: _similar[i]),
-                    ),
+                    ? const Center(
+                        child: Text('No similar books found.',
+                            style: TextStyle(color: AppColors.textHint)))
+                    : GridView.builder(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount:   3,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing:  10,
+                                childAspectRatio: 0.6),
+                        itemCount:   _similar.length,
+                        itemBuilder: (_, i) => BookCard(book: _similar[i]),
+                      ),
               ],
             ),
           ),
@@ -559,30 +604,298 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       ),
     );
   }
-
-  Widget _coverPlaceholder() => Container(
-    color: AppColors.primaryDark,
-    child: const Center(child: Icon(Icons.book_outlined,
-      size: 64, color: AppColors.white)));
 }
 
-class _MetaRow extends StatelessWidget {
-  final String label;
-  final String value;
-  const _MetaRow({required this.label, required this.value});
+// ── Blurred hero background ───────────────────────────────────────────────────
+class _HeroBackground extends StatelessWidget {
+  final BookModel book;
+  final bool      isAvailable;
+  const _HeroBackground({required this.book, required this.isAvailable});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Blurred background fill
+        book.hasCover
+            ? ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+                child: CachedNetworkImage(
+                  imageUrl:    book.coverUrl ?? '',
+                  fit:         BoxFit.cover,
+                  errorWidget: (_, __, ___) => Container(
+                      color: AppColors.primaryDark),
+                ),
+              )
+            : Container(color: AppColors.primaryDark),
+
+        // Dark gradient overlay — bottom fades to surface
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end:   Alignment.bottomCenter,
+              stops: [0.0, 0.45, 0.85, 1.0],
+              colors: [
+                Color(0xCC000000),
+                Color(0x88000000),
+                Color(0x33000000),
+                Colors.transparent,
+              ],
+            ),
+          ),
+        ),
+
+        // Content: floating cover card + title + meta
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 72, 20, 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Floating cover card
+              Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  // Drop shadow glow
+                  Container(
+                    width:  136, height: 8,
+                    margin: const EdgeInsets.only(top: 200),
+                    decoration: BoxDecoration(
+                      color:        Colors.black.withValues(alpha: 0.35),
+                      borderRadius: BorderRadius.circular(50),
+                      boxShadow: [
+                        BoxShadow(
+                          color:      Colors.black.withValues(alpha: 0.35),
+                          blurRadius: 20,
+                          spreadRadius: 4,
+                        )
+                      ],
+                    ),
+                  ),
+                  // Book cover
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: 148,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color:      Colors.black.withValues(alpha: 0.5),
+                            blurRadius: 30,
+                            offset:     const Offset(0, 12),
+                          ),
+                        ],
+                      ),
+                      child: AspectRatio(
+                        aspectRatio: 2 / 3,
+                        child: book.hasCover
+                            ? CachedNetworkImage(
+                                imageUrl:    book.coverUrl!,
+                                fit:         BoxFit.cover,
+                                errorWidget: (_, __, ___) =>
+                                    _coverPlaceholder(),
+                              )
+                            : _coverPlaceholder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Title
+              Text(
+                book.title,
+                textAlign: TextAlign.center,
+                maxLines:  2,
+                overflow:  TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontFamily: 'Newsreader',
+                  color:      Colors.white,
+                  fontSize:   22,
+                  fontWeight: FontWeight.w700,
+                  height:     1.2,
+                  shadows: [Shadow(blurRadius: 8, color: Color(0x88000000))],
+                ),
+              ),
+              const SizedBox(height: 6),
+
+              // Author
+              Text(
+                book.author,
+                style: TextStyle(
+                  color:    Colors.white.withValues(alpha: 0.85),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  shadows: const [Shadow(blurRadius: 6, color: Color(0x66000000))],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Rating row + availability badge
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Stars
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(5, (i) => Icon(
+                      i < book.rating.floor()
+                          ? AppIcons.star
+                          : AppIcons.starOutline,
+                      size:  15,
+                      color: AppColors.tertiaryContainer,
+                    )),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${book.rating.toStringAsFixed(1)} (${book.ratingCount})',
+                    style: TextStyle(
+                      color:    Colors.white.withValues(alpha: 0.9),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  // Availability badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: (isAvailable
+                              ? AppColors.success
+                              : AppColors.warning)
+                          .withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(
+                        isAvailable
+                            ? AppIcons.checkCircle
+                            : AppIcons.clock,
+                        size:  11,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        isAvailable ? 'Available' : 'Checked Out',
+                        style: const TextStyle(
+                            color:      Colors.white,
+                            fontSize:   11,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ]),
+                  ),
+                ],
+              ),
+
+              // Language chips
+              if (book.languages.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 6, runSpacing: 4,
+                  alignment: WrapAlignment.center,
+                  children: book.languages.take(4).map((lang) => Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 3),
+                    decoration: BoxDecoration(
+                      color:        Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.4)),
+                    ),
+                    child: Text(lang,
+                      style: const TextStyle(
+                          color:      Colors.white,
+                          fontSize:   11,
+                          fontWeight: FontWeight.w500)),
+                  )).toList(),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _coverPlaceholder() => Container(
+    color: AppColors.primaryDark,
+    child: const Center(
+        child: Icon(AppIcons.book, size: 48, color: Colors.white54)),
+  );
+}
+
+// ── Download progress inline button ──────────────────────────────────────────
+class _DownloadProgressButton extends StatelessWidget {
+  final double progress;
+  const _DownloadProgressButton({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 46,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        border:       Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: Row(children: [
         SizedBox(
-          width: 90,
-          child: Text(label, style: AppTextStyles.label.copyWith(
-            color: AppColors.textHint))),
-        Text(value, style: AppTextStyles.body.copyWith(
-          fontSize: 13, color: AppColors.textSecondary)),
+          width: 14, height: 14,
+          child: CircularProgressIndicator(
+            value:       progress,
+            strokeWidth: 2,
+            color:       AppColors.primary,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text('${(progress * 100).toInt()}%',
+          style: AppTextStyles.label.copyWith(
+              color: AppColors.primary, fontSize: 12)),
       ]),
+    );
+  }
+}
+
+// ── Meta info card (pages / year / source) ────────────────────────────────────
+class _MetaCard extends StatelessWidget {
+  final IconData icon;
+  final String   label;
+  final String   value;
+  const _MetaCard({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+      decoration: BoxDecoration(
+        color:        AppColors.white,
+        borderRadius: BorderRadius.circular(14),
+        border:       Border.all(color: AppColors.outlineVariant),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 22, color: AppColors.primary),
+          const SizedBox(height: 6),
+          Text(label,
+            style: AppTextStyles.label.copyWith(
+                color: AppColors.textHint, fontSize: 10)),
+          const SizedBox(height: 2),
+          Text(value,
+            style: AppTextStyles.body.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize:   13,
+                color:      AppColors.textPrimary),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -616,34 +929,37 @@ class _ReviewsTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Write / edit review
           Text(myReview == null ? 'Write a Review' : 'Your Review',
             style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           Row(
             children: List.generate(5, (i) => GestureDetector(
               onTap: () => onRatingChanged(i + 1),
-              child: Icon(
-                i < rating ? Icons.star_rounded : Icons.star_outline_rounded,
-                size: 28, color: AppColors.accent),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Icon(
+                  i < rating ? AppIcons.star : AppIcons.starOutline,
+                  size: 30, color: AppColors.accent),
+              ),
             )),
           ),
           const SizedBox(height: 8),
           TextField(
-            controller:  textCtrl,
-            maxLines:    3,
+            controller: textCtrl,
+            maxLines:   3,
             decoration: InputDecoration(
-              hintText:    'Share your thoughts (optional)…',
-              hintStyle:   AppTextStyles.label.copyWith(color: AppColors.textHint),
-              filled:      true,
-              fillColor:   AppColors.grey100,
-              border:      OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:   BorderSide.none),
+              hintText:       'Share your thoughts (optional)…',
+              hintStyle:      AppTextStyles.label.copyWith(
+                  color: AppColors.textHint),
+              filled:         true,
+              fillColor:      AppColors.surfaceContainerLow,
+              border:         OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:   BorderSide.none),
               contentPadding: const EdgeInsets.all(12),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -652,24 +968,29 @@ class _ReviewsTab extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12))),
               child: submitting
-                ? const SizedBox(width: 16, height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : Text(myReview == null ? 'Submit Review' : 'Update Review'),
+                  ? const SizedBox(
+                      width: 16, height: 16,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
+                  : Text(myReview == null ? 'Submit Review' : 'Update Review'),
             ),
           ),
-
           if (reviews.isNotEmpty) ...[
-            const SizedBox(height: 20),
-            Text('${reviews.length} Review${reviews.length != 1 ? "s" : ""}',
+            const SizedBox(height: 24),
+            Text(
+              '${reviews.length} Review${reviews.length != 1 ? "s" : ""}',
               style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             ...reviews.map((r) => _ReviewCard(review: r, onVote: onVote)),
           ] else ...[
-            const SizedBox(height: 24),
-            Center(child: Text('No reviews yet. Be the first!',
-              style: AppTextStyles.label.copyWith(color: AppColors.textHint))),
+            const SizedBox(height: 28),
+            Center(
+              child: Text('No reviews yet. Be the first!',
+                style: AppTextStyles.label.copyWith(
+                    color: AppColors.textHint))),
           ],
         ],
       ),
@@ -686,72 +1007,94 @@ class _ReviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin:  const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color:        AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0,2))],
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color:     Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset:    const Offset(0, 2),
+          )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
             CircleAvatar(
-              radius: 16,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+              radius:          18,
+              backgroundColor: AppColors.primary.withValues(alpha: 0.12),
               backgroundImage: review.userAvatar != null
-                ? NetworkImage(review.userAvatar!) : null,
+                  ? NetworkImage(review.userAvatar!)
+                  : null,
               child: review.userAvatar == null
-                ? Text((review.userName?.isNotEmpty ?? false) ? review.userName![0].toUpperCase() : '?',
-                    style: AppTextStyles.label.copyWith(
-                      color: AppColors.primary, fontWeight: FontWeight.w700))
-                : null,
+                  ? Text(
+                      (review.userName?.isNotEmpty ?? false)
+                          ? review.userName![0].toUpperCase()
+                          : '?',
+                      style: AppTextStyles.label.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700))
+                  : null,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  Text(review.userName ?? 'Anonymous',
-                    style: AppTextStyles.label.copyWith(fontWeight: FontWeight.w700)),
-                  if (review.isVerified) ...[
-                    const SizedBox(width: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                      decoration: BoxDecoration(
-                        color:        AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4)),
-                      child: Text('Verified',
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      Text(review.userName ?? 'Anonymous',
+                        style: AppTextStyles.label
+                            .copyWith(fontWeight: FontWeight.w700)),
+                      if (review.isVerified) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4)),
+                          child: Text('Verified',
+                            style: AppTextStyles.label.copyWith(
+                                color: AppColors.primary,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700)),
+                        ),
+                      ],
+                    ]),
+                    if (review.userFaculty != null)
+                      Text(review.userFaculty!,
                         style: AppTextStyles.label.copyWith(
-                          color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w700)),
-                    ),
-                  ],
-                ]),
-                if (review.userFaculty != null)
-                  Text(review.userFaculty!,
-                    style: AppTextStyles.label.copyWith(
-                      color: AppColors.textHint, fontSize: 11)),
-              ]),
+                            color: AppColors.textHint, fontSize: 11)),
+                  ]),
             ),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: List.generate(5, (i) => Icon(
-                i < review.rating ? Icons.star_rounded : Icons.star_outline_rounded,
-                size: 12, color: AppColors.accent)),
+                i < review.rating
+                    ? AppIcons.star
+                    : AppIcons.starOutline,
+                size: 13, color: AppColors.accent)),
             ),
           ]),
           if (review.text != null && review.text!.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(review.text!,
-              style: AppTextStyles.body.copyWith(fontSize: 13, color: AppColors.textPrimary)),
+              style: AppTextStyles.body.copyWith(
+                  fontSize: 13, color: AppColors.textPrimary, height: 1.5)),
           ],
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           GestureDetector(
             onTap: () => onVote(review.id),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.thumb_up_outlined, size: 14, color: AppColors.textSecondary),
+              const Icon(AppIcons.thumbUp,
+                  size: 14, color: AppColors.textSecondary),
               const SizedBox(width: 4),
               Text('${review.helpfulCount} helpful',
-                style: AppTextStyles.label.copyWith(color: AppColors.textSecondary)),
+                style: AppTextStyles.label.copyWith(
+                    color: AppColors.textSecondary)),
             ]),
           ),
         ],
@@ -777,18 +1120,18 @@ class _CitationSheetState extends State<_CitationSheet> {
     final year   = b.publishedYear ?? 'n.d.';
     final author = b.author;
     final title  = b.title;
-
     switch (_format) {
       case 'MLA':
-        return '$author. ${title.contains(':') ? title : title}. $year.';
+        return '$author. $title. $year.';
       case 'Chicago':
         return '$author. $title. $year.';
       case 'Harvard':
         return '$author ($year) $title.';
       case 'BibTeX':
-        final key = author.split(' ').last.toLowerCase() + year.toString();
+        final key =
+            author.split(' ').last.toLowerCase() + year.toString();
         return '@book{$key,\n  author={$author},\n  title={$title},\n  year={$year}\n}';
-      default: // APA
+      default:
         return '$author ($year). $title.';
     }
   }
@@ -798,7 +1141,7 @@ class _CitationSheetState extends State<_CitationSheet> {
     final text = _citation(widget.book);
     return Padding(
       padding: EdgeInsets.only(
-        left: 16, right: 16, top: 20,
+        left:   16, right: 16, top: 20,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -808,16 +1151,14 @@ class _CitationSheetState extends State<_CitationSheet> {
             child: Container(
               width: 40, height: 4,
               decoration: BoxDecoration(
-                color: AppColors.grey300,
-                borderRadius: BorderRadius.circular(2)),
+                  color: AppColors.grey300,
+                  borderRadius: BorderRadius.circular(2)),
             ),
           ),
           const SizedBox(height: 16),
           Text('Cite this Book',
-            style: AppTextStyles.h2.copyWith(fontSize: 18)),
+              style: AppTextStyles.h2.copyWith(fontSize: 18)),
           const SizedBox(height: 12),
-
-          // Format chips
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -827,13 +1168,18 @@ class _CitationSheetState extends State<_CitationSheet> {
                   onTap: () => setState(() => _format = f),
                   child: Container(
                     margin:  const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
-                      color:        active ? AppColors.primary : AppColors.grey100,
+                      color: active
+                          ? AppColors.primary
+                          : AppColors.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(999)),
                     child: Text(f,
                       style: AppTextStyles.label.copyWith(
-                        color: active ? AppColors.white : AppColors.textSecondary,
+                        color: active
+                            ? AppColors.white
+                            : AppColors.textSecondary,
                         fontWeight: FontWeight.w600)),
                   ),
                 );
@@ -841,38 +1187,113 @@ class _CitationSheetState extends State<_CitationSheet> {
             ),
           ),
           const SizedBox(height: 12),
-
-          // Citation text
           Container(
             width:   double.infinity,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color:        AppColors.grey100,
-              borderRadius: BorderRadius.circular(10)),
+              color:        AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(12),
+              border:       Border.all(color: AppColors.outlineVariant),
+            ),
             child: Text(text,
               style: AppTextStyles.body.copyWith(
-                fontSize: 13, color: AppColors.textPrimary, height: 1.6)),
+                  fontSize: 13, color: AppColors.textPrimary, height: 1.6)),
           ),
           const SizedBox(height: 12),
-
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: text));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Citation copied!')));
+                    const SnackBar(content: Text('Citation copied!')));
               },
-              icon:  const Icon(Icons.copy_rounded, size: 16),
+              icon:  const Icon(AppIcons.copy, size: 16),
               label: const Text('Copy Citation'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12))),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Book detail skeleton ──────────────────────────────────────────────────────
+class _BookDetailSkeleton extends StatelessWidget {
+  const _BookDetailSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.surface,
+      body: Shimmer.fromColors(
+        baseColor:      AppColors.grey300,
+        highlightColor: const Color(0xFFF5F5F5),
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(children: [
+            // Hero area
+            Container(
+              height: 500,
+              color: Colors.white,
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(children: [
+                // Primary button
+                Container(height: 52, decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14))),
+                const SizedBox(height: 10),
+                // Secondary buttons row
+                Row(children: [
+                  Expanded(child: Container(height: 46, decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14)))),
+                  const SizedBox(width: 10),
+                  Expanded(child: Container(height: 46, decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14)))),
+                ]),
+                const SizedBox(height: 10),
+                Row(children: [
+                  Expanded(child: Container(height: 46, decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14)))),
+                  const SizedBox(width: 10),
+                  Container(width: 90, height: 46, decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14))),
+                ]),
+                const SizedBox(height: 24),
+                // Tab bar placeholder
+                Container(height: 44, decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8))),
+                const SizedBox(height: 20),
+                // Text lines
+                Container(height: 14, width: double.infinity,
+                  decoration: BoxDecoration(color: Colors.white,
+                    borderRadius: BorderRadius.circular(6))),
+                const SizedBox(height: 8),
+                Container(height: 14, width: double.infinity,
+                  decoration: BoxDecoration(color: Colors.white,
+                    borderRadius: BorderRadius.circular(6))),
+                const SizedBox(height: 8),
+                Container(height: 14, width: MediaQuery.sizeOf(context).width * 0.6,
+                  decoration: BoxDecoration(color: Colors.white,
+                    borderRadius: BorderRadius.circular(6))),
+              ]),
+            ),
+          ]),
+        ),
       ),
     );
   }
@@ -886,9 +1307,10 @@ class _TabBarDelegate extends SliverPersistentHeaderDelegate {
   @override double get maxExtent => tabBar.preferredSize.height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: AppColors.white,
+      color: AppColors.surface,
       child: tabBar,
     );
   }

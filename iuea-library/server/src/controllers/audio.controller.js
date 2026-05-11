@@ -1,6 +1,39 @@
 const crypto   = require('crypto');
 const prisma   = require('../config/prisma');
 const { uploadFile, getSignedDownloadUrl } = require('../services/r2.service');
+const gemini   = require('../services/gemini.service');
+
+// GET /api/audio/narrate/:bookId  — Gemini-generated narration script
+const getNarration = async (req, res, next) => {
+  try {
+    const book = await prisma.book.findUnique({ where: { id: req.params.bookId } });
+    if (!book) return res.status(404).json({ message: 'Book not found.' });
+
+    const descPart = book.description?.trim()
+      ? `\n\nBook description: ${book.description.trim().slice(0, 1500)}`
+      : '';
+    const tagsPart = book.tags?.length
+      ? `\nKey topics: ${book.tags.slice(0, 10).join(', ')}.`
+      : '';
+
+    const prompt =
+      `You are a university library audio narrator. Generate a rich, engaging spoken-word narration ` +
+      `for the following book that a student would hear when they open the audio player. ` +
+      `The narration should: introduce the book and author, explain what the book is about in detail, ` +
+      `highlight key themes or topics, mention why it is relevant for students, and end with an invitation ` +
+      `to explore the book further. Write between 400 and 600 words. Write only the narration text — no ` +
+      `headings, labels, or markdown.\n\n` +
+      `Title: ${book.title}\nAuthor: ${book.author}` +
+      (book.publishedYear ? `\nYear: ${book.publishedYear}` : '') +
+      (book.category ? `\nCategory: ${book.category}` : '') +
+      descPart + tagsPart;
+
+    const messages = [{ role: 'user', content: prompt }];
+    const narration = await gemini.getChatResponse(messages, { id: '__general__' }, null, 'English');
+
+    res.json({ narration: narration.trim() });
+  } catch (err) { next(err); }
+};
 
 // POST /api/audio/generate
 const generateAudio = async (req, res, next) => {
@@ -50,4 +83,4 @@ const generateAudio = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { generateAudio };
+module.exports = { generateAudio, getNarration };

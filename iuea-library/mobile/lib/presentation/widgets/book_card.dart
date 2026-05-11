@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iuea_library/core/constants/app_icons.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
@@ -169,7 +170,7 @@ class BookCard extends StatelessWidget {
   Widget _placeholder() => Container(
     color: AppColors.primary.withValues(alpha: 0.08),
     child: const Center(
-      child: Icon(Icons.book_outlined, color: AppColors.primary, size: 28),
+      child: Icon(AppIcons.book, color: AppColors.primary, size: 28),
     ),
   );
 

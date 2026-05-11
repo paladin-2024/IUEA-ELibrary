@@ -42,8 +42,19 @@
 
 ## Shell & Command Reliability
 
-1. **[2026-03-31] Android emulator maps host localhost to 10.0.2.2 — iOS uses localhost**
+1. **[2026-05-06] PostgreSQL runs on port 5433 (not default 5432)**
+   Do instead: All psql/prisma commands need `-p 5433`; DATABASE_URL uses `localhost:5433`. DB name: `iuea_library`, role: `nzabanita`.
+
+2. **[2026-03-31] Android emulator maps host localhost to 10.0.2.2 — iOS uses localhost**
    Do instead: Mobile `.env` uses `http://10.0.2.2:5000/api`; never use `localhost` for Android API URLs.
 
-2. **[2026-03-31] `/mnt/skills/public/frontend-design/SKILL.md` does not exist in this environment**
+3. **[2026-03-31] `/mnt/skills/public/frontend-design/SKILL.md` does not exist in this environment**
    Do instead: Design guidance comes directly from the screenshots in `/home/nzabanita/Documents/screens/`.
+
+## Database Architecture
+
+1. **[2026-05-06] App is 100% PostgreSQL + Prisma — Mongoose is dead code**
+   Do instead: Use `prisma.*` for all DB calls. The `src/models/` Mongoose models are kept but no longer imported anywhere in production code.
+
+2. **[2026-05-06] Admin analytics use `prisma.$queryRaw` template literals for complex GROUP BY queries**
+   Do instead: When adding analytics endpoints, use tagged template literals (`prisma.$queryRaw\`...\``) with PostgreSQL syntax, not Mongoose aggregates. Cast COUNT to integer: `COUNT(*)::integer`.
