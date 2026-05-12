@@ -1,9 +1,16 @@
 'use strict';
 
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-const resend  = new Resend(process.env.RESEND_API_KEY);
-const FROM    = process.env.FROM_EMAIL || 'IUEA Library <onboarding@resend.dev>';
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
+const FROM    = `IUEA Library <${process.env.GMAIL_USER}>`;
 const WEB_URL = process.env.CLIENT_WEB_URL || 'http://localhost:5173';
 
 // ── Brand HTML wrapper ────────────────────────────────────────────────────────
@@ -55,15 +62,14 @@ const wrapHtml = (bodyHtml) => `
 
 // ── Core send ─────────────────────────────────────────────────────────────────
 const sendEmail = async ({ to, subject, html, text }) => {
-  const { data, error } = await resend.emails.send({
+  const info = await transporter.sendMail({
     from:    FROM,
-    to:      Array.isArray(to) ? to : [to],
+    to:      Array.isArray(to) ? to.join(', ') : to,
     subject,
     html,
     text,
   });
-  if (error) throw new Error(error.message ?? JSON.stringify(error));
-  return data;
+  return info;
 };
 
 // ── sendOtp ───────────────────────────────────────────────────────────────────

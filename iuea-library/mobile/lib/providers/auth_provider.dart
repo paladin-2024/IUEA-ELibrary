@@ -51,8 +51,7 @@ class AuthProvider extends ChangeNotifier {
   Future<String?> register(Map<String, dynamic> userData) async {
     _setLoading(true);
     try {
-      final res  = await _api.post(ApiConstants.authRegister, data: userData);
-      final data = res.data as Map<String, dynamic>;
+      await _api.post(ApiConstants.authRegister, data: userData);
       // Server always returns requiresVerification:true for new registrations
       _setLoading(false);
       return null;

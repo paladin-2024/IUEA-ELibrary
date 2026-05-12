@@ -253,13 +253,26 @@ class ReaderProvider extends ChangeNotifier {
 
   void setCurrentCfi(String cfi) {
     currentCfi = cfi;
-    notifyListeners();
+    // No notifyListeners — CFI is not directly displayed; batched via setPositionFromEpub.
   }
 
   void setCurrentChapter(int chapter) {
     if (currentChapter == chapter) return;
     currentChapter = chapter;
     notifyListeners();
+  }
+
+  /// Batches all scroll-position state into a single notifyListeners call.
+  /// Replaces separate setCurrentCfi + setPage + setCurrentChapter calls in onRelocated.
+  void setPositionFromEpub(String cfi, int page, double percent, int chapter) {
+    final changed = currentCfi != cfi ||
+        currentPage != page ||
+        currentChapter != chapter;
+    currentCfi      = cfi;
+    currentPage     = page;
+    percentComplete = percent;
+    currentChapter  = chapter;
+    if (changed) notifyListeners();
   }
 
   void setCurrentChapterText(String text) {

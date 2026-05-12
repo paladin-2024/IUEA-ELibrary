@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_epub_viewer/flutter_epub_viewer.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../../data/models/book_model.dart';
 import '../../providers/book_provider.dart';
 import '../../providers/reader_provider.dart';
 import '../../providers/chat_provider.dart';
@@ -58,11 +59,19 @@ class _ReaderScreenState extends State<ReaderScreen> {
     _mode = widget.audioMode ? 'audio' : 'read';
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final reader = context.read<ReaderProvider>();
-      await reader.initTts();
+      // TTS init runs concurrently — don't block book loading on it.
+      reader.initTts();
 
       // ignore: use_build_context_synchronously
-      final book = await context.read<BookProvider>().getBook(widget.bookId);
+      final results = await Future.wait([
+        context.read<BookProvider>().getBook(widget.bookId),
+        DownloadService().getLocalPath(widget.bookId),
+      ]);
       if (!mounted) return;
+
+      final book        = results[0] as BookModel?;
+      String? localPath = results[1] as String?;
+
       if (book == null) {
         setState(() => _loadFailed = true);
         return;
@@ -70,9 +79,6 @@ class _ReaderScreenState extends State<ReaderScreen> {
 
       reader.currentBook = book;
       await reader.loadProgress(widget.bookId);
-
-      // Check for an already-downloaded local copy
-      String? localPath = await DownloadService().getLocalPath(widget.bookId);
 
       // If no local copy and it's an EPUB with a URL, download it now.
       // EpubSource.fromUrl() is unreliable (CORS, redirects, large files);
@@ -215,7 +221,8 @@ class _ReaderScreenState extends State<ReaderScreen> {
   }
 
   Future<bool> _onWillPop() async {
-    await context.read<ReaderProvider>().saveProgress(widget.bookId);
+    // Fire save in background — don't block navigation.
+    context.read<ReaderProvider>().saveProgress(widget.bookId);
     return true;
   }
 
@@ -423,10 +430,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
                       IconButton(
                         icon: Icon(AppIcons.arrowBack,
                           size: 18, color: barFg),
-                        onPressed: () async {
-                          await reader.saveProgress(widget.bookId);
-                          // ignore: use_build_context_synchronously
-                          if (mounted) context.pop();
+                        onPressed: () {
+                          reader.saveProgress(widget.bookId); // background
+                          context.pop();
                         },
                       ),
                       Expanded(
@@ -556,22 +562,21 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                           onChaptersLoaded: _onEpubChaptersLoaded,
                                           onEpubLoaded:     _onEpubLoaded,
                                           onRelocated: (value) {
-                                            reader.setCurrentCfi(value.startCfi);
-                                            // Calculate page from progress × total pages
                                             final total = book.pageCount ?? 0;
-                                            reader.setPage(
-                                              total > 0
-                                                  ? (value.progress * total)
-                                                      .round()
-                                                      .clamp(1, total)
-                                                  : 0,
+                                            final page  = total > 0
+                                                ? (value.progress * total)
+                                                    .round()
+                                                    .clamp(1, total)
+                                                : 0;
+                                            // One batched update → one notifyListeners
+                                            reader.setPositionFromEpub(
+                                              value.startCfi,
+                                              page,
                                               value.progress * 100,
+                                              _chapters.isNotEmpty
+                                                  ? _findChapterIndex(value.startCfi)
+                                                  : reader.currentChapter,
                                             );
-                                            // Match CFI to chapter by href, not by index
-                                            if (_chapters.isNotEmpty) {
-                                              reader.setCurrentChapter(
-                                                _findChapterIndex(value.startCfi));
-                                            }
                                             _scheduleTextExtract();
                                           },
                                         )
