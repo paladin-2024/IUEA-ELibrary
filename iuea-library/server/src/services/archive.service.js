@@ -20,6 +20,7 @@ async function searchArchive(query) {
 
   const docs = data?.response?.docs ?? [];
   return docs.map((d) => ({
+    id:         d.identifier,
     source:     'archive',
     archiveId:  d.identifier,
     title:      Array.isArray(d.title)   ? d.title[0]   : (d.title   ?? 'Unknown Title'),
@@ -53,6 +54,7 @@ async function searchGutenberg(query) {
   return results.slice(0, 32).map((b) => {
     const epubUrl = b.formats?.['application/epub+zip'] ?? null;
     return {
+      id:          `g${b.id}`,
       source:      'gutenberg',
       gutenbergId: b.id,
       title:       b.title ?? 'Unknown Title',

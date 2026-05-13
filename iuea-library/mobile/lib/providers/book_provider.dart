@@ -118,6 +118,17 @@ class BookProvider extends ChangeNotifier {
       notifyListeners();
       return _current;
     } catch (e) {
+      // Fall back to cached external search result (Internet Archive / Gutenberg).
+      // These books may not be in the DB yet, but we already have their metadata.
+      final cached = [
+        ..._externalResults,
+        ..._searchResults,
+      ].where((b) => b.id == id).firstOrNull;
+      if (cached != null) {
+        _current = cached;
+        notifyListeners();
+        return _current;
+      }
       _error = e.toString();
       notifyListeners();
       return null;

@@ -143,7 +143,17 @@ const searchBooks = async (req, res, next) => {
 // GET /api/books/:id
 const getBookById = async (req, res, next) => {
   try {
-    const book = await prisma.book.findUnique({ where: { id: req.params.id } });
+    const { id } = req.params;
+    let book = await prisma.book.findUnique({ where: { id } });
+
+    // External book IDs: archive uses the raw identifier, gutenberg uses "g<number>"
+    if (!book && id.startsWith('g') && !isNaN(id.slice(1))) {
+      book = await prisma.book.findUnique({ where: { gutenbergId: Number(id.slice(1)) } });
+    }
+    if (!book) {
+      book = await prisma.book.findFirst({ where: { archiveId: id } });
+    }
+
     if (!book) return res.status(404).json({ message: 'Book not found.' });
 
     const bookObj = { ...book };
@@ -162,7 +172,12 @@ const getBookById = async (req, res, next) => {
 // GET /api/books/:id/similar
 const getSimilarBooks = async (req, res, next) => {
   try {
-    const book = await prisma.book.findUnique({ where: { id: req.params.id } });
+    const { id } = req.params;
+    let book = await prisma.book.findUnique({ where: { id } });
+    if (!book && id.startsWith('g') && !isNaN(id.slice(1))) {
+      book = await prisma.book.findUnique({ where: { gutenbergId: Number(id.slice(1)) } });
+    }
+    if (!book) book = await prisma.book.findFirst({ where: { archiveId: id } });
     if (!book) return res.status(404).json({ message: 'Book not found.' });
 
     const similar = await prisma.book.findMany({
